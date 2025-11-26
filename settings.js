@@ -237,6 +237,36 @@ function showMessage(message, type) {
     }, 4000);
 }
 
+// Manual hex input for primary color
+primaryColorValue.addEventListener('input', (e) => {
+    let value = e.target.value;
+    // Ensure it starts with #
+    if (!value.startsWith('#')) {
+        value = '#' + value;
+        e.target.value = value;
+    }
+    // Validate hex color format
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        primaryColorPreview.style.backgroundColor = value;
+        primaryColorInput.value = value;
+    }
+});
+
+// Manual hex input for secondary color
+secondaryColorValue.addEventListener('input', (e) => {
+    let value = e.target.value;
+    // Ensure it starts with #
+    if (!value.startsWith('#')) {
+        value = '#' + value;
+        e.target.value = value;
+    }
+    // Validate hex color format
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        secondaryColorPreview.style.backgroundColor = value;
+        secondaryColorInput.value = value;
+    }
+});
+
 // Initialize color previews on page load
 window.addEventListener('DOMContentLoaded', () => {
     primaryColorPreview.style.backgroundColor = primaryColorValue.value;
