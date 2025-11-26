@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strike Time - Account Settings</title>
+    <!-- Load Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link the external CSS file -->
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+    <!-- Settings Card Container -->
+    <div id="settings-card" class="settings-card w-full max-w-2xl p-8 rounded-2xl">
+
+        <h2 class="text-3xl font-black text-white mb-2 text-center tracking-wider">
+            ⚙️ Account Settings
+        </h2>
+        <p class="text-center text-gray-400 mb-8">
+            Customize your Strike Time experience
+        </p>
+
+        <!-- Settings Form -->
+        <div class="space-y-8">
+
+            <!-- Theme Settings Section -->
+            <div class="settings-section">
+                <h3 class="text-xl font-bold text-white mb-4">🎨 Color Theme</h3>
+                
+                <!-- Primary Color -->
+                <div class="mb-4">
+                    <label for="primary-color" class="block text-sm font-medium text-gray-200 mb-2">
+                        Primary Color
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <div class="color-preview-wrapper">
+                            <button type="button" id="primary-color-btn" class="color-preview-btn" aria-label="Choose primary color">
+                                <div id="primary-color-preview" class="color-preview"></div>
+                            </button>
+                        </div>
+                        <input type="text" id="primary-color-value" readonly
+                            class="bowling-input flex-1 px-4 py-2 rounded-lg text-sm"
+                            value="#FFFFFF">
+                    </div>
+                    <!-- Color Picker Modal for Primary -->
+                    <div id="primary-color-picker" class="color-picker-modal hidden">
+                        <div class="color-picker-content">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-white font-semibold">Choose Primary Color</h4>
+                                <button type="button" id="close-primary-picker" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+                            </div>
+                            <input type="color" id="primary-color-input" class="color-wheel" value="#FFFFFF">
+                            <button type="button" id="apply-primary-color" class="apply-color-btn mt-4">
+                                Apply Color
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Color -->
+                <div>
+                    <label for="secondary-color" class="block text-sm font-medium text-gray-200 mb-2">
+                        Secondary Color
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <div class="color-preview-wrapper">
+                            <button type="button" id="secondary-color-btn" class="color-preview-btn" aria-label="Choose secondary color">
+                                <div id="secondary-color-preview" class="color-preview" style="background-color: #F43F5E;"></div>
+                            </button>
+                        </div>
+                        <input type="text" id="secondary-color-value" readonly
+                            class="bowling-input flex-1 px-4 py-2 rounded-lg text-sm"
+                            value="#F43F5E">
+                    </div>
+                    <!-- Color Picker Modal for Secondary -->
+                    <div id="secondary-color-picker" class="color-picker-modal hidden">
+                        <div class="color-picker-content">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-white font-semibold">Choose Secondary Color</h4>
+                                <button type="button" id="close-secondary-picker" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+                            </div>
+                            <input type="color" id="secondary-color-input" class="color-wheel" value="#F43F5E">
+                            <button type="button" id="apply-secondary-color" class="apply-color-btn mt-4">
+                                Apply Color
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- School Section -->
+            <div class="settings-section">
+                <h3 class="text-xl font-bold text-white mb-4">🏫 School</h3>
+                <div class="flex items-center gap-4">
+                    <input type="text" id="school-input" 
+                        class="bowling-input flex-1 px-4 py-3 rounded-lg"
+                        value="Strike University"
+                        readonly>
+                    <button type="button" id="edit-school-btn" class="edit-btn">
+                        Edit
+                    </button>
+                </div>
+                <div id="school-edit-controls" class="hidden mt-3 flex gap-2">
+                    <button type="button" id="save-school-btn" class="save-btn">
+                        Save
+                    </button>
+                    <button type="button" id="cancel-school-btn" class="cancel-btn">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="settings-section">
+                <h3 class="text-xl font-bold text-white mb-4">📧 Email</h3>
+                <div class="flex items-center gap-4">
+                    <input type="email" id="email-input" 
+                        class="bowling-input flex-1 px-4 py-3 rounded-lg"
+                        value="bowler@striketime.com"
+                        readonly>
+                    <button type="button" id="edit-email-btn" class="edit-btn">
+                        Edit
+                    </button>
+                </div>
+                <div id="email-edit-controls" class="hidden mt-3 flex gap-2">
+                    <button type="button" id="save-email-btn" class="save-btn">
+                        Save
+                    </button>
+                    <button type="button" id="cancel-email-btn" class="cancel-btn">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Password Section -->
+            <div class="settings-section">
+                <h3 class="text-xl font-bold text-white mb-4">🔒 Password</h3>
+                <div class="flex items-center gap-4">
+                    <div class="flex-1 relative">
+                        <input type="password" id="password-input" 
+                            class="bowling-input w-full px-4 py-3 rounded-lg pr-12"
+                            value="mypassword123"
+                            readonly>
+                        <button type="button" id="toggle-password-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xl">
+                            👁️
+                        </button>
+                    </div>
+                    <button type="button" id="edit-password-btn" class="edit-btn">
+                        Edit
+                    </button>
+                </div>
+                <div id="password-edit-controls" class="hidden mt-3 flex gap-2">
+                    <button type="button" id="save-password-btn" class="save-btn">
+                        Save
+                    </button>
+                    <button type="button" id="cancel-password-btn" class="cancel-btn">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Save All Button -->
+            <div class="pt-4">
+                <button type="button" id="save-all-btn"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-black bg-white hover:bg-white focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900 transition duration-150 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
+                    Save All Changes
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Back to Login Link -->
+        <div class="mt-6 text-center">
+            <a href="login.html" class="text-sm font-medium text-white hover:text-white transition duration-150">
+                ← Back to Login
+            </a>
+        </div>
+
+        <!-- Message Box for Status -->
+        <div id="message-box" class="mt-6 p-4 rounded-lg text-sm hidden transition duration-300 ease-in-out" role="alert">
+            <p id="message-text" class="font-semibold"></p>
+        </div>
+
+    </div>
+
+    <!-- Link the external JavaScript file -->
+    <script src="settings.js" defer></script>
+</body>
+</html>

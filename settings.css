@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+/* Dark background simulating a bowling lane texture */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #000000; /* Very dark background */
+    /* Subtle lane texture via gradient */
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.03) 0,
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 50px
+    );
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.settings-card {
+    /* Dark, slightly transparent card for neon contrast */
+    background-color: rgba(0, 0, 0, 0.9); /* Zinc-900 with transparency */
+    /* Neon glow effect */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #ffffff; /* Neon border color */
+}
+
+.settings-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+}
+
+/* Settings sections */
+.settings-section {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+}
+
+/* Input field custom styling for better dark mode look */
+input.bowling-input {
+    background-color: #000000;
+    color: white;
+    border: 1px solid #FFFFFF;
+}
+
+/* Focus ring color change */
+.bowling-input:focus {
+    outline: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
+/* Color preview button styling */
+.color-preview-wrapper {
+    position: relative;
+}
+
+.color-preview-btn {
+    padding: 4px;
+    background-color: #000000;
+    border: 2px solid #FFFFFF;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-preview-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.color-preview {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+}
+
+/* Color picker modal */
+.color-picker-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.color-picker-modal.hidden {
+    display: none;
+}
+
+.color-picker-content {
+    background-color: rgba(0, 0, 0, 0.95);
+    border: 2px solid #FFFFFF;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    min-width: 300px;
+}
+
+/* Color wheel styling */
+.color-wheel {
+    width: 100%;
+    height: 200px;
+    border: 2px solid #FFFFFF;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #000000;
+}
+
+/* Button styles */
+.edit-btn, .save-btn, .cancel-btn, .apply-color-btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    border: 1px solid;
+}
+
+.edit-btn {
+    background-color: transparent;
+    color: white;
+    border-color: #FFFFFF;
+}
+
+.edit-btn:hover {
+    background-color: #FFFFFF;
+    color: #000000;
+    transform: scale(1.05);
+}
+
+.save-btn, .apply-color-btn {
+    background-color: #FFFFFF;
+    color: #000000;
+    border-color: #FFFFFF;
+}
+
+.save-btn:hover, .apply-color-btn:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.cancel-btn {
+    background-color: transparent;
+    color: #9CA3AF;
+    border-color: #4B5563;
+}
+
+.cancel-btn:hover {
+    background-color: #1F2937;
+    color: white;
+    border-color: #6B7280;
+}
+
+.apply-color-btn {
+    width: 100%;
+}
+
+/* Message box styles */
+#message-box {
+    transition: all 0.3s ease-in-out;
+}
+
+#message-box.success {
+    background-color: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22C55E;
+    color: #22C55E;
+}
+
+#message-box.error {
+    background-color: rgba(239, 68, 68, 0.2);
+    border: 1px solid #EF4444;
+    color: #EF4444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .color-preview {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .edit-btn, .save-btn, .cancel-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.75rem;
+    }
+}
