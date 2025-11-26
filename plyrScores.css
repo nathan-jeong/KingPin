@@ -1,0 +1,22 @@
+:root {
+    font-family: 'Inter', sans-serif;
+}
+/* Custom scrollbar styling for the match list */
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: #FFFFFF; /* white/light gray-400 */
+    border-radius: 4px;
+}
+.scroll-container::-webkit-scrollbar-track {
+    background-color: #000000; /* black/dark gray-100 */
+}
+@media (prefers-color-scheme: dark) {
+    .scroll-container::-webkit-scrollbar-thumb {
+        background-color: #000000; /* black/dark gray-600 */
+    }
+    .scroll-container::-webkit-scrollbar-track {
+        background-color: #000000; /* black/dark gray-800 */
+    }
+}
