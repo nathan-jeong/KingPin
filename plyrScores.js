@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mobile View (Flex container)
             const mobileView = `
                 <div class="sm:hidden space-y-2">
-                    <div class="font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</div>
+                    <div class="font-semibold text-lg text-black-600 dark:text-indigo-400">${match.name}</div>
                     <div class="grid grid-cols-2 gap-y-1 text-sm">
                         <div><span class="font-medium text-gray-500 dark:text-gray-400">Game Scores:</span> ${match.games.join(', ')}</div>
                         <div><span class="font-medium text-gray-500 dark:text-gray-400">Series Total:</span> ${seriesTotal}</div>
