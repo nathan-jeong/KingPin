@@ -24,10 +24,6 @@ const saveSchoolBtn = document.getElementById('save-school-btn');
 const cancelSchoolBtn = document.getElementById('cancel-school-btn');
 
 const emailInput = document.getElementById('email-input');
-const editEmailBtn = document.getElementById('edit-email-btn');
-const emailEditControls = document.getElementById('email-edit-controls');
-const saveEmailBtn = document.getElementById('save-email-btn');
-const cancelEmailBtn = document.getElementById('cancel-email-btn');
 
 const passwordInput = document.getElementById('password-input');
 const editPasswordBtn = document.getElementById('edit-password-btn');
@@ -42,7 +38,6 @@ const messageText = document.getElementById('message-text');
 
 // Store original values
 let originalSchool = schoolInput.value;
-let originalEmail = emailInput.value;
 let originalPassword = passwordInput.value;
 
 // Primary Color Picker Functions
@@ -124,39 +119,6 @@ cancelSchoolBtn.addEventListener('click', () => {
     schoolInput.classList.remove('border-rose-500');
     editSchoolBtn.classList.remove('hidden');
     schoolEditControls.classList.add('hidden');
-});
-
-// Email Edit Functions
-editEmailBtn.addEventListener('click', () => {
-    originalEmail = emailInput.value;
-    emailInput.readOnly = false;
-    emailInput.focus();
-    emailInput.classList.add('border-rose-500');
-    editEmailBtn.classList.add('hidden');
-    emailEditControls.classList.remove('hidden');
-});
-
-saveEmailBtn.addEventListener('click', () => {
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput.value)) {
-        showMessage('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    emailInput.readOnly = true;
-    emailInput.classList.remove('border-rose-500');
-    editEmailBtn.classList.remove('hidden');
-    emailEditControls.classList.add('hidden');
-    showMessage('Email updated successfully!', 'success');
-});
-
-cancelEmailBtn.addEventListener('click', () => {
-    emailInput.value = originalEmail;
-    emailInput.readOnly = true;
-    emailInput.classList.remove('border-rose-500');
-    editEmailBtn.classList.remove('hidden');
-    emailEditControls.classList.add('hidden');
 });
 
 // Password Edit Functions

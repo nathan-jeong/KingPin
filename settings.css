@@ -50,11 +50,25 @@ input.bowling-input {
     border: 1px solid #FFFFFF;
 }
 
+/* Read-only email field styling */
+input.bowling-input.email-readonly {
+    background-color: #1a1a1a;
+    color: #9CA3AF;
+    border-color: #4B5563;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 /* Focus ring color change */
 .bowling-input:focus {
     outline: none;
     border-color: #ffffff;
     box-shadow: 0 0 0 2px #ffffff;
+}
+
+/* Disabled fields should not show focus */
+.bowling-input:disabled:focus {
+    box-shadow: none;
 }
 
 /* Color preview button styling */
