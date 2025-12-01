@@ -111,26 +111,17 @@
                 </div>
             </div>
 
-            <!-- Email Section -->
+            <!-- Email Section (Display Only) -->
             <div class="settings-section">
                 <h3 class="text-xl font-bold text-white mb-4">📧 Email</h3>
                 <div class="flex items-center gap-4">
                     <input type="email" id="email-input" 
-                        class="bowling-input flex-1 px-4 py-3 rounded-lg"
+                        class="bowling-input flex-1 px-4 py-3 rounded-lg email-readonly"
                         value="bowler@striketime.com"
-                        readonly>
-                    <button type="button" id="edit-email-btn" class="edit-btn">
-                        Edit
-                    </button>
+                        readonly
+                        disabled>
                 </div>
-                <div id="email-edit-controls" class="hidden mt-3 flex gap-2">
-                    <button type="button" id="save-email-btn" class="save-btn">
-                        Save
-                    </button>
-                    <button type="button" id="cancel-email-btn" class="cancel-btn">
-                        Cancel
-                    </button>
-                </div>
+                <p class="text-sm text-gray-500 mt-2">Email cannot be changed</p>
             </div>
 
             <!-- Password Section -->
