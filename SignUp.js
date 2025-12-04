@@ -1,4 +1,6 @@
 // Function to handle form submission and simulated sign up
+const REDIRECT_DELAY_MS = 1000;
+
 document.getElementById('signup-form').addEventListener('submit', function(event) {
     // Prevent the default form submission
     event.preventDefault();
@@ -56,6 +58,11 @@ document.getElementById('signup-form').addEventListener('submit', function(event
 
         // Optionally clear the form fields upon success
         document.getElementById('signup-form').reset();
+
+        // Navigate back to login page after successful signup
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, REDIRECT_DELAY_MS);
 
     }, 2000); // 2 second delay for simulation
 });
