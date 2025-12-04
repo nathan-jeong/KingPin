@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         
 :root {
-    --neon-white: #ffffff;
-    --neon-accent: #e73256; /* Neon Pink/Red, matching the login button */
+    --flat-white: #ffffff;
     --dark-bg: #000000;
-    --card-bg: rgba(0, 0, 0, 0.85);
-    --transition-speed: 0.3s;
+    --card-bg: #111111; /* Slightly lighter black for card distinction */
+    --line-color: #333333; /* Dark gray for subtle dividers */
+    --transition-speed: 0.2s;
 }
 
-/* Base Body Styling (Bowling Lane Texture) */
+/* --- FIX: Crucial rule to hide the modal on page load --- */
+.hidden {
+    display: none !important;
+}
+/* -------------------------------------------------------- */
+
+/* Base Body Styling (FLAT Black) */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--dark-bg);
-    background-image: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.03) 0,
-        rgba(255, 255, 255, 0.03) 1px,
-        transparent 1px,
-        transparent 50px
-    );
+    background-image: none; 
     margin: 0;
     display: flex;
     min-height: 100vh;
-    color: var(--neon-white);
+    color: var(--flat-white);
 }
 
 /* --- Layout Structure --- */
@@ -38,7 +38,6 @@ body {
     gap: 20px;
 }
 
-/* Left Content Column (Team Info, Settings, Inputter) */
 .left-column {
     flex-basis: 70%;
     display: flex;
@@ -46,7 +45,6 @@ body {
     gap: 20px;
 }
 
-/* Right Content Column (Awards, Leaderboard) */
 .right-column {
     flex-basis: 30%;
     display: flex;
@@ -57,73 +55,125 @@ body {
 /* --- Sidebar Styling --- */
 .sidebar {
     width: 250px;
-    background-color: var(--card-bg);
+    background-color: var(--dark-bg);
     padding: 20px;
-    border-right: 1px solid var(--neon-accent); 
-    box-shadow: 2px 0 15px rgba(231, 50, 86, 0.3); 
+    border-right: 1px solid var(--line-color); 
+    box-shadow: none; 
     transition: width var(--transition-speed);
 }
 
 .sidebar .logo {
     margin-bottom: 40px;
-    background-color: #000;
+    background-color: var(--dark-bg);
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 2px solid var(--neon-white);
-    border-bottom: 2px solid var(--neon-white);
+    border-top: 2px solid var(--flat-white);
+    border-bottom: 2px solid var(--flat-white);
 }
 .sidebar .logo span {
-    color: var(--neon-white);
+    color: var(--flat-white);
     font-size: 1.5rem;
     font-weight: 900;
-    text-shadow: 0 0 5px var(--neon-white), 0 0 10px var(--neon-accent);
+    text-shadow: none;
 }
 
 .sidebar a {
     display: block;
     padding: 15px 20px;
     text-decoration: none;
-    color: var(--neon-white);
+    color: var(--flat-white);
     transition: background-color var(--transition-speed), color var(--transition-speed);
-    border-radius: 4px;
+    border-radius: 0;
 }
 
-.sidebar a:hover {
-    background-color: rgba(231, 50, 86, 0.1);
-    color: var(--neon-accent);
-    text-shadow: 0 0 5px var(--neon-accent);
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: var(--line-color); 
+    color: var(--flat-white);
+    text-shadow: none;
 }
 
-/* --- Card Styling (All Sections) --- */
+/* --- Dashboard Section (Card) Styling --- */
 .dashboard-section {
     background-color: var(--card-bg);
     padding: 25px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(231, 50, 86, 0.1);
-    transition: box-shadow var(--transition-speed);
+    border-radius: 0;
+    border: 1px solid var(--line-color); 
+    box-shadow: none;
+    transition: box-shadow var(--transition-speed), transform var(--transition-speed);
     flex-grow: 1;
     min-height: 150px;
 }
 
 .dashboard-section:hover {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(231, 50, 86, 0.3);
+    box-shadow: none;
+    transform: none;
+    border-color: var(--flat-white);
 }
 
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 15px;
-    color: var(--neon-accent);
-    text-shadow: 0 0 5px var(--neon-accent);
-    border-bottom: 1px solid rgba(231, 50, 86, 0.5);
+    color: var(--flat-white);
+    text-shadow: none;
+    border-bottom: 1px solid var(--line-color); 
     padding-bottom: 5px;
 }
 
-#leaderboard {
-    min-height: 400px;
+/* --- Input and Button Styling --- */
+
+.bowling-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: var(--dark-bg);
+    color: var(--flat-white);
+    border: 1px solid var(--line-color);
+    border-radius: 0;
+    transition: border-color var(--transition-speed);
+}
+
+.bowling-input:focus {
+    outline: none;
+    border-color: var(--flat-white);
+    box-shadow: none; 
+}
+
+.neon-action-button {
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid var(--flat-white);
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    box-shadow: none;
+}
+
+.neon-action-button:hover {
+    opacity: 1;
+    box-shadow: none;
+    background-color: var(--flat-white) !important;
+    color: var(--dark-bg) !important;
+}
+
+/* Awards Section Gold text replacement */
+#awards p[style*="color: gold"] {
+    color: var(--flat-white) !important; 
+    text-shadow: none;
+}
+
+/* Specific styling for the white text/black text button (GO TO SCORE PAGE) */
+.neon-action-button[style*="background-color: var(--neon-white)"] {
+    background-color: var(--flat-white) !important;
+    color: var(--dark-bg) !important;
+    border: 1px solid var(--flat-white); 
+    box-shadow: none; 
+}
+
+.neon-action-button[style*="background-color: var(--neon-white)"]:hover {
+    background-color: var(--dark-bg) !important;
+    color: var(--flat-white) !important;
 }
 
 /* --- MODAL (POP-UP) STYLING --- */
@@ -134,49 +184,30 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    /* The 'hidden' class on the HTML element controls visibility */
 }
 
-.modal-overlay.hidden {
-    display: none;
-}
 
 .modal-content {
-    background-color: var(--card-bg);
+    background-color: var(--dark-bg);
     padding: 30px;
-    border-radius: 10px;
+    border-radius: 0;
     width: 90%;
     max-width: 450px;
-    /* Neon glow effect for the pop-up */
-    box-shadow: 0 0 30px var(--neon-accent), 0 0 60px rgba(231, 50, 86, 0.4);
-    border: 1px solid var(--neon-accent);
-    transform: scale(0.9);
-    opacity: 0; /* Start invisible */
-    animation: fadeInScale 0.3s forwards;
-}
-
-@keyframes fadeInScale {
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    box-shadow: none;
+    border: 2px solid var(--flat-white);
+    animation: none;
+    transform: none;
+    opacity: 1;
 }
 
 .close-btn {
-    color: var(--neon-white);
+    color: var(--flat-white);
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
@@ -184,35 +215,5 @@ body {
 }
 
 .close-btn:hover {
-    color: var(--neon-accent);
-}
-
-/* Ensure inputs inside the modal match the bowling input style */
-.modal-body .bowling-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    background-color: #111;
-    color: var(--neon-white);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 4px;
-}
-
-.modal-body .bowling-input:focus {
-    outline: none;
-    border-color: var(--neon-accent);
-    box-shadow: 0 0 0 2px var(--neon-accent);
-}
-
-/* Style for action buttons (used for + Add New Player and Register Player) */
-.neon-action-button {
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 0 5px var(--neon-accent);
-}
-
-.neon-action-button:hover {
-    opacity: 0.9;
-    box-shadow: 0 0 15px var(--neon-accent), 0 0 30px rgba(231, 50, 86, 0.6);
+    color: var(--line-color);
 }
