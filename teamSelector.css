@@ -1,0 +1,102 @@
+/* Custom styles for the scroll area visualization and team card aesthetics */
+:root {
+    --primary-color: #0d9488; /* Teal color for bowling theme */
+    --card-bg: #f3f4f6;
+    --scroll-bar-color: #374151;
+}
+
+/* Hide the actual scrollbar while allowing scrolling */
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+.scroll-container {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    padding-bottom: 2rem; 
+}
+
+.team-card {
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+}
+.team-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.team-card.selected {
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.3), 0 10px 10px -5px rgba(13, 148, 136, 0.1);
+    transform: scale(1.02);
+}
+
+/* Basic animation for the scroll belt visualization */
+@keyframes scroll-belt-move {
+    0% { background-position: 0 0; }
+    100% { background-position: -200px 0; }
+}
+
+.scroll-belt {
+    height: 10px;
+    background-color: var(--scroll-bar-color);
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%; 
+    border-radius: 9999px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-belt-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    animation: scroll-belt-move 10s linear infinite;
+}
+
+/* Bowling Ball Scroll Indicator (using inline SVG for simplicity) */
+.bowling-ball {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    cursor: grab;
+    touch-action: none; 
+}
+.bowling-ball:active {
+    cursor: grabbing;
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+/* Layout for better mobile viewing */
+@media (max-width: 640px) {
+    .team-card {
+        width: 70vw; 
+        min-width: 200px;
+        height: 300px;
+        padding: 1.5rem;
+    }
+    .scroll-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    .main-content {
+        padding: 1rem;
+    }
+}
