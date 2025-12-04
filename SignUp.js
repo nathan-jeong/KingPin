@@ -1,5 +1,3 @@
-const REDIRECT_DELAY_MS = 1000; // Time in milliseconds before redirecting after success message
-
 document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signup-form');
     const passwordInput = document.getElementById('password');
@@ -9,31 +7,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Helper function to update the message box style and text ---
     function updateMessage(text, type) {
-        // NOTE: These colors are using Tailwind classes.
-        const baseClasses = ['p-4', 'rounded-lg', 'text-sm', 'font-semibold'];
-        
-        // Type-specific colors (using utility classes that contrast with the dark theme)
+        // Define color classes for the flat black & white theme
         const colors = {
-            error: { bg: 'bg-red-900', text: 'text-red-300' },
-            info: { bg: 'bg-blue-900', text: 'text-blue-300' },
-            success: { bg: 'bg-green-900', text: 'text-green-300' }
+            error: { bg: 'bg-red-800', text: 'text-white', border: 'border-red-600' },
+            info: { bg: 'bg-gray-800', text: 'text-white', border: 'border-gray-600' },
+            success: { bg: 'bg-green-800', text: 'text-white', border: 'border-green-600' }
         };
+        const baseClasses = ['p-4', 'text-sm', 'font-semibold', 'border'];
 
         // Clear existing classes and apply new ones
         messageBox.className = baseClasses.join(' ');
-        messageBox.classList.add(colors[type].bg, colors[type].text);
+        messageBox.classList.add(colors[type].bg, colors[type].text, colors[type].border);
         messageBox.classList.remove('hidden');
         messageText.textContent = text;
     }
 
-    // --- Password Toggle Logic (REQUIRED FOR SHOW/HIDE BUTTONS) ---
+    // --- Password Toggle Logic ---
     function setupPasswordToggle(inputId, buttonId) {
         const input = document.getElementById(inputId);
         const button = document.getElementById(buttonId);
 
         if (input && button) {
             button.addEventListener('click', (e) => {
-                e.preventDefault(); // Stop button from submitting the form
+                // FIX: This line stops the button click from triggering a form submission.
+                e.preventDefault(); 
                 
                 // Toggle the type attribute
                 const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -73,24 +70,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 3. Check if passwords match
         if (password !== confirmPassword) {
-            updateMessage("The passwords don't match. Please confirm your password carefully.", 'error');
+            updateMessage("Warning: The passwords do not match. Please ensure both fields are identical.", 'error');
             return;
         }
 
         // If validation passes: Simulate sign up
         updateMessage('Setting up your lane... registering your membership...', 'info');
 
-        // Simulate a network request delay (2000ms)
+        // Simulate a network request delay
         setTimeout(() => {
             updateMessage(`STRIKE! You're signed up with email: ${email}. Welcome to the league! (Mock Sign Up)`, 'success');
 
             // Clear the form fields
             signupForm.reset();
-
-            // Navigate back to login page after successful signup
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, REDIRECT_DELAY_MS); // Redirects after 1000ms (1 second)
 
         }, 2000); 
     });
