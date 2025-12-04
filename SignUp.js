@@ -57,5 +57,10 @@ document.getElementById('signup-form').addEventListener('submit', function(event
         // Optionally clear the form fields upon success
         document.getElementById('signup-form').reset();
 
+        // Navigate back to login page after successful signup
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+
     }, 2000); // 2 second delay for simulation
 });
