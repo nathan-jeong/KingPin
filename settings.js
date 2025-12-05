@@ -133,8 +133,8 @@ editPasswordBtn.addEventListener('click', () => {
 });
 
 savePasswordBtn.addEventListener('click', () => {
-    if (passwordInput.value.length < 6) {
-        showMessage('Password must be at least 6 characters long', 'error');
+    if (passwordInput.value.length < 8) {
+        showMessage('Password must be at least 8 characters long', 'error');
         return;
     }
     
