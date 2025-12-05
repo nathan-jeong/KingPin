@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Signup response:', data);
                 updateMessage('Account created successfully!', 'success');
                 document.getElementById('signup-form').reset();
-                window.location.href = "KingPinLogin.html";
+                window.location.href = "index.html";
             })
             .catch(error => {
                 console.error('Signup fetch error:', error);
