@@ -67,7 +67,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             console.log('Login response:', data);
             updateMessage('Login successful! Redirecting...', 'success');
             setTimeout(() => {
-                window.location.href = "binaryarduino.html";
+                window.location.href = "teamSelector.html";
             }, 1000);
         })
         .catch(error => {
