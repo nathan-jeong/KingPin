@@ -91,23 +91,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Simulate a sign up attempt
-            updateMessage('Setting up your lane... registering your membership...', 'info');
+            
+            const newPost = {
+                "email": email,
+                "password": password,
+                "username": email,
+                "displayName": school,
+            };
 
-            // Simulate a network request delay
-            setTimeout(() => {
-                // Simulate success
-                updateMessage(`STRIKE! You're signed up with email: ${email}. Welcome to the league! (Mock Sign Up)`, 'success');
+            // Use full URL (include protocol). Without protocol fetch will treat this as a relative path.
+            const endpoint = 'https://kingpin-backend-production.up.railway.app/accounts';
 
-                // Clear the form fields upon success
-                signupForm.reset();
+            console.log('Signup: sending POST to', endpoint, newPost);
 
-                // Navigate back to login page after successful signup
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, REDIRECT_DELAY_MS);
-
-            }, 2000); // 2 second delay for simulation
+            fetch(endpoint, {
+                method: 'POST', // Specify the method
+                headers: {
+                    'Content-Type': 'application/json', // Indicate the body format
+            },
+            body: JSON.stringify(newPost), // Convert the JavaScript object to a JSON string
+            })
+            .then(response => {
+                // If server responded with non-2xx status, try to include body text in error
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server ${response.status}: ${text || response.statusText}`);
+                    });
+                }
+                // Parse JSON body and pass it along
+                return response.json();
+            })
+            .then(data => {
+                console.log('Signup response:', data);
+                updateMessage('Account created successfully!', 'success');
+                document.getElementById('signup-form').reset();
+                window.location.href = "KingPinLogin.html";
+            })
+            .catch(error => {
+                console.error('Signup fetch error:', error);
+                updateMessage(`Signup failed: ${error.message}`, 'error');
+            });
         });
     }
 });
