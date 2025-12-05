@@ -159,10 +159,10 @@ cancelPasswordBtn.addEventListener('click', () => {
 togglePasswordBtn.addEventListener('click', () => {
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        togglePasswordBtn.textContent = '🙈';
+        togglePasswordBtn.textContent = 'Hide Password';
     } else {
         passwordInput.type = 'password';
-        togglePasswordBtn.textContent = '👁️';
+        togglePasswordBtn.textContent = 'Show Password';
     }
 });
 
@@ -181,7 +181,7 @@ saveAllBtn.addEventListener('click', () => {
     console.log('Saving all settings:', settings);
     
     // Show success message
-    showMessage('All settings saved successfully! 🎳', 'success');
+    showMessage('All settings saved successfully!', 'success');
     
     // In a real application, you might redirect or update the UI
     // For now, we'll just show a message
