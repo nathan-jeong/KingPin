@@ -62,23 +62,6 @@ body {
     transition: width var(--transition-speed);
 }
 
-.sidebar .logo {
-    margin-bottom: 40px;
-    background-color: var(--dark-bg);
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 2px solid var(--flat-white);
-    border-bottom: 2px solid var(--flat-white);
-}
-.sidebar .logo span {
-    color: var(--flat-white);
-    font-size: 1.5rem;
-    font-weight: 900;
-    text-shadow: none;
-}
-
 .sidebar a {
     display: block;
     padding: 15px 20px;
