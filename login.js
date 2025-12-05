@@ -22,14 +22,21 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             success: { bg: 'bg-green-900', text: 'text-green-300' }
         };
 
-        // Clear existing color classes
-        // Note: Tailwind classes must be kept here for dynamic styling
+        if (!messageBox || !messageText) {
+            console.error('Message box or message text element not found in DOM');
+            return;
+        }
+
+        // Reset to base classes, remove hidden
         messageBox.className = baseClasses.join(' ');
         
-        // Add new color classes
+        // Add type-specific colors
         messageBox.classList.add(colors[type].bg, colors[type].text);
         messageBox.classList.remove('hidden');
+        messageBox.style.display = 'block'; // Force display as fallback
         messageText.textContent = text;
+        
+        console.log('Message displayed:', type, text);
     }
     
     const postData = {
@@ -37,7 +44,11 @@ document.getElementById('login-form').addEventListener('submit', function(event)
         password: password,
     };
 
-    fetch('http://kingpin-backend-production.up.railway.app/auth/login', {
+    const endpoint = 'https://kingpin-backend-production.up.railway.app/auth/login';
+    
+    console.log('Login: sending POST to', endpoint, postData);
+
+    fetch(endpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -45,15 +56,23 @@ document.getElementById('login-form').addEventListener('submit', function(event)
         body: JSON.stringify(postData)
     })
         .then(response => {
-            if (response.ok) {
-                updateMessage('Login successful! Redirecting...', 'success');
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`Server ${response.status}: ${text || response.statusText}`);
+                });
             }
-            else
-                return;
-    })
-    .catch(error => {
-        updateMessage('Error during POST request:', error);
-    });
-
-    window.location.href = "teamSelector.html";
+            return response.json();
+        })
+        .then(data => {
+            console.log('Login response:', data);
+            updateMessage('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = "binaryarduino.html";
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Login fetch error:', error);
+            updateMessage(`Login failed: ${error.message}`, 'error');
+        });
+    
 });
