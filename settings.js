@@ -159,10 +159,10 @@ cancelPasswordBtn.addEventListener('click', () => {
 togglePasswordBtn.addEventListener('click', () => {
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        togglePasswordBtn.textContent = 'Hide Password';
+        togglePasswordBtn.textContent = 'Hide';
     } else {
         passwordInput.type = 'password';
-        togglePasswordBtn.textContent = 'Show Password';
+        togglePasswordBtn.textContent = 'Show';
     }
 });
 
