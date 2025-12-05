@@ -31,24 +31,29 @@ document.getElementById('login-form').addEventListener('submit', function(event)
         messageBox.classList.remove('hidden');
         messageText.textContent = text;
     }
+    
+    const postData = {
+        email: email,
+        password: password,
+    };
 
-    // Simple validation
-    if (email === '' || password === '') {
-        updateMessage('Oops! Looks like you missed entering your email or password.', 'error');
-        return;
-    }
+    fetch('http://kingpin-backend-production.up.railway.app/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(postData)
+    })
+        .then(response => {
+            if (response.ok) {
+                updateMessage('Login successful! Redirecting...', 'success');
+            }
+            else
+                return;
+    })
+    .catch(error => {
+        updateMessage('Error during POST request:', error);
+    });
 
-    // Simulate a login attempt
-    updateMessage('The ball is rolling... checking your credentials...', 'info');
-
-    // Simulate a network request delay
-    setTimeout(() => {
-        // In a real application, you would check credentials here.
-        // For this mock, we simulate success.
-        updateMessage(`STRIKE! Access granted for: ${email}. Welcome to the lane! (Mock Login)`, 'success');
-
-        // Clear the form fields
-        document.getElementById('login-form').reset();
-
-    }, 2000); // 2 second delay for simulation
+    window.location.href = "teamSelector.html";
 });
