@@ -234,3 +234,40 @@ window.addEventListener('DOMContentLoaded', () => {
     primaryColorPreview.style.backgroundColor = primaryColorValue.value;
     secondaryColorPreview.style.backgroundColor = secondaryColorValue.value;
 });
+
+// Logout Button Handler
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        // Redirect to login page
+        window.location.href = 'index.html';
+    });
+}
+
+// Delete Account Button Handler
+const deleteAccountBtn = document.getElementById('delete-account-btn');
+if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', () => {
+        // First confirmation: "Are you sure?"
+        const confirmDelete = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+        
+        if (confirmDelete) {
+            // Second confirmation: Password prompt
+            const password = prompt('Please enter your password to confirm account deletion:');
+            
+            if (password && password.trim() !== '') {
+                // Here you would typically verify the password with the server
+                // For now, we'll just redirect to the signup page
+                showMessage('Account deleted successfully. Redirecting to signup...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'SignUp.html';
+                }, 1500);
+            } else if (password !== null) {
+                // User entered empty password
+                showMessage('Password is required to delete account.', 'error');
+            }
+            // If password is null, user clicked Cancel, so do nothing
+        }
+    });
+}
