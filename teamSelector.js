@@ -165,6 +165,14 @@ if (newTeamForm) {
     newTeamForm.addEventListener('submit', handleSubmitNewTeam);
 }
 
+// Add navigation to settings page
+const accountSettingsBtn = document.getElementById('account-settings-btn');
+if (accountSettingsBtn) {
+    accountSettingsBtn.addEventListener('click', () => {
+        window.location.href = 'settings.html';
+    });
+}
+
 // --- Bowling Ball Drag and Scroll Logic ---
 
 function updateBallPosition() {
