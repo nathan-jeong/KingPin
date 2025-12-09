@@ -3,10 +3,10 @@
 :root {
     --flat-white: #ffffff;
     --dark-bg: #000000;
-    --card-bg: #111111; 
-    --line-color: #333333; 
+    --card-bg: #111111; /* Slightly lighter black for card distinction */
+    --line-color: #333333; /* Dark gray for subtle dividers */
     --transition-speed: 0.2s;
-    --award-accent: #ffd700; 
+    --award-accent: #ffd700; /* Gold color for award button */
 }
 
 /* --- FIX: Crucial rule to hide the modal on page load --- */
@@ -15,7 +15,7 @@
 }
 /* -------------------------------------------------------- */
 
-/* Base Body Styling (MODIFIED to use flex-direction: row, keeping layout) */
+/* Base Body Styling */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--dark-bg);
@@ -26,55 +26,72 @@ body {
     color: var(--flat-white);
 }
 
-/* --- Layout Structure --- */
+/* --- Layout Structure (MODIFIED FOR MINIMAL SIDEBAR) --- */
 .dashboard-container {
-    /* MODIFIED: Changed from flex to grid layout to easily place sidebar under logo */
-    display: grid; 
-    grid-template-columns: 250px 1fr; /* 250px for the logo/sidebar column, 1fr for main area */
-    grid-template-rows: auto 1fr;
+    display: flex; 
     width: 100%;
     position: relative; 
 }
 
-/* Logo Link: Placed in the top-left grid cell */
+/* Logo Link */
 .logo-link {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    margin: 20px 0 0 20px;
-    display: block;
-    height: 100px;
-    width: 250px;
+    margin: 20px 0 0 20px; 
+    display: block; 
+    height: 100px; 
+    width: 250px; 
     box-sizing: border-box;
+    position: absolute; 
+    z-index: 10;
 }
 
-/* Sidebar: Placed directly below the logo */
+/* --- Sidebar Styling (MINIMAL WIDTH) --- */
 .sidebar {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-    width: 100%; /* Take full width of the grid column */
+    width: 250px; /* Keep this width for the logo/link area */
     background-color: var(--dark-bg);
-    padding: 20px;
+    /* Reduced top padding since only one link is left, but keep space for the logo */
+    padding: 130px 20px 20px 20px; 
     border-right: 1px solid var(--line-color); 
     box-shadow: none; 
-    transition: width var(--transition-speed);
-}
-.sidebar a {
-    /* Styles for the single remaining link */
-    padding: 15px 5px; /* Reduced horizontal padding */
+    flex-shrink: 0; /* Ensures it doesn't shrink */
 }
 
-/* Main Area: Takes the entire right column */
+.sidebar a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--flat-white);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    border-radius: 0;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: var(--line-color); 
+    color: var(--flat-white);
+    text-shadow: none;
+}
+
+/* Style for the "Team Selector" link (as a label) */
+.sidebar-label-link {
+    cursor: pointer;
+    text-decoration: none !important;
+    padding: 15px 5px !important; 
+}
+
+.sidebar-label-link:hover {
+    background-color: var(--dark-bg) !important; 
+    color: var(--flat-white) !important;
+}
+
+/* Main Area (Now occupies the majority of the screen) */
 .main-area {
-    grid-column: 2 / 3;
-    grid-row: 1 / 3; /* Extends from top row (where logo is) to bottom */
     display: flex;
-    flex-grow: 1;
+    flex-grow: 1; /* Takes up all remaining space */
     padding: 20px;
     gap: 20px;
-    /* Removed the original padding/width calculations */
 }
 
-/* Main Area Column Sizing (MODIFIED for wider main area) */
+/* Main Area Column Sizing (Proportions increased to fill new width) */
 .left-column {
     flex-basis: 75%; /* Increased width */
     display: flex;
@@ -89,6 +106,11 @@ body {
     gap: 20px;
 }
 
+/* REMOVED: Floating settings icon styles are gone! */
+.settings-icon-btn {
+    display: none !important;
+}
+
 /* --- Dashboard Section (Card) Styling (Unchanged) --- */
 .dashboard-section {
     background-color: var(--card-bg);
@@ -101,18 +123,204 @@ body {
     min-height: 150px;
 }
 
-/* ... (Rest of CSS is unchanged for brevity, but you should use the full version) ... */
+.dashboard-section:hover {
+    box-shadow: none;
+    transform: none;
+    border-color: var(--flat-white);
+}
 
-/* Top Right Settings Icon (Positioning remains relative to dashboard-container) */
-.settings-icon-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 999;
+.section-title {
     font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
     color: var(--flat-white);
-    background: none;
-    border: none;
+    text-shadow: none;
+    border-bottom: 1px solid var(--line-color); 
+    padding-bottom: 5px;
+}
+
+/* Awards Section Header - to contain title and button */
+.awards-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line-color); 
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* 🏆 MODIFIED: Add Award Trophy Button - Made visually obvious */
+.add-award-btn {
+    background-color: var(--award-accent); /* Gold background */
+    color: var(--dark-bg); /* Black text/icon */
+    font-weight: 700;
+    border: 1px solid var(--award-accent);
+    font-size: 0.9rem;
+    padding: 8px 15px; 
+    border-radius: 4px;
     cursor: pointer;
-    transition: color var(--transition-speed);
+    transition: all var(--transition-speed);
+    line-height: 1;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px var(--award-accent); /* Subtle glow */
+}
+
+.add-award-btn:hover {
+    background-color: var(--dark-bg);
+    color: var(--award-accent);
+    border-color: var(--award-accent);
+    box-shadow: 0 0 15px var(--award-accent);
+}
+
+
+/* --- Input and Button Styling --- */
+
+.bowling-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: var(--dark-bg);
+    color: var(--flat-white);
+    border: 1px solid var(--line-color);
+    border-radius: 0;
+    transition: border-color var(--transition-speed);
+}
+
+.bowling-input:focus {
+    outline: none;
+    border-color: var(--flat-white);
+    box-shadow: none; 
+}
+
+.neon-action-button {
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid var(--flat-white);
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    box-shadow: none;
+    cursor: pointer; /* Ensure cursor is pointer for all action buttons */
+}
+
+.neon-action-button:hover {
+    opacity: 1;
+    box-shadow: none;
+    background-color: var(--flat-white) !important;
+    color: var(--dark-bg) !important;
+}
+
+/* Awards Section Gold text replacement */
+#awards p[style*="color: gold"] {
+    color: var(--flat-white) !important; 
+    text-shadow: none;
+}
+
+/* Specific styling for the white text/black text button (GO TO SCORE PAGE) */
+.neon-action-button[style*="background-color: var(--neon-white)"] {
+    background-color: var(--flat-white) !important;
+    color: var(--dark-bg) !important;
+    border: 1px solid var(--flat-white); 
+    box-shadow: none; 
+}
+
+.neon-action-button[style*="background-color: var(--neon-white)"]:hover {
+    background-color: var(--dark-bg) !important;
+    color: var(--flat-white) !important;
+}
+
+/* --- MODAL (POP-UP) STYLING --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    /* The 'hidden' class on the HTML element controls visibility */
+}
+
+
+.modal-content {
+    background-color: var(--dark-bg);
+    padding: 30px;
+    border-radius: 0;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: none;
+    border: 2px solid var(--flat-white);
+    animation: none;
+    transform: none;
+    opacity: 1;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-btn {
+    color: var(--flat-white);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--line-color);
+}
+
+/* Styling for the trophy representation in the modal */
+.trophy-visual {
+    background-color: var(--award-accent); /* Gold-like color for the trophy */
+    color: var(--dark-bg);
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border: 2px solid #b8860b; /* Darker gold border */
+}
+
+/* Simple visual representation of a trophy */
+.trophy-visual::before {
+    content: '🏆';
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Container for the list of added awards with scrolling */
+.award-list-container {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line-color);
+    /* Added scroll functionality */
+    max-height: 200px; 
+    overflow-y: auto;  
+    padding-right: 5px; 
+}
+
+.award-item {
+    padding: 5px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--flat-white);
+    /* Adding some subtle flair to the newly added awards */
+    border-left: 3px solid var(--award-accent);
+    padding-left: 10px;
+    margin-bottom: 5px;
+}
+
+.award-year {
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 8px;
 }
