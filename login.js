@@ -65,6 +65,18 @@ document.getElementById('login-form').addEventListener('submit', function(event)
         })
         .then(data => {
             console.log('Login response:', data);
+            
+            // Always store credentials on successful login
+            localStorage.setItem('email', email);
+            localStorage.setItem('password', password);
+            console.log('Credentials stored:', email);
+            
+            // Extract and store user ID from response if available
+            if (data.userId) {
+                localStorage.setItem('userId', data.userId);
+                console.log('User ID stored:', data.userId);
+            }
+            
             updateMessage('Login successful! Redirecting...', 'success');
             setTimeout(() => {
                 window.location.href = "teamSelector.html";
