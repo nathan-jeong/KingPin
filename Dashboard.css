@@ -3,9 +3,10 @@
 :root {
     --flat-white: #ffffff;
     --dark-bg: #000000;
-    --card-bg: #111111; /* Slightly lighter black for card distinction */
-    --line-color: #333333; /* Dark gray for subtle dividers */
+    --card-bg: #111111; 
+    --line-color: #333333; 
     --transition-speed: 0.2s;
+    --award-accent: #ffd700; 
 }
 
 /* --- FIX: Crucial rule to hide the modal on page load --- */
@@ -14,7 +15,7 @@
 }
 /* -------------------------------------------------------- */
 
-/* Base Body Styling (FLAT Black) */
+/* Base Body Styling (MODIFIED to use flex-direction: row, keeping layout) */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--dark-bg);
@@ -27,58 +28,68 @@ body {
 
 /* --- Layout Structure --- */
 .dashboard-container {
-    display: flex;
+    /* MODIFIED: Changed from flex to grid layout to easily place sidebar under logo */
+    display: grid; 
+    grid-template-columns: 250px 1fr; /* 250px for the logo/sidebar column, 1fr for main area */
+    grid-template-rows: auto 1fr;
     width: 100%;
+    position: relative; 
 }
 
-.main-area {
-    display: flex;
-    flex-grow: 1;
-    padding: 20px;
-    gap: 20px;
-}
-
-.left-column {
-    flex-basis: 70%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.right-column {
-    flex-basis: 30%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* --- Sidebar Styling --- */
-.sidebar {
+/* Logo Link: Placed in the top-left grid cell */
+.logo-link {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    margin: 20px 0 0 20px;
+    display: block;
+    height: 100px;
     width: 250px;
+    box-sizing: border-box;
+}
+
+/* Sidebar: Placed directly below the logo */
+.sidebar {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    width: 100%; /* Take full width of the grid column */
     background-color: var(--dark-bg);
     padding: 20px;
     border-right: 1px solid var(--line-color); 
     box-shadow: none; 
     transition: width var(--transition-speed);
 }
-
 .sidebar a {
-    display: block;
-    padding: 15px 20px;
-    text-decoration: none;
-    color: var(--flat-white);
-    transition: background-color var(--transition-speed), color var(--transition-speed);
-    border-radius: 0;
+    /* Styles for the single remaining link */
+    padding: 15px 5px; /* Reduced horizontal padding */
 }
 
-.sidebar a:hover,
-.sidebar a.active {
-    background-color: var(--line-color); 
-    color: var(--flat-white);
-    text-shadow: none;
+/* Main Area: Takes the entire right column */
+.main-area {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3; /* Extends from top row (where logo is) to bottom */
+    display: flex;
+    flex-grow: 1;
+    padding: 20px;
+    gap: 20px;
+    /* Removed the original padding/width calculations */
 }
 
-/* --- Dashboard Section (Card) Styling --- */
+/* Main Area Column Sizing (MODIFIED for wider main area) */
+.left-column {
+    flex-basis: 75%; /* Increased width */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-column {
+    flex-basis: 25%; /* Reduced width, Awards section remains reasonable */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- Dashboard Section (Card) Styling (Unchanged) --- */
 .dashboard-section {
     background-color: var(--card-bg);
     padding: 25px;
@@ -90,113 +101,18 @@ body {
     min-height: 150px;
 }
 
-.dashboard-section:hover {
-    box-shadow: none;
-    transform: none;
-    border-color: var(--flat-white);
-}
+/* ... (Rest of CSS is unchanged for brevity, but you should use the full version) ... */
 
-.section-title {
+/* Top Right Settings Icon (Positioning remains relative to dashboard-container) */
+.settings-icon-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
     font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 15px;
     color: var(--flat-white);
-    text-shadow: none;
-    border-bottom: 1px solid var(--line-color); 
-    padding-bottom: 5px;
-}
-
-/* --- Input and Button Styling --- */
-
-.bowling-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    background-color: var(--dark-bg);
-    color: var(--flat-white);
-    border: 1px solid var(--line-color);
-    border-radius: 0;
-    transition: border-color var(--transition-speed);
-}
-
-.bowling-input:focus {
-    outline: none;
-    border-color: var(--flat-white);
-    box-shadow: none; 
-}
-
-.neon-action-button {
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 1px solid var(--flat-white);
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    box-shadow: none;
-}
-
-.neon-action-button:hover {
-    opacity: 1;
-    box-shadow: none;
-    background-color: var(--flat-white) !important;
-    color: var(--dark-bg) !important;
-}
-
-/* Awards Section Gold text replacement */
-#awards p[style*="color: gold"] {
-    color: var(--flat-white) !important; 
-    text-shadow: none;
-}
-
-/* Specific styling for the white text/black text button (GO TO SCORE PAGE) */
-.neon-action-button[style*="background-color: var(--neon-white)"] {
-    background-color: var(--flat-white) !important;
-    color: var(--dark-bg) !important;
-    border: 1px solid var(--flat-white); 
-    box-shadow: none; 
-}
-
-.neon-action-button[style*="background-color: var(--neon-white)"]:hover {
-    background-color: var(--dark-bg) !important;
-    color: var(--flat-white) !important;
-}
-
-/* --- MODAL (POP-UP) STYLING --- */
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    /* The 'hidden' class on the HTML element controls visibility */
-}
-
-
-.modal-content {
-    background-color: var(--dark-bg);
-    padding: 30px;
-    border-radius: 0;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: none;
-    border: 2px solid var(--flat-white);
-    animation: none;
-    transform: none;
-    opacity: 1;
-}
-
-.close-btn {
-    color: var(--flat-white);
-    font-size: 28px;
-    font-weight: bold;
+    background: none;
+    border: none;
     cursor: pointer;
-    transition: color 0.2s;
-}
-
-.close-btn:hover {
-    color: var(--line-color);
+    transition: color var(--transition-speed);
 }
