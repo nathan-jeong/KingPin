@@ -48,13 +48,14 @@ document.getElementById('login-form').addEventListener('submit', function(event)
     
     console.log('Login: sending POST to', endpoint, postData);
 
+    
     fetch(endpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(postData)
-    })
+        })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(text => {
@@ -63,23 +64,28 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             }
             return response.json();
         })
-        .then(data => {
-            console.log('Login response:', data);
+        .then(response => {
+            console.log('Login response:', response);
             
             // Always store credentials on successful login
             localStorage.setItem('email', email);
             localStorage.setItem('password', password);
             console.log('Credentials stored:', email);
             
-            // Extract and store user ID from response if available
-            if (data.userId) {
-                localStorage.setItem('userId', data.userId);
-                console.log('User ID stored:', data.userId);
+            // Extract and store user ID from response
+            if (response.user && response.user.userId) {
+                localStorage.setItem('userId', response.user.userId);
+                console.log('User ID stored:', response.user.userId);
+            } else if (response.user && response.user.id) {
+                localStorage.setItem('userId', response.user.id);
+                console.log('User ID stored:', response.user.id);
+            } else {
+                console.warn('No userId or id field in login response');
             }
             
             updateMessage('Login successful! Redirecting...', 'success');
             setTimeout(() => {
-                window.location.href = "teamSelector.html";
+                window.location.href = "KPTeamSelector.html";
             }, 1000);
         })
         .catch(error => {
