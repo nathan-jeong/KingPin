@@ -1,3 +1,26 @@
+const API_BASE = 'https://kingpin-backend-production.up.railway.app';
+
+// Auto-login on page load if "remember me" was previously enabled
+function checkAndAutoLogin() {
+    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+    const savedEmail = localStorage.getItem('email');
+    const savedPassword = localStorage.getItem('password');
+    
+    if (rememberMe && savedEmail && savedPassword) {
+        console.log('Auto-logging in with saved credentials...');
+        // Pre-fill the form
+        document.getElementById('email').value = savedEmail;
+        document.getElementById('password').value = savedPassword;
+        // Auto-submit the login form
+        setTimeout(() => {
+            document.getElementById('login-form').dispatchEvent(new Event('submit'));
+        }, 100);
+    }
+}
+
+// Call auto-login check when page loads
+document.addEventListener('DOMContentLoaded', checkAndAutoLogin);
+
 // Function to handle form submission and simulated login
 document.getElementById('login-form').addEventListener('submit', function(event) {
     // Prevent the default form submission
@@ -6,6 +29,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
     // Get form data
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
 
     const messageBox = document.getElementById('message-box');
     const messageText = document.getElementById('message-text');
@@ -48,7 +72,6 @@ document.getElementById('login-form').addEventListener('submit', function(event)
     
     console.log('Login: sending POST to', endpoint, postData);
 
-    
     fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -70,7 +93,8 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             // Always store credentials on successful login
             localStorage.setItem('email', email);
             localStorage.setItem('password', password);
-            console.log('Credentials stored:', email);
+            localStorage.setItem('rememberMe', rememberMe);
+            console.log('Credentials stored:', email, 'Remember me:', rememberMe);
             
             // Extract and store user ID from response
             if (response.user && response.user.userId) {
@@ -85,7 +109,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             
             updateMessage('Login successful! Redirecting...', 'success');
             setTimeout(() => {
-                window.location.href = "KPTeamSelector.html";
+                window.location.href = "teamSelector.html";
             }, 1000);
         })
         .catch(error => {
