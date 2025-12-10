@@ -1,17 +1,98 @@
-// --- In-Memory Data Storage ---
-let teams = [
-    // Conceptual initial teams for demonstration
-    { id: 't1', name: 'The Pin Pals', year: 2024 },
-    { id: 't2', name: 'Lane Lords', year: 2023 },
-    { id: 't3', name: 'Split Happens', year: 2022 },
-    { id: 't4', name: 'Gutter Gang', year: 2021 },
-    { id: 't5', name: 'Bowling Stones', year: 2020 }
-];
+// --- API Configuration and Backend Hooks ---
+// ⚠️ TEMPLATE: Replace these with your actual backend URLs and logic
+const API_BASE_URL = 'https://kingpin-backend-production.up.railway.app'; // Example Node.js/Express server URL
+
+/**
+ * Fetches the list of teams from a backend API.
+ * ⚠️ TEMPLATE: Update this endpoint to match your backend route.
+ * @returns {Promise<Array<Object>>} A promise that resolves with the team data.
+ */
+async function fetchTeamsFromBackend() {
+    console.log("Fetching teams from backend...");
+    try {
+        // Get userId from localStorage (set during login)
+        const userId = localStorage.getItem('userId');
+        
+        if (!userId) {
+            console.warn("No userId found in localStorage. Cannot fetch teams.");
+            return [];
+        }
+
+        // TODO: Replace with your actual backend endpoint
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const teamsData = await response.json();
+        console.log("Teams fetched successfully:", teamsData);
+        
+        // Handle response structure: { teams: [...] }
+        if (teamsData.teams && Array.isArray(teamsData.teams)) {
+            return teamsData.teams;
+        }
+        // If response is directly an array, return it
+        if (Array.isArray(teamsData)) {
+            return teamsData;
+        }
+        // Otherwise, return empty array
+        console.warn("Response is not in expected format:", teamsData);
+        return [];
+
+    } catch (error) {
+        console.error("Could not fetch teams:", error);
+        return []; // Return empty array on error
+    }
+}
+
+/**
+ * Saves a new team object to the backend API.
+ * ⚠️ TEMPLATE: Update this endpoint and schema to match your backend.
+ * @param {Object} newTeam - The team data (name, year) to save.
+ * @returns {Promise<Object>} A promise that resolves with the saved team object (including its new ID).
+ */
+async function saveNewTeamToBackend(newTeam) {
+    console.log("Saving new team to backend:", newTeam);
+    try {
+        // Get userId from localStorage
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            throw new Error('User ID not found. Please log in first.');
+        }
+
+        // TODO: Replace with your actual backend endpoint and schema
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newTeam),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server ${response.status}: ${errorText || response.statusText}`);
+        }
+
+        const savedTeam = await response.json();
+        console.log("Team saved successfully:", savedTeam);
+        return savedTeam; // Backend should return the saved team with its ID
+    } catch (error) {
+        console.error("Could not save new team:", error);
+        throw error;
+    }
+}
 
 // --- DOM Elements ---
 const scrollContainer = document.getElementById('team-scroll-container');
 const ballIndicator = document.getElementById('ball-indicator');
-const track = ballIndicator ? ballIndicator.parentElement : null; // Check if it exists
+const track = ballIndicator ? ballIndicator.parentElement : null; 
 const modal = document.getElementById('team-modal');
 const openModalBtn = document.getElementById('open-modal-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
@@ -19,11 +100,12 @@ const newTeamForm = document.getElementById('new-team-form');
 const submissionMessage = document.getElementById('submission-message');
 
 let isDragging = false;
-
+let currentTeamsData = []; // Store the fetched teams globally for re-rendering
 
 // --- Data Handling ---
 
 function renderTeams(currentTeams) {
+    // ... (NO CHANGE HERE) ...
     // Remove all existing children
     scrollContainer.innerHTML = ''; 
 
@@ -40,10 +122,10 @@ function renderTeams(currentTeams) {
     currentTeams.forEach(team => {
         const card = document.createElement('div');
         card.className = "team-card flex-shrink-0 w-64 h-80 bg-white border-4 border-gray-200 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center hover:shadow-xl hover:border-gray-300";
-        card.dataset.teamId = team.id;
+        card.dataset.teamId = team.teamId;
         card.innerHTML = `
-            <p class="text-3xl font-semibold mb-2">${team.name || 'Untitled Team'}</p>
-            <p class="text-xl text-gray-500">${team.year || 'N/A'}</p>
+            <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
+            <!-- TODO: Add additional fields to display (e.g., player count, awards, etc.) -->
         `;
         scrollContainer.appendChild(card);
 
@@ -67,6 +149,7 @@ function renderTeams(currentTeams) {
 // --- Event Handlers ---
 
 function handleTeamCardClick(event) {
+    // ... (NO CHANGE HERE) ...
     const card = event.currentTarget;
     document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected', 'border-teal-600'));
     card.classList.add('selected', 'border-teal-600');
@@ -78,6 +161,7 @@ function handleTeamCardClick(event) {
 // --- Modal Logic ---
 
 function showModal() {
+    // ... (NO CHANGE HERE) ...
     if (modal) {
         modal.classList.remove('hidden');
     }
@@ -87,6 +171,7 @@ function showModal() {
 }
 
 function hideModal() {
+    // ... (NO CHANGE HERE) ...
     if (modal) {
         modal.classList.add('hidden');
     }
@@ -95,7 +180,11 @@ function hideModal() {
     }
 }
 
-function handleSubmitNewTeam(e) {
+/**
+ * Handles the form submission, calling the backend save function and re-rendering.
+ * @param {Event} e - The form submission event.
+ */
+async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
     e.preventDefault();
     
     const teamNameInput = document.getElementById('team-name');
@@ -122,28 +211,51 @@ function handleSubmitNewTeam(e) {
     }
 
     try {
-        // 1. Create the new team object
-        const newTeam = {
-            id: 't' + Date.now(), // Simple unique ID
-            name: name,
-            year: year
+        // 1. Get userId from localStorage (set during login)
+        const userId = localStorage.getItem('userId');
+        const password = localStorage.getItem('password');
+
+        
+        if (!userId) {
+            if (submissionMessage) {
+                submissionMessage.textContent = "Error: User not logged in. Please log in first.";
+                submissionMessage.classList.remove('hidden');
+            }
+            return;
+        }
+
+        // 2. Create the new team object with form data
+        // TODO: Update payload based on your backend schema
+        // Required fields: name, and any other fields your backend expects
+        const newTeamPayload = {
+            password: password,
+            displayName: name + ' (' + year + ')'
+            // TODO: Add other required fields (e.g., description, teamType, year, etc.)
         };
 
-        // 2. Add to the in-memory array
-        teams.push(newTeam);
+        // 3. Save to the backend (returns the full saved object with its ID)
+        const savedTeam = await saveNewTeamToBackend(newTeamPayload);
         
-        // 3. Sort the array (by year descending)
-        teams.sort((a, b) => (b.year || 0) - (a.year || 0)); 
+        // Ensure displayName is set (in case backend doesn't return it)
+        if (!savedTeam.displayName) {
+            savedTeam.displayName = newTeamPayload.displayName;
+        }
 
-        // 4. Re-render the list
-        renderTeams(teams);
+        // 4. Update the global data store with the new team
+        currentTeamsData.push(savedTeam);
+        
+        // 5. Re-sort alphabetically by displayName
+        currentTeamsData.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || '')); 
+
+        // 6. Re-render the list
+        renderTeams(currentTeamsData);
         
         hideModal();
         
     } catch (error) {
         console.error("Error adding team: ", error);
         if (submissionMessage) {
-            submissionMessage.textContent = "Failed to add team. Please try again.";
+            submissionMessage.textContent = "Failed to add team. Please try again. Check console for details.";
             submissionMessage.classList.remove('hidden');
         }
     } finally {
@@ -165,15 +277,7 @@ if (newTeamForm) {
     newTeamForm.addEventListener('submit', handleSubmitNewTeam);
 }
 
-// Add navigation to settings page
-const accountSettingsBtn = document.getElementById('account-settings-btn');
-if (accountSettingsBtn) {
-    accountSettingsBtn.addEventListener('click', () => {
-        window.location.href = 'settings.html';
-    });
-}
-
-// --- Bowling Ball Drag and Scroll Logic ---
+// --- Bowling Ball Drag and Scroll Logic (NO CHANGE HERE) ---
 
 function updateBallPosition() {
     if (isDragging || !ballIndicator || !track) return;
@@ -232,7 +336,7 @@ function endDrag() {
     updateBallPosition(); 
 }
 
-// Attach Drag/Scroll Listeners (wrapped in checks for ballIndicator and scrollContainer)
+// Attach Drag/Scroll Listeners 
 if (ballIndicator) {
     // Mouse Events
     ballIndicator.addEventListener('mousedown', (e) => {
@@ -269,7 +373,18 @@ window.addEventListener('resize', updateBallPosition);
 
 // --- Initialization ---
 
-window.onload = () => {
-    // Render the initial list of teams stored in the 'teams' array
-    renderTeams(teams);
+async function initializeApp() { // NOW ASYNCHRONOUS
+    // 1. Fetch data from the backend
+    const fetchedTeams = await fetchTeamsFromBackend();
+    
+    // 2. Sort the data by displayName alphabetically
+    fetchedTeams.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || '')); 
+    
+    // 3. Store the data globally
+    currentTeamsData = fetchedTeams;
+    
+    // 4. Render the list
+    renderTeams(currentTeamsData);
 }
+
+window.onload = initializeApp;
