@@ -71,71 +71,8 @@ input.bowling-input.email-readonly {
     box-shadow: none;
 }
 
-/* Color preview button styling */
-.color-preview-wrapper {
-    position: relative;
-}
-
-.color-preview-btn {
-    padding: 4px;
-    background-color: #000000;
-    border: 2px solid #FFFFFF;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.color-preview-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-.color-preview {
-    width: 50px;
-    height: 50px;
-    border-radius: 6px;
-    background-color: #FFFFFF;
-}
-
-/* Color picker modal */
-.color-picker-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.color-picker-modal.hidden {
-    display: none;
-}
-
-.color-picker-content {
-    background-color: rgba(0, 0, 0, 0.95);
-    border: 2px solid #FFFFFF;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-    min-width: 300px;
-}
-
-/* Color wheel styling */
-.color-wheel {
-    width: 100%;
-    height: 200px;
-    border: 2px solid #FFFFFF;
-    border-radius: 8px;
-    cursor: pointer;
-    background-color: #000000;
-}
-
 /* Button styles */
-.edit-btn, .save-btn, .cancel-btn, .apply-color-btn {
+.edit-btn, .save-btn, .cancel-btn {
     padding: 0.5rem 1.5rem;
     border-radius: 0.5rem;
     font-weight: 600;
@@ -157,13 +94,13 @@ input.bowling-input.email-readonly {
     transform: scale(1.05);
 }
 
-.save-btn, .apply-color-btn {
+.save-btn {
     background-color: #FFFFFF;
     color: #000000;
     border-color: #FFFFFF;
 }
 
-.save-btn:hover, .apply-color-btn:hover {
+.save-btn:hover {
     background-color: #f0f0f0;
     transform: scale(1.05);
 }
@@ -178,10 +115,6 @@ input.bowling-input.email-readonly {
     background-color: #1F2937;
     color: white;
     border-color: #6B7280;
-}
-
-.apply-color-btn {
-    width: 100%;
 }
 
 /* Message box styles */
@@ -203,11 +136,6 @@ input.bowling-input.email-readonly {
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-    .color-preview {
-        width: 40px;
-        height: 40px;
-    }
-    
     .edit-btn, .save-btn, .cancel-btn {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;

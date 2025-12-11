@@ -1,22 +1,6 @@
 // Account Settings Page JavaScript
 
 // Get all DOM elements
-const primaryColorBtn = document.getElementById('primary-color-btn');
-const primaryColorPicker = document.getElementById('primary-color-picker');
-const primaryColorInput = document.getElementById('primary-color-input');
-const primaryColorValue = document.getElementById('primary-color-value');
-const primaryColorPreview = document.getElementById('primary-color-preview');
-const closePrimaryPicker = document.getElementById('close-primary-picker');
-const applyPrimaryColor = document.getElementById('apply-primary-color');
-
-const secondaryColorBtn = document.getElementById('secondary-color-btn');
-const secondaryColorPicker = document.getElementById('secondary-color-picker');
-const secondaryColorInput = document.getElementById('secondary-color-input');
-const secondaryColorValue = document.getElementById('secondary-color-value');
-const secondaryColorPreview = document.getElementById('secondary-color-preview');
-const closeSecondaryPicker = document.getElementById('close-secondary-picker');
-const applySecondaryColor = document.getElementById('apply-secondary-color');
-
 const schoolInput = document.getElementById('school-input');
 const editSchoolBtn = document.getElementById('edit-school-btn');
 const schoolEditControls = document.getElementById('school-edit-controls');
@@ -39,61 +23,6 @@ const messageText = document.getElementById('message-text');
 // Store original values
 let originalSchool = schoolInput.value;
 let originalPassword = passwordInput.value;
-
-// Primary Color Picker Functions
-primaryColorBtn.addEventListener('click', () => {
-    primaryColorPicker.classList.remove('hidden');
-});
-
-closePrimaryPicker.addEventListener('click', () => {
-    primaryColorPicker.classList.add('hidden');
-});
-
-primaryColorInput.addEventListener('input', (e) => {
-    primaryColorPreview.style.backgroundColor = e.target.value;
-});
-
-applyPrimaryColor.addEventListener('click', () => {
-    const selectedColor = primaryColorInput.value;
-    primaryColorValue.value = selectedColor;
-    primaryColorPreview.style.backgroundColor = selectedColor;
-    primaryColorPicker.classList.add('hidden');
-    showMessage('Primary color updated!', 'success');
-});
-
-// Secondary Color Picker Functions
-secondaryColorBtn.addEventListener('click', () => {
-    secondaryColorPicker.classList.remove('hidden');
-});
-
-closeSecondaryPicker.addEventListener('click', () => {
-    secondaryColorPicker.classList.add('hidden');
-});
-
-secondaryColorInput.addEventListener('input', (e) => {
-    secondaryColorPreview.style.backgroundColor = e.target.value;
-});
-
-applySecondaryColor.addEventListener('click', () => {
-    const selectedColor = secondaryColorInput.value;
-    secondaryColorValue.value = selectedColor;
-    secondaryColorPreview.style.backgroundColor = selectedColor;
-    secondaryColorPicker.classList.add('hidden');
-    showMessage('Secondary color updated!', 'success');
-});
-
-// Close modals when clicking outside
-primaryColorPicker.addEventListener('click', (e) => {
-    if (e.target === primaryColorPicker) {
-        primaryColorPicker.classList.add('hidden');
-    }
-});
-
-secondaryColorPicker.addEventListener('click', (e) => {
-    if (e.target === secondaryColorPicker) {
-        secondaryColorPicker.classList.add('hidden');
-    }
-});
 
 // School Edit Functions
 editSchoolBtn.addEventListener('click', () => {
@@ -170,8 +99,6 @@ togglePasswordBtn.addEventListener('click', () => {
 saveAllBtn.addEventListener('click', () => {
     // Collect all settings
     const settings = {
-        primaryColor: primaryColorValue.value,
-        secondaryColor: secondaryColorValue.value,
         school: schoolInput.value,
         email: emailInput.value,
         password: passwordInput.value
@@ -198,42 +125,6 @@ function showMessage(message, type) {
         messageBox.classList.add('hidden');
     }, 4000);
 }
-
-// Manual hex input for primary color
-primaryColorValue.addEventListener('input', (e) => {
-    let value = e.target.value;
-    // Ensure it starts with #
-    if (!value.startsWith('#')) {
-        value = '#' + value;
-        e.target.value = value;
-    }
-    // Validate hex color format
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        primaryColorPreview.style.backgroundColor = value;
-        primaryColorInput.value = value;
-    }
-});
-
-// Manual hex input for secondary color
-secondaryColorValue.addEventListener('input', (e) => {
-    let value = e.target.value;
-    // Ensure it starts with #
-    if (!value.startsWith('#')) {
-        value = '#' + value;
-        e.target.value = value;
-    }
-    // Validate hex color format
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        secondaryColorPreview.style.backgroundColor = value;
-        secondaryColorInput.value = value;
-    }
-});
-
-// Initialize color previews on page load
-window.addEventListener('DOMContentLoaded', () => {
-    primaryColorPreview.style.backgroundColor = primaryColorValue.value;
-    secondaryColorPreview.style.backgroundColor = secondaryColorValue.value;
-});
 
 // Logout Button Handler
 const logoutBtn = document.getElementById('logout-btn');
