@@ -10,7 +10,6 @@
 </head>
 <body>
 
-    <!-- Logo in top left corner -->
     <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
         <img src="KINGPIN_logo_transparent.png" alt="KingPin Logo" style="height: 200px; width: auto;">
     </div>
@@ -41,7 +40,6 @@
                     <input id="password" name="password" type="password" autocomplete="new-password" required
                         class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
                         placeholder="Password Space" aria-describedby="password-help">
-                    <!-- type="button" prevents form submission; id used by JS -->
                     <button id="toggle-password" type="button" class="ml-2 text-sm px-3 py-2 rounded-md bg-white text-black font-medium hover:bg-gray-200" aria-label="Show password" aria-pressed="false">Show</button>
                 </div>
                 <p id="password-help" class="sr-only">Toggle to show or hide the password.</p>
@@ -53,10 +51,18 @@
                     <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required
                         class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
                         placeholder="Confirm Password" aria-describedby="confirm-password-help">
-                    <!-- type="button" prevents form submission; id used by JS -->
                     <button id="toggle-confirm-password" type="button" class="ml-2 text-sm px-3 py-2 rounded-md bg-white text-black font-medium hover:bg-gray-200" aria-label="Show confirm password" aria-pressed="false">Show</button>
                 </div>
                 <p id="confirm-password-help" class="sr-only">Toggle to show or hide the confirmation password.</p>
+            </div>
+
+            <div>
+                <label for="display-name" class="block text-sm font-medium text-gray-200">Display Name</label>
+                <div class="mt-1">
+                    <input id="display-name" name="displayName" type="text" required
+                        class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
+                        placeholder="Enter Display Name">
+                </div>
             </div>
 
             <div>
