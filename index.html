@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KingPin Login</title>
     <link rel="icon" href="SiteIcon.png" type="image/png">
-    <!-- Load Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link the external CSS file -->
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
 
-    <!-- Logo in top left corner -->
     <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
         <img src="KINGPIN_logo_transparent.png" alt="KingPin Logo" style="height: 200px; width: auto;">
     </div>
 
-    <!-- Login Card Container -->
     <div id="login-card" class="login-card w-full max-w-md p-8 rounded-2xl">
 
         <h2 class="text-3xl font-black text-white mb-2 text-center tracking-wider">
@@ -27,10 +23,8 @@
             Grab your ball and get rolling!
         </p>
 
-        <!-- Login Form -->
         <form id="login-form" class="space-y-6">
 
-            <!-- Email Input -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-200">Email</label>
                 <div class="mt-1">
@@ -40,17 +34,20 @@
                 </div>
             </div>
 
-            <!-- Password Input -->
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-200">Password</label>
-                <div class="mt-1">
+                <div class="mt-1 relative flex items-center">
                     <input id="password" name="password" type="password" autocomplete="current-password" required
                         class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
                         placeholder="password">
+                    <button id="toggle-password" type="button" 
+                        class="ml-2 text-sm px-3 py-2 rounded-md bg-white text-black font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white" 
+                        aria-label="Show password">
+                        Show
+                    </button>
                 </div>
             </div>
 
-            <!-- Forgot Password and Remember Me -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox"
@@ -67,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Submission Button -->
             <div>
                 <button type="submit"
                     class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-black bg-white hover:bg-white focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900 transition duration-150 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
@@ -76,7 +72,6 @@
             </div>
         </form>
 
-        <!-- Registration Link -->
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-400">
                 New to the league?
@@ -86,14 +81,12 @@
             </p>
         </div>
 
-        <!-- Message Box for Login Status -->
         <div id="message-box" class="mt-6 p-4 rounded-lg text-sm hidden transition duration-300 ease-in-out" role="alert">
             <p id="message-text" class="font-semibold"></p>
         </div>
 
     </div>
 
-    <!-- Link the external JavaScript file -->
     <script src="login.js" defer></script>
 </body>
 </html>
