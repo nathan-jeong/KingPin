@@ -5,7 +5,8 @@ function checkAndAutoLogin() {
     const rememberMe = localStorage.getItem('rememberMe') === 'true';
     const savedEmail = localStorage.getItem('email');
     const savedPassword = localStorage.getItem('password');
-    
+    const school = localStorage.getItem('school');
+
     if (rememberMe && savedEmail && savedPassword) {
         console.log('Auto-logging in with saved credentials...');
         // Pre-fill the form
@@ -94,15 +95,17 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             localStorage.setItem('email', email);
             localStorage.setItem('password', password);
             localStorage.setItem('rememberMe', rememberMe);
+            localStorage.setItem('school', response.user.displayName);
+
             console.log('Credentials stored:', email, 'Remember me:', rememberMe);
             
             // Extract and store user ID from response
             if (response.user && response.user.userId) {
                 localStorage.setItem('userId', response.user.userId);
-                console.log('User ID stored:', response.user.userId);
+                console.log('User ID stored:', response.user.userId + ", displayName:" + response.user.displayName);
             } else if (response.user && response.user.id) {
                 localStorage.setItem('userId', response.user.id);
-                console.log('User ID stored:', response.user.id);
+                console.log('User ID stored:', response.user.id + ", displayName:" + response.user.displayName);
             } else {
                 console.warn('No userId or id field in login response');
             }
