@@ -1,6 +1,11 @@
 // Account Settings Page JavaScript
 
 // Get all DOM elements
+const rememberMe = localStorage.getItem('rememberMe') === 'true';
+const savedEmail = localStorage.getItem('email');
+const savedPassword = localStorage.getItem('password');
+const school = localStorage.getItem('school');
+
 const schoolInput = document.getElementById('school-input');
 const editSchoolBtn = document.getElementById('edit-school-btn');
 const schoolEditControls = document.getElementById('school-edit-controls');
@@ -8,6 +13,14 @@ const saveSchoolBtn = document.getElementById('save-school-btn');
 const cancelSchoolBtn = document.getElementById('cancel-school-btn');
 
 const emailInput = document.getElementById('email-input');
+
+// Display saved email (from localStorage) if available
+if (emailInput) {
+    if (savedEmail) {
+        emailInput.value = savedEmail;
+    }
+    emailInput.disabled = true;
+}
 
 const passwordInput = document.getElementById('password-input');
 const editPasswordBtn = document.getElementById('edit-password-btn');
@@ -19,6 +32,22 @@ const togglePasswordBtn = document.getElementById('toggle-password-btn');
 const saveAllBtn = document.getElementById('save-all-btn');
 const messageBox = document.getElementById('message-box');
 const messageText = document.getElementById('message-text');
+
+// Display saved school and password (from localStorage) if available
+if (schoolInput) {
+    if (school) {
+        schoolInput.value = school;
+    }
+    schoolInput.readOnly = true;
+}
+
+if (passwordInput) {
+    if (savedPassword) {
+        passwordInput.value = savedPassword;
+    }
+    passwordInput.readOnly = true;
+    passwordInput.type = 'password';
+}
 
 // Store original values
 let originalSchool = schoolInput.value;
