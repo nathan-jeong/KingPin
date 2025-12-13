@@ -393,6 +393,15 @@ async function initializeApp() { // NOW ASYNCHRONOUS
     
     // 4. Render the list
     renderTeams(currentTeamsData);
+
+    
+    // 5. Attach Account Settings button listener
+    const accountSettingsBtn = document.getElementById('account-settings-btn');
+    if (accountSettingsBtn) {
+        accountSettingsBtn.addEventListener('click', () => {
+            window.location.href = 'settings.html';
+        });
+    }
 }
 
 window.onload = initializeApp;
