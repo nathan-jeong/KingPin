@@ -1,22 +1,37 @@
 const API_BASE = 'https://kingpin-backend-production.up.railway.app';
+const COOKIE_DAYS = 30;
+
+function setCookie(name, value, days = COOKIE_DAYS) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+}
+
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function eraseCookie(name) {
+    document.cookie = `${name}=; Max-Age=0; path=/`;
+}
 
 // Auto-login on page load if "remember me" was previously enabled
 function checkAndAutoLogin() {
-    const rememberMe = localStorage.getItem('rememberMe') === 'true';
-    const savedEmail = localStorage.getItem('email');
-    const savedPassword = localStorage.getItem('password');
-    const school = localStorage.getItem('school');
+    const rememberMe = getCookie('rememberMe') === 'true';
+    const savedEmail = getCookie('email');
+    const savedPassword = getCookie('password');
 
     if (rememberMe && savedEmail && savedPassword) {
         console.log('Auto-logging in with saved credentials...');
-        // Pre-fill the form
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('remember-me');
         
         if (emailInput) emailInput.value = savedEmail;
         if (passwordInput) passwordInput.value = savedPassword;
+        if (rememberCheckbox) rememberCheckbox.checked = true;
         
-        // Auto-submit the login form
         setTimeout(() => {
             const form = document.getElementById('login-form');
             if (form) form.dispatchEvent(new Event('submit'));
@@ -121,20 +136,35 @@ if (loginForm) {
             .then(response => {
                 console.log('Login response:', response);
                 
-                // Always store credentials on successful login
-                localStorage.setItem('email', email);
-                localStorage.setItem('password', password);
-                localStorage.setItem('rememberMe', rememberMe);
-                localStorage.setItem('school', response.user.displayName);
+                // Persist credentials in cookies when remember-me is checked
+                if (rememberMe) {
+                    setCookie('email', email);
+                    setCookie('password', password);
+                    setCookie('rememberMe', 'true');
+                    setCookie('displayName', response.user.displayName || '');
+                    setCookie('school', response.user.displayName || '');
+                    localStorage.setItem('email', email);
+                    localStorage.setItem('password', password);
+                    localStorage.setItem('rememberMe', 'true');
+                } else {
+                    ['email', 'password', 'rememberMe', 'displayName', 'school'].forEach(eraseCookie);
+                    localStorage.removeItem('email');
+                    localStorage.removeItem('password');
+                    localStorage.removeItem('rememberMe');
+                }
 
-                console.log('Credentials stored:', email, 'Remember me:', rememberMe);
+                console.log('Credentials stored (cookies) for', email, 'Remember me:', rememberMe);
                 
-                // Extract and store user ID from response
+                // Extract and store user ID and displayName from response
                 if (response.user && response.user.userId) {
                     localStorage.setItem('userId', response.user.userId);
+                    localStorage.setItem('displayName', response.user.displayName || '');
+                    localStorage.setItem('school', response.user.displayName || '');
                     console.log('User ID stored:', response.user.userId + ", displayName:" + response.user.displayName);
                 } else if (response.user && response.user.id) {
                     localStorage.setItem('userId', response.user.id);
+                    localStorage.setItem('displayName', response.user.displayName || '');
+                    localStorage.setItem('school', response.user.displayName || '');
                     console.log('User ID stored:', response.user.id + ", displayName:" + response.user.displayName);
                 } else {
                     console.warn('No userId or id field in login response');
