@@ -121,10 +121,13 @@ function renderTeams(currentTeams) {
     
     currentTeams.forEach(team => {
         const card = document.createElement('div');
-        card.className = "team-card flex-shrink-0 w-64 h-80 bg-white border-4 border-gray-200 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center hover:shadow-xl hover:border-gray-300";
+        card.className = "team-card flex-shrink-0 w-64 h-80 bg-white border-4 border-gray-200 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center hover:shadow-xl hover:border-gray-300 relative";
         card.dataset.teamId = team.teamId;
         card.dataset.displayName = team.displayName || 'Untitled Team';
         card.innerHTML = `
+            <button class="delete-team-btn absolute top-2 right-2 text-gray-400 hover:text-gray-700 font-bold text-2xl transition-colors z-10" aria-label="Delete team">
+                ×
+            </button>
             <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
             <!-- TODO: Add additional fields to display (e.g., player count, awards, etc.) -->
         `;
@@ -132,6 +135,15 @@ function renderTeams(currentTeams) {
 
         // Attach click listener for selection
         card.addEventListener('click', handleTeamCardClick);
+        
+        // Attach delete button listener
+        const deleteBtn = card.querySelector('.delete-team-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent card click event
+                handleDeleteTeam(team.teamId, team.displayName);
+            });
+        }
     });
 
     // Add padding element to ensure the last card can scroll fully into view
@@ -148,6 +160,55 @@ function renderTeams(currentTeams) {
 }
 
 // --- Event Handlers ---
+
+/**
+ * Handles team deletion with confirmation and backend integration
+ * @param {string} teamId - The ID of the team to delete
+ * @param {string} teamDisplayName - The display name of the team
+ */
+async function handleDeleteTeam(teamId, teamDisplayName) {
+    // Confirm deletion
+    const confirmed = confirm(`Are you sure you want to delete "${teamDisplayName}"? This action cannot be undone.`);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const userId = localStorage.getItem('userId');
+        const password = localStorage.getItem('password');
+
+        if (!userId || !password) {
+            alert('Error: User credentials not found. Please log in again.');
+            return;
+        }
+
+        // Send DELETE request to backend
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams/${teamId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server ${response.status}: ${errorText || response.statusText}`);
+        }
+
+        console.log(`Team ${teamId} deleted successfully`);
+
+        // Remove from local data store
+        currentTeamsData = currentTeamsData.filter(team => team.teamId !== teamId);
+
+        // Re-render the list
+        renderTeams(currentTeamsData);
+
+    } catch (error) {
+        console.error('Error deleting team:', error);
+        alert(`Failed to delete team: ${error.message}`);
+    }
+}
 
 function handleTeamCardClick(event) {
     // ... (NO CHANGE HERE) ...
@@ -394,7 +455,6 @@ async function initializeApp() { // NOW ASYNCHRONOUS
     // 4. Render the list
     renderTeams(currentTeamsData);
 
-    
     // 5. Attach Account Settings button listener
     const accountSettingsBtn = document.getElementById('account-settings-btn');
     if (accountSettingsBtn) {
