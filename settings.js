@@ -1,16 +1,41 @@
 // Account Settings Page JavaScript
+const API_BASE = 'https://kingpin-backend-production.up.railway.app';
 
 // Get all DOM elements
 const rememberMe = localStorage.getItem('rememberMe') === 'true';
 const savedEmail = localStorage.getItem('email');
 const savedPassword = localStorage.getItem('password');
-const school = localStorage.getItem('school');
+const savedDisplayName = localStorage.getItem('displayName');
+const userId = localStorage.getItem('userId');
 
-const schoolInput = document.getElementById('school-input');
-const editSchoolBtn = document.getElementById('edit-school-btn');
-const schoolEditControls = document.getElementById('school-edit-controls');
-const saveSchoolBtn = document.getElementById('save-school-btn');
-const cancelSchoolBtn = document.getElementById('cancel-school-btn');
+function clearAllCookies() {
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+    cookies.forEach(raw => {
+        const eqPos = raw.indexOf('=');
+        const name = (eqPos > -1 ? raw.substr(0, eqPos) : raw).trim();
+        if (name) {
+            document.cookie = `${name}=; Max-Age=0; path=/`;
+        }
+    });
+}
+
+function clearAllAuthStorage() {
+    // Clear known auth-related cookies
+    ['email', 'password', 'rememberMe', 'school', 'teamId', 'teamDisplayName', 'teamName', 'userId'].forEach(name => {
+        document.cookie = `${name}=; Max-Age=0; path=/`;
+    });
+    // Clear any other cookies on this origin
+    clearAllCookies();
+
+    // Clear all localStorage (per requirement)
+    localStorage.clear();
+}
+
+const displayNameInput = document.getElementById('display-name-input');
+const editDisplayNameBtn = document.getElementById('edit-display-name-btn');
+const displayNameEditControls = document.getElementById('display-name-edit-controls');
+const saveDisplayNameBtn = document.getElementById('save-display-name-btn');
+const cancelDisplayNameBtn = document.getElementById('cancel-display-name-btn');
 
 const emailInput = document.getElementById('email-input');
 
@@ -29,16 +54,15 @@ const savePasswordBtn = document.getElementById('save-password-btn');
 const cancelPasswordBtn = document.getElementById('cancel-password-btn');
 const togglePasswordBtn = document.getElementById('toggle-password-btn');
 
-const saveAllBtn = document.getElementById('save-all-btn');
 const messageBox = document.getElementById('message-box');
 const messageText = document.getElementById('message-text');
 
-// Display saved school and password (from localStorage) if available
-if (schoolInput) {
-    if (school) {
-        schoolInput.value = school;
+// Display saved display name and password (from localStorage) if available
+if (displayNameInput) {
+    if (savedDisplayName) {
+        displayNameInput.value = savedDisplayName;
     }
-    schoolInput.readOnly = true;
+    displayNameInput.readOnly = true;
 }
 
 if (passwordInput) {
@@ -50,33 +74,70 @@ if (passwordInput) {
 }
 
 // Store original values
-let originalSchool = schoolInput.value;
+let originalDisplayName = displayNameInput.value;
 let originalPassword = passwordInput.value;
 
-// School Edit Functions
-editSchoolBtn.addEventListener('click', () => {
-    originalSchool = schoolInput.value;
-    schoolInput.readOnly = false;
-    schoolInput.focus();
-    schoolInput.classList.add('border-rose-500');
-    editSchoolBtn.classList.add('hidden');
-    schoolEditControls.classList.remove('hidden');
+// Display Name Edit Functions
+editDisplayNameBtn.addEventListener('click', () => {
+    originalDisplayName = displayNameInput.value;
+    displayNameInput.readOnly = false;
+    displayNameInput.focus();
+    displayNameInput.classList.add('border-rose-500');
+    editDisplayNameBtn.classList.add('hidden');
+    displayNameEditControls.classList.remove('hidden');
 });
 
-saveSchoolBtn.addEventListener('click', () => {
-    schoolInput.readOnly = true;
-    schoolInput.classList.remove('border-rose-500');
-    editSchoolBtn.classList.remove('hidden');
-    schoolEditControls.classList.add('hidden');
-    showMessage('School updated successfully!', 'success');
+saveDisplayNameBtn.addEventListener('click', () => {
+    const newDisplayName = displayNameInput.value.trim();
+
+    if (!newDisplayName) {
+        showMessage('Display name cannot be empty.', 'error');
+        return;
+    }
+
+    if (!userId) {
+        showMessage('Cannot update display name: user not logged in.', 'error');
+        return;
+    }
+
+    const password = prompt('Enter your password to update display name:');
+    if (!password) {
+        showMessage('Display name update cancelled (missing password).', 'error');
+        return;
+    }
+
+    fetch(`${API_BASE}/accounts/${userId}/displayName`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, displayName: newDisplayName })
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `Server ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(() => {
+        displayNameInput.readOnly = true;
+        displayNameInput.classList.remove('border-rose-500');
+        editDisplayNameBtn.classList.remove('hidden');
+        displayNameEditControls.classList.add('hidden');
+        localStorage.setItem('displayName', newDisplayName);
+        localStorage.setItem('school', newDisplayName);
+        showMessage('Display name updated successfully!', 'success');
+    })
+    .catch((err) => {
+        showMessage(`Display name update failed: ${err.message}`, 'error');
+    });
 });
 
-cancelSchoolBtn.addEventListener('click', () => {
-    schoolInput.value = originalSchool;
-    schoolInput.readOnly = true;
-    schoolInput.classList.remove('border-rose-500');
-    editSchoolBtn.classList.remove('hidden');
-    schoolEditControls.classList.add('hidden');
+cancelDisplayNameBtn.addEventListener('click', () => {
+    displayNameInput.value = originalDisplayName;
+    displayNameInput.readOnly = true;
+    displayNameInput.classList.remove('border-rose-500');
+    editDisplayNameBtn.classList.remove('hidden');
+    displayNameEditControls.classList.add('hidden');
 });
 
 // Password Edit Functions
@@ -95,13 +156,44 @@ savePasswordBtn.addEventListener('click', () => {
         showMessage('Password must be at least 8 characters long', 'error');
         return;
     }
-    
-    passwordInput.readOnly = true;
-    passwordInput.type = 'password';
-    passwordInput.classList.remove('border-rose-500');
-    editPasswordBtn.classList.remove('hidden');
-    passwordEditControls.classList.add('hidden');
-    showMessage('Password updated successfully!', 'success');
+
+    if (!userId) {
+        showMessage('Cannot change password: user not logged in.', 'error');
+        return;
+    }
+
+    const currentPassword = prompt('Enter your current password to confirm the change:');
+    if (!currentPassword) {
+        showMessage('Password change cancelled (missing current password).', 'error');
+        return;
+    }
+
+    const newPassword = passwordInput.value;
+
+    fetch(`${API_BASE}/accounts/${userId}/password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `Server ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(() => {
+        passwordInput.readOnly = true;
+        passwordInput.type = 'password';
+        passwordInput.classList.remove('border-rose-500');
+        editPasswordBtn.classList.remove('hidden');
+        passwordEditControls.classList.add('hidden');
+        localStorage.setItem('password', newPassword);
+        showMessage('Password updated successfully!', 'success');
+    })
+    .catch((err) => {
+        showMessage(`Password change failed: ${err.message}`, 'error');
+    });
 });
 
 cancelPasswordBtn.addEventListener('click', () => {
@@ -124,24 +216,6 @@ togglePasswordBtn.addEventListener('click', () => {
     }
 });
 
-// Save All Changes
-saveAllBtn.addEventListener('click', () => {
-    // Collect all settings
-    const settings = {
-        school: schoolInput.value,
-        email: emailInput.value,
-        password: passwordInput.value
-    };
-    
-    // Here you would typically send this data to a server
-    console.log('Saving all settings:', settings);
-    
-    // Show success message
-    showMessage('All settings saved successfully!', 'success');
-    
-    // In a real application, you might redirect or update the UI
-    // For now, we'll just show a message
-});
 
 // Message Display Function
 function showMessage(message, type) {
@@ -159,7 +233,7 @@ function showMessage(message, type) {
 const logoutBtn = document.getElementById('logout-btn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-        // Redirect to login page
+        clearAllAuthStorage();
         window.location.href = 'index.html';
     });
 }
@@ -175,19 +249,38 @@ if (deleteAccountBtn) {
             // Second confirmation: Password prompt
             const password = prompt('Please enter your password to confirm account deletion:');
             
-            if (password && password.trim() !== '') {
-                // Here you would typically verify the password with the server
-                // For now, we'll just redirect to the signup page
-                showMessage('Account deleted successfully. Redirecting to signup...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'SignUp.html';
-                }, 1500);
-            } else if (password !== null) {
-                // User entered empty password
-                showMessage('Password is required to delete account.', 'error');
+            if (!password || password.trim() === '') {
+                if (password !== null) showMessage('Password is required to delete account.', 'error');
+                return;
             }
-            // If password is null, user clicked Cancel, so do nothing
+
+            if (!userId) {
+                showMessage('Cannot delete account: user not logged in.', 'error');
+                return;
+            }
+
+            fetch(`${API_BASE}/accounts/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            })
+            .then(async (response) => {
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(text || `Server ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(() => {
+                showMessage('Account deleted successfully. Redirecting to signup...', 'success');
+                clearAllAuthStorage();
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
+            })
+            .catch((err) => {
+                showMessage(`Delete failed: ${err.message}`, 'error');
+            });
         }
     });
 }
