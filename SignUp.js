@@ -69,14 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Read values
             const emailEl = document.getElementById('email');
             const schoolEl = document.getElementById('school');
+            const displayNameEl = document.getElementById('display-name');
 
             const email = emailEl ? emailEl.value.trim() : '';
             const password = passwordInput ? passwordInput.value : '';
             const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
             const school = schoolEl ? schoolEl.value.trim() : '';
+            const displayName = displayNameEl ? displayNameEl.value.trim() : '';
 
             // Validation
-            if (email === '' || password === '' || confirmPassword === '' || school === '') {
+            if (email === '' || password === '' || confirmPassword === '' || school === '' || displayName === '') {
                 updateMessage('Oops! Please fill in all the required fields to sign up.', 'error');
                 return;
             }
@@ -95,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const newPost = {
                 "email": email,
                 "password": password,
-                "username": email,
-                "displayName": school,
+                "username": school,
+                "displayName": displayName,
             };
 
             // Use full URL (include protocol). Without protocol fetch will treat this as a relative path.
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Signup response:', data);
                 updateMessage('Account created successfully!', 'success');
                 document.getElementById('signup-form').reset();
-                window.location.href = "index.html";
+                window.location.href = "KingPinLogin.html";
             })
             .catch(error => {
                 console.error('Signup fetch error:', error);
