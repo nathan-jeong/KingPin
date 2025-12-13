@@ -13,7 +13,7 @@
 <body>
 
     <!-- Logo in top left corner -->
-    <a href="Dashboard.html" class="logo-link" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <a href="teamSelector.html" class="logo-link" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
         <img src="KINGPIN_logo_transparent.png" alt="KingPin Logo" style="height: 50px; width: auto;">
     </a>
 
@@ -30,23 +30,23 @@
         <!-- Settings Form -->
         <div class="space-y-8">
 
-            <!-- School Section -->
+            <!-- Display Name Section -->
             <div class="settings-section">
-                <h3 class="text-xl font-bold text-white mb-4">School</h3>
+                <h3 class="text-xl font-bold text-white mb-4">Display Name</h3>
                 <div class="flex items-center gap-4">
-                    <input type="text" id="school-input" 
+                    <input type="text" id="display-name-input" 
                         class="bowling-input flex-1 px-4 py-3 rounded-lg"
-                        value="Strike University"
+                        value="KingPin Captain"
                         readonly>
-                    <button type="button" id="edit-school-btn" class="edit-btn">
+                    <button type="button" id="edit-display-name-btn" class="edit-btn">
                         Edit
                     </button>
                 </div>
-                <div id="school-edit-controls" class="hidden mt-3 flex gap-2">
-                    <button type="button" id="save-school-btn" class="save-btn">
+                <div id="display-name-edit-controls" class="hidden mt-3 flex gap-2">
+                    <button type="button" id="save-display-name-btn" class="save-btn">
                         Save
                     </button>
-                    <button type="button" id="cancel-school-btn" class="cancel-btn">
+                    <button type="button" id="cancel-display-name-btn" class="cancel-btn">
                         Cancel
                     </button>
                 </div>
@@ -89,14 +89,6 @@
                         Cancel
                     </button>
                 </div>
-            </div>
-
-            <!-- Save All Button -->
-            <div class="pt-4">
-                <button type="button" id="save-all-btn"
-                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-black bg-white hover:bg-white focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900 transition duration-150 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
-                    Save All Changes
-                </button>
             </div>
 
             <!-- Logout Button -->
