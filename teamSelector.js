@@ -12,7 +12,7 @@ async function fetchTeamsFromBackend() {
     try {
         // Get userId from localStorage (set during login)
         const userId = localStorage.getItem('userId');
-        
+
         if (!userId) {
             console.warn("No userId found in localStorage. Cannot fetch teams.");
             return [];
@@ -123,6 +123,7 @@ function renderTeams(currentTeams) {
         const card = document.createElement('div');
         card.className = "team-card flex-shrink-0 w-64 h-80 bg-white border-4 border-gray-200 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center hover:shadow-xl hover:border-gray-300";
         card.dataset.teamId = team.teamId;
+        card.dataset.displayName = team.displayName || 'Untitled Team';
         card.innerHTML = `
             <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
             <!-- TODO: Add additional fields to display (e.g., player count, awards, etc.) -->
@@ -153,9 +154,16 @@ function handleTeamCardClick(event) {
     const card = event.currentTarget;
     document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected', 'border-teal-600'));
     card.classList.add('selected', 'border-teal-600');
-    const teamName = card.querySelector('p:first-child').textContent;
-    console.log(`Team Selected: ${teamName}`);
+    const teamName = card.dataset.displayName || card.querySelector('p:first-child').textContent;
+    const teamId = card.dataset.teamId;
+    console.log(`Team Selected: ${teamName} (${teamId})`);
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+    localStorage.setItem('teamId', teamId);
+    localStorage.setItem('teamDisplayName', teamName);
+    window.location.href = "dashboard.html";
+
+
 }
 
 // --- Modal Logic ---
@@ -275,14 +283,6 @@ if (closeModalBtn) {
 }
 if (newTeamForm) {
     newTeamForm.addEventListener('submit', handleSubmitNewTeam);
-}
-
-// Account Settings button listener
-const accountSettingsBtn = document.getElementById('account-settings-btn');
-if (accountSettingsBtn) {
-    accountSettingsBtn.addEventListener('click', () => {
-        window.location.href = 'settings.html';
-    });
 }
 
 // --- Bowling Ball Drag and Scroll Logic (NO CHANGE HERE) ---
