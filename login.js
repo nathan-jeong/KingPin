@@ -181,3 +181,64 @@ if (loginForm) {
             });
     });
 }
+
+// Forgot Password Handler
+const forgotPasswordLink = document.getElementById('forgot-password-link');
+if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        // Try to get email from the form first
+        const emailInput = document.getElementById('email');
+        let email = emailInput ? emailInput.value.trim() : '';
+        
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+
+        function updateMessage(text, type) {
+            const baseClasses = ['p-4', 'rounded-lg', 'text-sm', 'font-semibold'];
+            const colors = {
+                error: { bg: 'bg-red-900', text: 'text-red-300' },
+                info: { bg: 'bg-blue-900', text: 'text-blue-300' },
+                success: { bg: 'bg-green-900', text: 'text-green-300' }
+            };
+
+            if (!messageBox || !messageText) return;
+
+            messageBox.className = baseClasses.join(' ');
+            messageBox.classList.add(colors[type].bg, colors[type].text);
+            messageBox.classList.remove('hidden');
+            messageBox.style.display = 'block';
+            messageText.textContent = text;
+        }
+
+        // If no email in form, show message to user
+        if (!email) {
+            updateMessage('Please enter your email address in the form above to receive a password reset link.', 'info');
+            if (emailInput) {
+                emailInput.focus();
+            }
+            return;
+        }
+
+        try {
+            updateMessage('Sending password reset link...', 'info');
+
+            const response = await fetch(`${API_BASE}/requestPassword`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server ${response.status}`);
+            }
+
+            const data = await response.json();
+            updateMessage('If an account with that email exists, a reset link has been sent.', 'success');
+        } catch (error) {
+            console.error('Password reset request error:', error);
+            updateMessage('Failed to send reset link. Please try again.', 'error');
+        }
+    });
+}
