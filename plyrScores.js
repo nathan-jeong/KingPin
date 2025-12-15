@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const g3AvgValueEl = document.getElementById('g3-avg-value');
     const totalWoodValueEl = document.getElementById('total-wood-value');
 
-    // Get player name from URL parameter if available
+    // Get player name from URL parameter if available, otherwise use default
     const urlParams = new URLSearchParams(window.location.search);
     const playerParam = urlParams.get('player');
-    const displayPlayerName = playerParam || playerName;
+    const displayPlayerName = playerParam || playerName || "Unknown Player";
 
     if (playerNameEl) {
         playerNameEl.textContent = displayPlayerName;
