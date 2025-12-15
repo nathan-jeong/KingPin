@@ -49,17 +49,17 @@
                         Overall team statistics and the current top individual scores.
                     </p>
                     
-                    <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Strikers:</h3>
+                    <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Bowlers:</h3>
                     <ol style="padding-left: 20px; color: var(--flat-white);">
-                        <li style="font-weight: 700;">STRIKER 1 (248)</li>
-                        <li>Striker 2 (241)</li>
-                        <li>Striker 3 (235)</li>
-                        <li>Striker 4 (230)</li>
-                        <li>Striker 5 (222)</li>
+                        <li style="font-weight: 700;"> Bowler (267)</li>
+                        <li>Bowler 2 (241)</li>
+                        <li>Bowler 3 (235)</li>
+                        <li>Bowler 4 (230)</li>
+                        <li>Bowler 5 (222)</li>
                     </ol>
 
                     <button id="new-player-btn" class="neon-action-button" style="background-color: var(--award-accent); color: var(--dark-bg); padding: 15px 15px; border: none; border-radius: 4px; margin-top: 20px; cursor: pointer; width: 100%;">
-                        + Add New Player
+                        + Add New Bowler
                     </button>
                 </section>
 
@@ -90,19 +90,19 @@
     <div id="new-player-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="section-title">New Player Registration</h2>
+                <h2 class="section-title">New Bowler Registration</h2>
                 <span class="close-btn player-close-btn">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="new-player-form">
-                    <label for="player-name" style="display: block; margin-top: 10px;">Player Name:</label>
+                    <label for="player-name" style="display: block; margin-top: 10px;">Bowler Name:</label>
                     <input type="text" id="player-name" class="bowling-input" required>
                     
                     <label for="graduation-year" style="display: block; margin-top: 10px;">Graduation Year:</label>
                     <input type="number" id="graduation-year" class="bowling-input" placeholder="e.g., 2025" min="1900" max="2100">
                     
                     <button type="submit" class="neon-action-button" style="background-color: var(--award-accent); color: var(--dark-bg); padding: 10px 15px; border: none; border-radius: 4px; margin-top: 20px; width: 100%;">
-                        Register Player
+                        Register Bowler
                     </button>
                 </form>
                 <p id="registration-status" style="margin-top: 10px; font-size: 0.9rem;"></p>
