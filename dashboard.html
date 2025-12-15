@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KingPin Dashboard</title>
-    <link rel="icon" href="SiteIcon.png" type="image/png">
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="Dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> 
 </head>
 <body>
@@ -17,7 +16,7 @@
         </a>
 
         <nav class="sidebar">
-            <a href="teamSelector.html" class="sidebar-label-link" style="font-weight: 700; border-bottom: 1px solid var(--line-color); margin-bottom: 15px;"> Team Selector</a>
+            <a href="teamSelector.html" class="sidebar-label-link team-selector-btn"><span class="team-selector-inner">Team Selector</span></a>
         </nav>
 
         <div class="main-area">
@@ -50,17 +49,17 @@
                         Overall team statistics and the current top individual scores.
                     </p>
                     
-                    <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Bowlers:</h3>
+                    <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Strikers:</h3>
                     <ol style="padding-left: 20px; color: var(--flat-white);">
-                        <li style="font-weight: 700;">Bowler 1 (3)</li>
-                        <li>Bowler 2 (241)</li>
-                        <li>Bowler 3 (235)</li>
-                        <li>Bowler 4 (230)</li>
-                        <li>Bowler 5 (222)</li>
+                        <li style="font-weight: 700;">STRIKER 1 (248)</li>
+                        <li>Striker 2 (241)</li>
+                        <li>Striker 3 (235)</li>
+                        <li>Striker 4 (230)</li>
+                        <li>Striker 5 (222)</li>
                     </ol>
 
                     <button id="new-player-btn" class="neon-action-button" style="background-color: var(--award-accent); color: var(--dark-bg); padding: 15px 15px; border: none; border-radius: 4px; margin-top: 20px; cursor: pointer; width: 100%;">
-                        + Add New Bowler
+                        + Add New Player
                     </button>
                 </section>
 
@@ -136,6 +135,6 @@
         </div>
     </div>
 
-    <script src="dashboard.js"></script>
+    <script src="Dashboard.js"></script>
 </body>
 </html>
