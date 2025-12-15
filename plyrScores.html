@@ -12,8 +12,8 @@
 <body class="bg-black dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen p-4 sm:p-8">
 
     <!-- Logo in top left corner -->
-    <a href="teamSelector.html" class="logo-link" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
-        <img src="KINGPIN_logo_transparent.png" alt="KingPin Logo" style="height: 200px; width: auto;">
+    <a href="Dashboard.html" class="logo-link" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+        <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo" style="height: 200px; width: auto;">
     </a>
 
     <div id="app" class="max-w-4xl mx-auto">
@@ -63,6 +63,16 @@
 
         <div id="match-list" class="scroll-container max-h-[60vh] overflow-y-auto space-y-2 sm:space-y-0 pr-1">
             </div>
+        
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center mt-8">
+            <button id="back-to-team-selector-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl shadow-xl transition transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-white">
+                Back to Team Selector
+            </button>
+            <button id="account-settings-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl shadow-xl transition transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-white">
+                Account Settings
+            </button>
+        </div>
     </div>
 
     <script src="plyrScores.js"></script>
