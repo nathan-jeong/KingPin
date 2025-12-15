@@ -1,0 +1,82 @@
+body { 
+    font-family: 'Inter', sans-serif;
+    background-color: #050505;
+    /* Diagonal stripe pattern */
+    background-image: repeating-linear-gradient(
+        45deg,
+        #111 0,
+        #111 2px,
+        #000 2px,
+        #000 10px
+    );
+    min-height: 100vh;
+}
+
+/* Remove spinners from number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ensure calendar icon is light in dark mode */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #111; 
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #333; 
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+/* The Main Card Style - White Accent */
+.kingpin-card {
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* White border */
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); /* White glow */
+    border-radius: 1.5rem;
+}
+
+/* Input Styling - White Accent */
+.kingpin-input {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 0.5rem;
+    color: white;
+    transition: all 0.2s;
+}
+.kingpin-input:focus {
+    border-color: #ffffff; /* White focus */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+/* Error state class */
+.kingpin-input-error {
+    border-color: #ef4444 !important; /* Red border */
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Button - White Style */
+.kingpin-btn {
+    background-color: #ffffff; /* White Button */
+    color: #000000; /* Black Text */
+    transition: transform 0.1s ease, background-color 0.2s;
+}
+.kingpin-btn:hover {
+    background-color: #e5e5e5;
+    transform: scale(1.02);
+}
+.kingpin-btn:active {
+    transform: scale(0.98);
+}

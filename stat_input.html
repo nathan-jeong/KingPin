@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bowling Match Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stat_input.css">
+</head>
+<body class="flex flex-col p-4 text-white relative">
+
+    <header class="w-full max-w-5xl mx-auto flex items-center justify-between mb-6 relative px-2 h-20">
+        
+        <div class="w-1/3 flex justify-start">
+            <button onclick="goToDashboard()" class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors py-2 px-3 rounded hover:bg-white/10 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-medium hidden sm:inline">Dashboard</span>
+            </button>
+        </div>
+
+        <div class="w-1/3 flex justify-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md whitespace-nowrap">
+                New Match
+            </h1>
+        </div>
+
+        <div class="w-1/3 flex justify-end"></div>
+    </header>
+
+    <div class="w-full max-w-4xl mx-auto flex-grow flex flex-col justify-center">
+        
+        <div class="kingpin-card p-6 sm:p-8 relative">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-6 mb-8">
+                
+                <div class="w-full md:w-1/3">
+                    <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1 block ml-1">Location <span class="text-red-500">*</span></label>
+                    <input type="text" id="location-input" placeholder="e.g. Downtown Lanes" class="kingpin-input w-full px-4 py-3 text-lg placeholder-gray-600 font-medium">
+                    <p id="location-error" class="hidden text-red-500 text-xs mt-1 font-semibold">Location is required</p>
+                </div>
+
+                <div class="w-full md:w-1/3">
+                    <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1 block ml-1">Date</label>
+                    <input type="date" id="date-input" class="kingpin-input w-full px-4 py-3 text-lg font-medium text-gray-300">
+                </div>
+
+                <div class="w-full md:w-1/3 text-right">
+                    <div class="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 inline-block">
+                        <span class="text-gray-400 text-sm font-medium mr-2 uppercase tracking-wide">Team Score</span>
+                        <span id="team-score-display" class="text-2xl font-black text-white">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 sm:gap-4 mb-2 px-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                <div class="col-span-4 sm:col-span-3">Bowler</div>
+                <div class="col-span-2 text-center">Gm 1</div>
+                <div class="col-span-2 text-center">Gm 2</div>
+                <div class="col-span-2 text-center">Gm 3</div>
+                <div class="col-span-2 sm:col-span-3 text-right">Total</div>
+            </div>
+
+            <div id="player-rows-container" class="max-h-[500px] overflow-y-auto pr-2 space-y-2 custom-scrollbar mb-8">
+                </div>
+
+            <div class="flex justify-center">
+                <button onclick="submitMatch()" class="kingpin-btn w-full sm:w-auto font-bold py-3.5 px-16 rounded-lg shadow-lg text-lg tracking-wide uppercase">
+                    Submit Match
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <template id="player-row-template">
+        <div class="grid grid-cols-12 gap-2 sm:gap-4 items-center p-2 rounded-lg hover:bg-white/5 transition-colors player-row group">
+            <div class="col-span-4 sm:col-span-3">
+                <input type="text" readonly class="player-name-input w-full bg-transparent border-none focus:outline-none py-1 text-gray-300 font-semibold text-sm sm:text-base cursor-default group-hover:text-white transition-colors">
+            </div>
+            
+            <div class="col-span-2">
+                <input type="number" min="0" max="300" class="score-input kingpin-input w-full text-center py-1.5 font-bold" placeholder="-">
+            </div>
+            <div class="col-span-2">
+                <input type="number" min="0" max="300" class="score-input kingpin-input w-full text-center py-1.5 font-bold" placeholder="-">
+            </div>
+            <div class="col-span-2">
+                <input type="number" min="0" max="300" class="score-input kingpin-input w-full text-center py-1.5 font-bold" placeholder="-">
+            </div>
+
+            <div class="col-span-2 sm:col-span-3 text-right font-black text-gray-400 player-total text-lg group-hover:text-white transition-colors">
+                0
+            </div>
+        </div>
+    </template>
+
+    <script src="stat_input.js"></script>
+</body>
+</html>
