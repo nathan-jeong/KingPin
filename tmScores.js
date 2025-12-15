@@ -21,8 +21,14 @@ function renderTeamStats() {
         const totalWoodAvg = member.g1Avg + member.g2Avg + member.g3Avg;
 
         const row = document.createElement('tr');
-        // Apply Tailwind class for hover effect
-        row.className = 'hover:bg-gray-200'; 
+        // Apply Tailwind class for hover effect and cursor
+        row.className = 'hover:bg-gray-200 cursor-pointer'; 
+        
+        // Make row clickable to navigate to player scores page
+        row.addEventListener('click', () => {
+            // Navigate to player scores page with player name as parameter
+            window.location.href = `plyrScores.html?player=${encodeURIComponent(member.name)}`;
+        });
 
         row.innerHTML = `
             <td class="px-3 py-4 whitespace-nowrap md:px-6">
@@ -49,4 +55,21 @@ function renderTeamStats() {
 }
 
 // Run the render function when the page loads
-window.onload = renderTeamStats;
+window.onload = () => {
+    renderTeamStats();
+    
+    // Add navigation button event listeners
+    const accountSettingsBtn = document.getElementById('account-settings-btn');
+    if (accountSettingsBtn) {
+        accountSettingsBtn.addEventListener('click', () => {
+            window.location.href = 'settings.html';
+        });
+    }
+    
+    const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
+    if (backToTeamSelectorBtn) {
+        backToTeamSelectorBtn.addEventListener('click', () => {
+            window.location.href = 'teamSelector.html';
+        });
+    }
+};

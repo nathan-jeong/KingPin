@@ -25,8 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const g3AvgValueEl = document.getElementById('g3-avg-value');
     const totalWoodValueEl = document.getElementById('total-wood-value');
 
+    // Get player name from URL parameter if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerParam = urlParams.get('player');
+    const displayPlayerName = playerParam || playerName;
+
     if (playerNameEl) {
-        playerNameEl.textContent = playerName;
+        playerNameEl.textContent = displayPlayerName;
     }
 
     // 1. Calculate Overall Season Averages and Totals
@@ -104,6 +109,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = mobileView + desktopView;
             matchListEl.appendChild(row);
+        });
+    }
+    
+    // Add navigation button event listeners
+    const accountSettingsBtn = document.getElementById('account-settings-btn');
+    if (accountSettingsBtn) {
+        accountSettingsBtn.addEventListener('click', () => {
+            window.location.href = 'settings.html';
+        });
+    }
+    
+    const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
+    if (backToTeamSelectorBtn) {
+        backToTeamSelectorBtn.addEventListener('click', () => {
+            window.location.href = 'teamSelector.html';
         });
     }
 });
