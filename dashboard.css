@@ -83,6 +83,47 @@ body {
     color: var(--flat-white) !important;
 }
 
+/* Team selector styled as a primary themed button inside the sidebar */
+.team-selector-btn {
+    display: inline-block;
+    padding: 8px; /* outer padding only, inner box will carry the gray background */
+    margin: 12px; /* equal spacing on all sides */
+    background-color: transparent; /* keep outer element transparent */
+    color: var(--flat-white);
+    font-weight: 700;
+    border-radius: 8px !important; /* outer rounding */
+    border: 1px solid transparent;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: none;
+    transition: transform var(--transition-speed);
+}
+.team-selector-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* inner grey box that sits directly behind the text and is narrower */
+.team-selector-inner {
+    display: inline-block;
+    background-color: var(--line-color);
+    color: var(--flat-white);
+    padding: 12px 32px; /* increased horizontal padding for wider box */
+    border-radius: 8px;
+    min-width: 160px; /* ensure a consistent minimum width */
+    line-height: 1;
+}
+.team-selector-btn:hover .team-selector-inner {
+    background-color: #2e2e2e;
+}
+
+/* Slightly larger clickable box and smoother corners on small screens */
+@media (max-width: 600px) {
+    .team-selector-btn {
+        border-radius: 12px;
+        padding: 10px 12px;
+    }
+}
+
 /* Main Area (Now occupies the majority of the screen) */
 .main-area {
     display: flex;
