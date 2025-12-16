@@ -145,22 +145,244 @@ async function deleteAward(awardToDelete) {
     }
 }
 
+// Function to fetch all players for the current team
+async function fetchPlayers() {
+    if (!currentUserId || !currentTeamId) {
+        console.warn('Missing userId or teamId; cannot fetch players.');
+        return [];
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.players || [];
+    } catch (error) {
+        console.error('Error fetching players:', error);
+        return [];
+    }
+}
+
+// Function to fetch all matches for the current team
+async function fetchMatches() {
+    if (!currentUserId || !currentTeamId) {
+        console.warn('Missing userId or teamId; cannot fetch matches.');
+        return [];
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.matches || [];
+    } catch (error) {
+        console.error('Error fetching matches:', error);
+        return [];
+    }
+}
+
+// Function to calculate player averages from match data
+function calculatePlayerAverages(players, matches) {
+    const playerStats = {};
+
+    // Initialize stats for all players
+    players.forEach(player => {
+        playerStats[player.playerId] = {
+            playerId: player.playerId,
+            displayName: player.displayName,
+            totalScore: 0,
+            gamesPlayed: 0,
+            average: 0
+        };
+    });
+
+    // Process all matches
+    matches.forEach(match => {
+        if (match.perPlayerData) {
+            Object.keys(match.perPlayerData).forEach(playerId => {
+                if (playerStats[playerId]) {
+                    const playerData = match.perPlayerData[playerId];
+                    if (playerData.games) {
+                        // Process games 1, 2, 3
+                        [1, 2, 3].forEach(gameNum => {
+                            const game = playerData.games[gameNum];
+                            if (game && game.Score !== undefined && game.Score !== null) {
+                                playerStats[playerId].totalScore += game.Score;
+                                playerStats[playerId].gamesPlayed++;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    // Calculate averages
+    Object.values(playerStats).forEach(stats => {
+        if (stats.gamesPlayed > 0) {
+            stats.average = Math.round(stats.totalScore / stats.gamesPlayed);
+        }
+    });
+
+    return Object.values(playerStats);
+}
+
+// Function to delete player from backend
+async function deletePlayer(playerId, playerName) {
+    if (!currentUserId || !currentTeamId || !currentPassword) {
+        console.error('Missing required fields for player deletion.');
+        return;
+    }
+
+    const confirmed = confirm(`Are you sure you want to remove ${playerName} from the team?`);
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players/${playerId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: currentPassword })
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `Server ${response.status}`);
+        }
+
+        console.log(`Player ${playerId} deleted successfully`);
+        // Refresh the top scorers list
+        fetchAndDisplayTopScorers();
+    } catch (error) {
+        console.error('Error deleting player:', error);
+        alert(`Failed to delete player: ${error.message}`);
+    }
+}
+
+// Function to render top scorers
+function renderTopScorers(playerStats) {
+    const topScorersList = document.getElementById('top-scorers-list');
+    if (!topScorersList) return;
+
+    topScorersList.innerHTML = '';
+
+    if (playerStats.length === 0) {
+        topScorersList.innerHTML = '<li style="color: rgba(255, 255, 255, 0.5); font-style: italic;">No players on team yet</li>';
+        return;
+    }
+
+    // Separate players with games from those without
+    const playersWithGames = playerStats.filter(p => p.gamesPlayed > 0);
+    const playersWithoutGames = playerStats.filter(p => p.gamesPlayed === 0);
+
+    let displayPlayers = [];
+    
+    if (playersWithGames.length > 0) {
+        // Show top 5 players by average
+        displayPlayers = playersWithGames.sort((a, b) => b.average - a.average).slice(0, 5);
+    } else {
+        // No match data, show all players (up to 5)
+        displayPlayers = playersWithoutGames.slice(0, 5);
+    }
+
+    displayPlayers.forEach((player, index) => {
+        const li = document.createElement('li');
+        li.style.fontWeight = index === 0 && player.gamesPlayed > 0 ? '700' : '400';
+        li.style.marginBottom = '5px';
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.alignItems = 'center';
+        
+        const link = document.createElement('a');
+        link.href = '#';
+        const avgDisplay = player.gamesPlayed > 0 ? player.average : 'N/A';
+        link.textContent = `${player.displayName} (${avgDisplay})`;
+        link.style.color = 'inherit';
+        link.style.textDecoration = 'none';
+        link.style.cursor = 'pointer';
+        link.style.flex = '1';
+        link.addEventListener('mouseover', () => {
+            link.style.textDecoration = 'underline';
+        });
+        link.addEventListener('mouseout', () => {
+            link.style.textDecoration = 'none';
+        });
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Store player ID in localStorage
+            localStorage.setItem('selectedPlayerId', player.playerId);
+            console.log(`Selected player: ${player.displayName} (ID: ${player.playerId})`);
+            // Navigate to player page (update with actual page URL)
+            window.location.href = 'player_profile.html';
+        });
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '×';
+        deleteBtn.style.background = 'none';
+        deleteBtn.style.border = 'none';
+        deleteBtn.style.color = 'rgba(255, 255, 255, 0.5)';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.style.fontSize = '1.5rem';
+        deleteBtn.style.padding = '0 5px';
+        deleteBtn.style.marginLeft = '10px';
+        deleteBtn.addEventListener('mouseover', () => {
+            deleteBtn.style.color = '#fff';
+        });
+        deleteBtn.addEventListener('mouseout', () => {
+            deleteBtn.style.color = 'rgba(255, 255, 255, 0.5)';
+        });
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deletePlayer(player.playerId, player.displayName);
+        });
+        
+        li.appendChild(link);
+        li.appendChild(deleteBtn);
+        topScorersList.appendChild(li);
+    });
+}
+
+// Function to fetch and display top scorers
+async function fetchAndDisplayTopScorers() {
+    const players = await fetchPlayers();
+    const matches = await fetchMatches();
+    const playerStats = calculatePlayerAverages(players, matches);
+    renderTopScorers(playerStats);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Fetch and display awards on page load
     fetchAndDisplayAwards();
+    
+    // Fetch and display top scorers
+    fetchAndDisplayTopScorers();
 
     // ------------------------------------------------------------------
     // 1. New Player Modal Logic
     // ------------------------------------------------------------------
-    const newPlayerBtn = document.getElementById('new-player-btn');
+    const newPlayerLink = document.getElementById('add-new-player-link');
     const playerModal = document.getElementById('new-player-modal');
     const playerCloseBtn = playerModal.querySelector('.player-close-btn'); 
     const playerForm = document.getElementById('new-player-form');
     const statusMessage = document.getElementById('registration-status');
 
     // Open Player Modal Listener
-    if (newPlayerBtn) {
-        newPlayerBtn.addEventListener('click', () => {
+    if (newPlayerLink) {
+        newPlayerLink.addEventListener('click', (e) => {
+            e.preventDefault();
             playerModal.classList.remove('hidden');
         });
     }
@@ -177,21 +399,73 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Player Form Submission Handler (Simulated)
+    // Player Form Submission Handler (Backend integration)
     if (playerForm) {
-        playerForm.addEventListener('submit', (e) => {
+        playerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const playerName = document.getElementById('player-name').value;
+            const playerName = document.getElementById('player-name').value.trim();
+            const graduationYear = document.getElementById('graduation-year').value;
+            
+            if (!playerName) {
+                statusMessage.textContent = 'Please enter a player name.';
+                statusMessage.style.color = '#f87171';
+                return;
+            }
+
+            if (!currentUserId || !currentTeamId || !currentPassword) {
+                statusMessage.textContent = 'Error: Missing user or team information.';
+                statusMessage.style.color = '#f87171';
+                return;
+            }
             
             statusMessage.textContent = `Attempting to register ${playerName}...`;
             statusMessage.style.color = '#fff';
 
-            // Simulate server response delay
-            setTimeout(() => {
+            try {
+                const payload = {
+                    password: currentPassword,
+                    displayName: playerName
+                };
+
+                // Add graduationYear if provided (must be a valid number)
+                if (graduationYear && graduationYear.trim() !== '') {
+                    const yearNum = parseInt(graduationYear, 10);
+                    if (!isNaN(yearNum)) {
+                        payload.graduationYear = yearNum;
+                    }
+                }
+
+                console.log('Creating player with payload:', JSON.stringify(payload));
+                console.log('Endpoint:', `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`);
+
+                const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Server response:', response.status, text);
+                    throw new Error(text || `Server ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Player created successfully:', data);
                 statusMessage.textContent = `STRIKE! ${playerName} registered successfully! Welcome to the League.`;
-                statusMessage.style.color = '#4CAF50'; // Green for success
-                playerForm.reset(); // Clear the form
-            }, 1500);
+                statusMessage.style.color = '#4CAF50';
+                playerForm.reset();
+
+                // Auto-dismiss modal after 1.5 seconds
+                setTimeout(() => {
+                    playerModal.classList.add('hidden');
+                    statusMessage.textContent = '';
+                }, 1500);
+            } catch (error) {
+                console.error('Error registering player:', error);
+                statusMessage.textContent = `Failed to register player: ${error.message}`;
+                statusMessage.style.color = '#f87171';
+            }
         });
     }
 
