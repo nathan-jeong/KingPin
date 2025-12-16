@@ -326,7 +326,7 @@ function renderTopScorers(playerStats) {
             localStorage.setItem('selectedPlayerId', player.playerId);
             console.log(`Selected player: ${player.displayName} (ID: ${player.playerId})`);
             // Navigate to player page (update with actual page URL)
-            window.location.href = 'player_profile.html';
+            window.location.href = 'plyrScores.html';
         });
         
         const deleteBtn = document.createElement('button');
