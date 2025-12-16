@@ -17,7 +17,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold text-white mb-2">The Pin Pals League Stats</h1>
+            <h1 id="team-title" class="text-4xl font-extrabold text-white mb-2">Team Overview</h1>
             <p class="text-xl text-gray-400">Season Summary: Team Roster and Performance</p>
         </header>
 
@@ -27,23 +27,29 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-black">
                         <tr>
-                            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Player Name
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('name')">
+                                Player Name ↕
                             </th>
-                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Game 1 Avg
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('graduationYear')">
+                                Graduating Class ↕
                             </th>
-                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Game 2 Avg
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('matchesPlayed')">
+                                Matches Played ↕
                             </th>
-                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Game 3 Avg
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('game1Avg')">
+                                Game 1 Avg ↕
                             </th>
-                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Total Wood (Avg)
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('game2Avg')">
+                                Game 2 Avg ↕
                             </th>
-                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6">
-                                Best Game Score
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('game3Avg')">
+                                Game 3 Avg ↕
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('totalWoodAvg')">
+                                Total Wood (Avg) ↕
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider md:px-6 cursor-pointer hover:bg-gray-800" onclick="sortData('bestGame')">
+                                Best Game Score ↕
                             </th>
                         </tr>
                     </thead>
