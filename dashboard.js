@@ -456,10 +456,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusMessage.style.color = '#4CAF50';
                 playerForm.reset();
 
-                // Auto-dismiss modal after 1.5 seconds
+                // Auto-dismiss modal and reload page after 1.5 seconds
                 setTimeout(() => {
                     playerModal.classList.add('hidden');
                     statusMessage.textContent = '';
+                    window.location.reload();
                 }, 1500);
             } catch (error) {
                 console.error('Error registering player:', error);
