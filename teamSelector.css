@@ -108,3 +108,17 @@
     font-weight: bold; /* Makes the text stand out more */
     text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.8); /* Optional glowing effect */
 }
+
+/* Logo responsive styling - matched to settings page */
+.logo-link img {
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 630px) {
+    .logo-link img {
+        width: 150px;
+    }
+}

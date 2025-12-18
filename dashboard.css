@@ -35,13 +35,15 @@ body {
 
 /* Logo Link */
 .logo-link {
-    margin: 20px 0 0 20px; 
     display: block; 
-    height: 100px; 
-    width: 250px; 
     box-sizing: border-box;
-    position: absolute; 
-    z-index: 10;
+}
+
+/* Logo responsive styling - matched to settings page */
+.logo-link img {
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
 }
 
 /* --- Sidebar Styling (MINIMAL WIDTH) --- */
@@ -364,4 +366,11 @@ body {
     font-weight: 300;
     color: rgba(255, 255, 255, 0.7);
     margin-left: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 630px) {
+    .logo-link img {
+        width: 150px;
+    }
 }
