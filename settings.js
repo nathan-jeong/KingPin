@@ -47,6 +47,17 @@ if (emailInput) {
     emailInput.disabled = true;
 }
 
+const schoolInput = document.getElementById('school-input');
+const savedSchool = localStorage.getItem('school');
+
+// Display saved school (from localStorage) if available
+if (schoolInput) {
+    if (savedSchool) {
+        schoolInput.value = savedSchool;
+    }
+    schoolInput.disabled = true;
+}
+
 const passwordInput = document.getElementById('password-input');
 const editPasswordBtn = document.getElementById('edit-password-btn');
 const passwordEditControls = document.getElementById('password-edit-controls');
