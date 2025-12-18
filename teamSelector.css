@@ -101,3 +101,10 @@
         padding: 1rem;
     }
 }
+
+/* Added brighter text for total teams */
+.total-teams {
+    color: #ffffff; /* Bright white text */
+    font-weight: bold; /* Makes the text stand out more */
+    text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.8); /* Optional glowing effect */
+}
