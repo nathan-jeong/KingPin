@@ -134,15 +134,19 @@ input.bowling-input.email-readonly {
     color: #EF4444;
 }
 
-/* Logo responsive styling */
+/* Logo responsive styling - matched to dashboard sidebar width */
 .logo-link img {
-    height: clamp(50px, 8vw, 290px);
-    width: auto;
-    transition: height 0.3s ease;
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
+    .logo-link img {
+        width: 150px;
+    }
+    
     .edit-btn, .save-btn, .cancel-btn {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;
