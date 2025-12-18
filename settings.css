@@ -136,7 +136,7 @@ input.bowling-input.email-readonly {
 
 /* Logo responsive styling */
 .logo-link img {
-    height: clamp(50px, 5vw, 275px);
+    height: clamp(50px, 5.5vw, 275px);
     width: auto;
     transition: height 0.3s ease;
 }
