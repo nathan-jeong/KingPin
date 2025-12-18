@@ -142,7 +142,7 @@ input.bowling-input.email-readonly {
 }
 
 /* Responsive adjustments */
-@media (max-width: 620px) {
+@media (max-width: 630px) {
     .logo-link img {
         width: 150px;
     }
