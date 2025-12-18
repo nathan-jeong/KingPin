@@ -1,23 +1,13 @@
-const playerName = "Jane 'The Hammer' Doe";
-const matches = [
-    // Added totalWood to mock data
-    { name: "League Night - Week 1", games: [185, 201, 192], total: 578, avg: 192.7, totalWood: 15 },
-    { name: "League Night - Week 2", games: [210, 175, 220], total: 605, avg: 201.7, totalWood: 12 },
-    { name: "Tournament Qualifier", games: [230, 245, 205], total: 680, avg: 226.7, totalWood: 5 },
-    { name: "League Night - Week 3", games: [160, 180, 190], total: 530, avg: 176.7, totalWood: 25 },
-    { name: "Friendly Match 1", games: [200, 200, 200], total: 600, avg: 200.0, totalWood: 10 },
-    { name: "League Night - Week 4", games: [205, 195, 215], total: 615, avg: 205.0, totalWood: 18 },
-    { name: "Practice Session A", games: [150, 160, 170], total: 480, avg: 160.0, totalWood: 30 },
-    { name: "League Night - Week 5", games: [190, 220, 185], total: 595, avg: 198.3, totalWood: 14 },
-    { name: "Team Playoffs - QF", games: [225, 230, 210], total: 665, avg: 221.7, totalWood: 6 },
-    { name: "Team Playoffs - SF", games: [180, 190, 190], total: 560, avg: 186.7, totalWood: 22 },
-    { name: "League Night - Week 6", games: [200, 200, 200], total: 600, avg: 200.0, totalWood: 9 },
-];
+const API_BASE = 'https://kingpin-backend-production.up.railway.app';
 
-document.addEventListener('DOMContentLoaded', () => {
+const currentUserId = localStorage.getItem('userId');
+const currentTeamId = localStorage.getItem('teamId');
+const selectedPlayerId = localStorage.getItem('selectedPlayerId');
+
+document.addEventListener('DOMContentLoaded', async () => {
     const playerNameEl = document.getElementById('player-name');
     const matchListEl = document.getElementById('match-list');
-    
+
     // Elements for Overall Stats
     const overallAvgValueEl = document.getElementById('overall-avg-value');
     const g1AvgValueEl = document.getElementById('g1-avg-value');
@@ -25,106 +15,134 @@ document.addEventListener('DOMContentLoaded', () => {
     const g3AvgValueEl = document.getElementById('g3-avg-value');
     const totalWoodValueEl = document.getElementById('total-wood-value');
 
-    // Get player name from URL parameter if available, otherwise use default
-    const urlParams = new URLSearchParams(window.location.search);
-    const playerParam = urlParams.get('player');
-    const displayPlayerName = playerParam || playerName || "Unknown Player";
-
-    if (playerNameEl) {
-        playerNameEl.textContent = displayPlayerName;
+    if (!currentUserId || !currentTeamId || !selectedPlayerId) {
+        showMessage('Missing user, team, or player context. Please select a player from the dashboard.');
+        return;
     }
 
-    // 1. Calculate Overall Season Averages and Totals
-    let totalG1 = 0;
-    let totalG2 = 0;
-    let totalG3 = 0;
-    let totalSeriesPoints = 0;
-    let totalWood = 0;
-    const numMatches = matches.length;
+    try {
+        // Fetch player info
+        const playerResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players/${selectedPlayerId}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-    matches.forEach(match => {
-        totalG1 += match.games[0];
-        totalG2 += match.games[1];
-        totalG3 += match.games[2];
-        totalSeriesPoints += match.total;
-        totalWood += match.totalWood;
-    });
+        if (!playerResp.ok) throw new Error('Failed to load player profile');
+        const playerData = await playerResp.json();
+        const player = playerData.player || playerData;
+        const displayName = player.displayName || 'Unknown Player';
+        if (playerNameEl) playerNameEl.textContent = displayName;
 
-    const overallG1Avg = totalG1 / numMatches;
-    const overallG2Avg = totalG2 / numMatches;
-    const overallG3Avg = totalG3 / numMatches;
-    const overallAverage = totalSeriesPoints / (numMatches * 3);
+        // Fetch matches for team
+        const matchesResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-    // 2. Display Overall Stats
-    if (overallAvgValueEl) {
-        overallAvgValueEl.textContent = overallAverage.toFixed(1);
-    }
-    if (g1AvgValueEl) {
-        g1AvgValueEl.textContent = overallG1Avg.toFixed(1);
-    }
-    if (g2AvgValueEl) {
-        g2AvgValueEl.textContent = overallG2Avg.toFixed(1);
-    }
-    if (g3AvgValueEl) {
-        g3AvgValueEl.textContent = overallG3Avg.toFixed(1);
-    }
-    if (totalWoodValueEl) {
-        totalWoodValueEl.textContent = totalWood;
-    }
+        if (!matchesResp.ok) throw new Error('Failed to load matches');
+        const matchesJson = await matchesResp.json();
+        const matches = matchesJson.matches || [];
 
-    // 3. Render Match List
-    if (matchListEl) {
-        matches.forEach((match, index) => {
-            const isEven = index % 2 === 0;
-            const bgColor = isEven ? 'bg-white dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-700';
-            const seriesTotal = match.games.reduce((sum, score) => sum + score, 0);
+        // Extract per-player match entries
+        const playerMatches = matches.map(m => {
+            const per = m.perPlayerData ? m.perPlayerData[selectedPlayerId] : null;
+            if (!per || !per.games) return null;
 
-            // Create the row element
-            const row = document.createElement('div');
-            row.className = `${bgColor} p-4 sm:p-3 rounded-lg shadow-sm sm:shadow-none cursor-pointer`;
+            const games = [1,2,3].map(i => {
+                const g = per.games[i];
+                return g && g.Score != null ? { Score: g.Score, Wood: g.Wood, isVarsity: !!g.isVarsity } : null;
+            });
 
-            // Mobile View (Flex container)
-            const mobileView = `
-                <div class="sm:hidden space-y-2">
-                    <div class="font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</div>
-                    <div class="grid grid-cols-2 gap-y-1 text-sm">
-                        <div><span class="font-medium text-gray-500 dark:text-gray-400">Game Scores:</span> ${match.games.join(', ')}</div>
-                        <div><span class="font-medium text-gray-500 dark:text-gray-400">Series Total:</span> ${seriesTotal}</div>
-                        <div><span class="font-medium text-gray-500 dark:text-gray-400">Avg:</span> ${match.avg.toFixed(1)}</div>
+            const seriesTotal = games.reduce((s, g) => s + (g && g.Score ? g.Score : 0), 0);
+            const gamesCount = games.filter(g => g && g.Score != null).length;
+            const avg = gamesCount > 0 ? (seriesTotal / gamesCount) : null;
+            const totalWood = games.reduce((s, g) => s + (g && g.Wood ? g.Wood : 0), 0);
+
+            return {
+                matchId: m.matchId || m.id,
+                name: m.opposingTeamName || m.comment || ('Match ' + m.matchId),
+                date: m.date || null,
+                games,
+                seriesTotal,
+                avg,
+                totalWood
+            };
+        }).filter(Boolean);
+
+        // Compute overall stats
+        let totalG1 = 0, totalG2 = 0, totalG3 = 0, totalPoints = 0, totalWood = 0, gameCounts = [0,0,0];
+        playerMatches.forEach(pm => {
+            pm.games.forEach((g, idx) => {
+                if (g && g.Score != null) {
+                    if (idx === 0) { totalG1 += g.Score; gameCounts[0]++; }
+                    if (idx === 1) { totalG2 += g.Score; gameCounts[1]++; }
+                    if (idx === 2) { totalG3 += g.Score; gameCounts[2]++; }
+                    totalPoints += g.Score;
+                }
+            });
+            totalWood += pm.totalWood || 0;
+        });
+
+        const numMatches = playerMatches.length || 0;
+        const overallG1Avg = gameCounts[0] ? (totalG1 / gameCounts[0]) : null;
+        const overallG2Avg = gameCounts[1] ? (totalG2 / gameCounts[1]) : null;
+        const overallG3Avg = gameCounts[2] ? (totalG3 / gameCounts[2]) : null;
+        const overallAverage = (numMatches && (gameCounts[0]+gameCounts[1]+gameCounts[2])>0) ? (totalPoints / (gameCounts[0]+gameCounts[1]+gameCounts[2])) : null;
+
+        if (overallAvgValueEl) overallAvgValueEl.textContent = overallAverage != null ? overallAverage.toFixed(1) : '--';
+        if (g1AvgValueEl) g1AvgValueEl.textContent = overallG1Avg != null ? overallG1Avg.toFixed(1) : '--';
+        if (g2AvgValueEl) g2AvgValueEl.textContent = overallG2Avg != null ? overallG2Avg.toFixed(1) : '--';
+        if (g3AvgValueEl) g3AvgValueEl.textContent = overallG3Avg != null ? overallG3Avg.toFixed(1) : '--';
+        if (totalWoodValueEl) totalWoodValueEl.textContent = totalWood;
+
+        // Render match list
+        if (matchListEl) {
+            matchListEl.innerHTML = '';
+            playerMatches.forEach((match, index) => {
+                const isEven = index % 2 === 0;
+                const bgColor = isEven ? 'bg-white dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-700';
+
+                const row = document.createElement('div');
+                row.className = `${bgColor} p-4 sm:p-3 rounded-lg shadow-sm sm:shadow-none`;
+
+                const mobileView = `
+                    <div class="sm:hidden space-y-2">
+                        <div class="font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</div>
+                        <div class="grid grid-cols-2 gap-y-1 text-sm">
+                            <div><span class="font-medium text-gray-500 dark:text-gray-400">Game Scores:</span> ${match.games.map(g=>g?g.Score:'-').join(', ')}</div>
+                            <div><span class="font-medium text-gray-500 dark:text-gray-400">Series Total:</span> ${match.seriesTotal}</div>
+                            <div><span class="font-medium text-gray-500 dark:text-gray-400">Avg:</span> ${match.avg != null ? match.avg.toFixed(1) : '--'}</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
 
-            // Desktop View (Grid container)
-            const desktopView = `
-                <div class="hidden sm:grid grid-cols-9 gap-2 items-center text-sm">
-                    <div class="col-span-3 font-medium truncate">${match.name}</div>
-                    <div class="col-span-1 text-center">${match.games[0]}</div>
-                    <div class="col-span-1 text-center">${match.games[1]}</div>
-                    <div class="col-span-1 text-center">${match.games[2]}</div>
-                    <div class="col-span-2 text-center">${seriesTotal}</div>
-                    <div class="col-span-1 text-center">${match.avg.toFixed(1)}</div>
-                </div>
-            `;
+                const desktopView = `
+                    <div class="hidden sm:grid grid-cols-9 gap-2 items-center text-sm">
+                        <div class="col-span-3 font-medium truncate">${match.name}</div>
+                        <div class="col-span-1 text-center">${match.games[0] && match.games[0].Score != null ? match.games[0].Score : '-'}</div>
+                        <div class="col-span-1 text-center">${match.games[1] && match.games[1].Score != null ? match.games[1].Score : '-'}</div>
+                        <div class="col-span-1 text-center">${match.games[2] && match.games[2].Score != null ? match.games[2].Score : '-'}</div>
+                        <div class="col-span-2 text-center">${match.seriesTotal}</div>
+                        <div class="col-span-1 text-center">${match.avg != null ? match.avg.toFixed(1) : '--'}</div>
+                    </div>
+                `;
 
-            row.innerHTML = mobileView + desktopView;
-            matchListEl.appendChild(row);
-        });
-    }
-    
-    // Add navigation button event listeners
-    const accountSettingsBtn = document.getElementById('account-settings-btn');
-    if (accountSettingsBtn) {
-        accountSettingsBtn.addEventListener('click', () => {
-            window.location.href = 'settings.html';
-        });
-    }
-    
-    const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
-    if (backToTeamSelectorBtn) {
-        backToTeamSelectorBtn.addEventListener('click', () => {
-            window.location.href = 'dashboard.html';
-        });
+                row.innerHTML = mobileView + desktopView;
+                matchListEl.appendChild(row);
+            });
+        }
+
+        // Navigation buttons
+        const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
+        if (backToTeamSelectorBtn) {
+            backToTeamSelectorBtn.addEventListener('click', () => {
+                window.location.href = 'teamSelector.html';
+            });
+        }
+
+    } catch (err) {
+        console.error('Error loading player matches:', err);
+        showMessage('Failed to load player data. Please try again.');
     }
 });
 
