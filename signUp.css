@@ -46,3 +46,17 @@ input.bowling-input {
     border-color: #00FFD1; /* Electric Cyan */
     box-shadow: 0 0 0 2px #00FFD1, 0 0 8px #00FFD1;
 }
+
+/* Logo responsive styling - matched to settings page */
+.logo-link img {
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 630px) {
+    .logo-link img {
+        width: 150px;
+    }
+}
