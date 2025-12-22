@@ -1,277 +1,262 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        
+
 :root {
+    /* --- KINGPIN THEME PALETTE --- */
+    --kp-bg-dark: #050505;
+    --kp-card-bg: #0f0f0f;
+    --kp-input-bg: #1a1a1a;
+    --kp-border: rgba(255, 255, 255, 0.3);
+    --kp-glow: rgba(255, 255, 255, 0.1);
+    --kp-white: #ffffff;
+    --kp-text-muted: #888888;
+    --award-accent: #ffd700; 
+    
+    /* --- LEGACY VARIABLE MAPPING --- */
     --flat-white: #ffffff;
-    --dark-bg: #000000;
-    --card-bg: #111111; /* Slightly lighter black for card distinction */
-    --line-color: #333333; /* Dark gray for subtle dividers */
+    --dark-bg: #050505;
+    --card-bg: #0f0f0f;
+    --line-color: #333333;
+    
     --transition-speed: 0.2s;
-    --award-accent: #ffd700; /* Gold color for award button */
 }
 
-/* --- FIX: Crucial rule to hide the modal on page load --- */
-.hidden {
-    display: none !important;
-}
-/* -------------------------------------------------------- */
+/* --- Utility & Reset --- */
+.hidden { display: none !important; }
 
-/* Base Body Styling */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; margin: 0; 
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* --- Base Body Styling --- */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--dark-bg);
-    background-image: none; 
+    background-color: var(--kp-bg-dark);
+    background-image: repeating-linear-gradient(
+        45deg, #111 0, #111 2px, #000 2px, #000 10px
+    );
     margin: 0;
     display: flex;
     min-height: 100vh;
-    color: var(--flat-white);
+    color: var(--kp-white);
 }
 
-/* --- Layout Structure (MODIFIED FOR MINIMAL SIDEBAR) --- */
+/* --- Layout Structure --- */
 .dashboard-container {
     display: flex; 
     width: 100%;
     position: relative; 
 }
 
-/* Logo Link */
+/* --- REVISED SIDEBAR & LOGO (FIXED) --- */
+
+.sidebar {
+    width: 250px; 
+    background-color: rgba(5, 5, 5, 0.8); 
+    backdrop-filter: blur(5px);
+    /* Changed padding to standard (removed the huge 130px top padding) */
+    padding: 20px; 
+    border-right: 1px solid var(--kp-border); 
+    flex-shrink: 0; 
+    /* Added Flex to stack Logo and Button vertically */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Fixed Logo Link - No longer absolute */
 .logo-link {
     display: block; 
-    box-sizing: border-box;
-}
-
-/* Logo responsive styling - matched to settings page */
-.logo-link img {
-    width: 250px;
+    /* 3:1 Aspect Ratio Sizing */
+    width: 100%; 
     height: auto;
-    transition: width 0.3s ease;
+    box-sizing: border-box;
+    position: relative; /* Changed from absolute */
+    margin: 0 0 10px 0; /* Reset margins */
+    z-index: 10;
 }
 
-/* --- Sidebar Styling (MINIMAL WIDTH) --- */
-.sidebar {
-    width: 250px; /* Keep this width for the logo/link area */
-    background-color: var(--dark-bg);
-    /* Reduced top padding since only one link is left, but keep space for the logo */
-    padding: 130px 20px 20px 20px; 
-    border-right: 1px solid var(--line-color); 
-    box-shadow: none; 
-    flex-shrink: 0; /* Ensures it doesn't shrink */
+.logo-link img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
-.sidebar a {
+/* Team Selector Button (New Style) */
+.team-selector-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 10px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: transparent;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.team-selector-btn:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.team-selector-btn i {
+    transition: transform 0.2s ease;
+}
+
+.team-selector-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* Sidebar Links (Standard links below the button if any) */
+.sidebar a:not(.logo-link):not(.team-selector-btn) {
     display: block;
     padding: 15px 20px;
     text-decoration: none;
-    color: var(--flat-white);
-    transition: background-color var(--transition-speed), color var(--transition-speed);
-    border-radius: 0;
+    color: var(--kp-text-muted);
+    transition: all var(--transition-speed);
+    border-radius: 0.5rem; 
+    font-weight: 500;
 }
 
 .sidebar a:hover,
 .sidebar a.active {
-    background-color: var(--line-color); 
-    color: var(--flat-white);
-    text-shadow: none;
+    background-color: rgba(255, 255, 255, 0.1); 
+    color: var(--kp-white);
 }
 
-/* Style for the "Team Selector" link (as a label) */
-.sidebar-label-link {
-    cursor: pointer;
-    text-decoration: none !important;
-    padding: 15px 5px !important; 
-}
-
-.sidebar-label-link:hover {
-    background-color: var(--dark-bg) !important; 
-    color: var(--flat-white) !important;
-}
-
-/* Team selector styled as a primary themed button inside the sidebar */
-.team-selector-btn {
-    display: inline-block;
-    padding: 8px; /* outer padding only, inner box will carry the gray background */
-    margin: 12px; /* equal spacing on all sides */
-    background-color: transparent; /* keep outer element transparent */
-    color: var(--flat-white);
-    font-weight: 700;
-    border-radius: 8px !important; /* outer rounding */
-    border: 1px solid transparent;
-    text-align: center;
-    text-decoration: none;
-    box-shadow: none;
-    transition: transform var(--transition-speed);
-}
-.team-selector-btn:hover {
-    transform: translateY(-1px);
-}
-
-/* inner grey box that sits directly behind the text and is narrower */
-.team-selector-inner {
-    display: inline-block;
-    background-color: var(--line-color);
-    color: var(--flat-white);
-    padding: 12px 32px; /* increased horizontal padding for wider box */
-    border-radius: 8px;
-    min-width: 160px; /* ensure a consistent minimum width */
-    line-height: 1;
-}
-.team-selector-btn:hover .team-selector-inner {
-    background-color: #2e2e2e;
-}
-
-/* Slightly larger clickable box and smoother corners on small screens */
-@media (max-width: 600px) {
-    .team-selector-btn {
-        border-radius: 12px;
-        padding: 10px 12px;
-    }
-}
-
-/* Main Area (Now occupies the majority of the screen) */
+/* --- Main Area --- */
 .main-area {
     display: flex;
-    flex-grow: 1; /* Takes up all remaining space */
-    padding: 20px;
-    gap: 20px;
+    flex-grow: 1; 
+    padding: 30px;
+    gap: 25px;
 }
 
-/* Main Area Column Sizing (Proportions increased to fill new width) */
 .left-column {
-    flex-basis: 75%; /* Increased width */
+    flex-basis: 75%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
 
 .right-column {
-    flex-basis: 25%; /* Reduced width, Awards section remains reasonable */
+    flex-basis: 25%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
 
-/* REMOVED: Floating settings icon styles are gone! */
-.settings-icon-btn {
-    display: none !important;
-}
-
-/* --- Dashboard Section (Card) Styling (Unchanged) --- */
+/* --- Dashboard Section (Card) --- */
 .dashboard-section {
-    background-color: var(--card-bg);
-    padding: 25px;
-    border-radius: 0;
-    border: 1px solid var(--line-color); 
-    box-shadow: none;
+    background: var(--kp-card-bg);
+    padding: 30px;
+    border: 1px solid var(--kp-border);
+    box-shadow: 0 0 30px var(--kp-glow);
+    border-radius: 1.5rem; 
     transition: box-shadow var(--transition-speed), transform var(--transition-speed);
     flex-grow: 1;
     min-height: 150px;
 }
 
 .dashboard-section:hover {
-    box-shadow: none;
-    transform: none;
-    border-color: var(--flat-white);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 15px;
-    color: var(--flat-white);
-    text-shadow: none;
-    border-bottom: 1px solid var(--line-color); 
-    padding-bottom: 5px;
+    margin-bottom: 20px;
+    color: var(--kp-white);
+    border-bottom: 1px solid var(--kp-border); 
+    padding-bottom: 10px;
 }
 
-/* Awards Section Header - to contain title and button */
 .awards-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--line-color); 
-    padding-bottom: 5px;
+    border-bottom: 1px solid var(--kp-border); 
+    padding-bottom: 10px;
     margin-bottom: 15px;
 }
 
-/* 🏆 MODIFIED: Add Award Trophy Button - Made visually obvious */
-.add-award-btn {
-    background-color: var(--award-accent); /* Gold background */
-    color: var(--dark-bg); /* Black text/icon */
+/* --- ACTION BUTTONS --- */
+.neon-action-button {
+    background-color: var(--kp-white) !important;
+    color: #000000 !important;
+    border: 1px solid var(--kp-white) !important;
+    display: block;
+    padding: 15px 20px;
+    border-radius: 0.5rem;
     font-weight: 700;
-    border: 1px solid var(--award-accent);
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 1 !important; 
+    box-shadow: none;
+    transition: transform 0.1s ease, background-color 0.2s;
+}
+
+.neon-action-button:hover {
+    background-color: #e5e5e5 !important;
+    transform: scale(1.02);
+    color: #000 !important;
+}
+
+/* Add Award Button */
+.add-award-btn {
+    background-color: rgba(255, 215, 0, 0.1) !important; 
+    color: var(--award-accent) !important;
+    border: 1px solid var(--award-accent) !important;
+    font-weight: 700;
     font-size: 0.9rem;
     padding: 8px 15px; 
-    border-radius: 4px;
+    border-radius: 0.5rem;
     cursor: pointer;
-    transition: all var(--transition-speed);
-    line-height: 1;
     text-transform: uppercase;
-    box-shadow: 0 0 10px var(--award-accent); /* Subtle glow */
+    transition: all 0.2s;
+    opacity: 1 !important;
 }
 
 .add-award-btn:hover {
-    background-color: var(--dark-bg);
-    color: var(--award-accent);
-    border-color: var(--award-accent);
-    box-shadow: 0 0 15px var(--award-accent);
+    background-color: var(--award-accent) !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
-
-/* --- Input and Button Styling --- */
-
+/* --- Inputs --- */
 .bowling-input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 15px;
-    background-color: var(--dark-bg);
-    color: var(--flat-white);
-    border: 1px solid var(--line-color);
-    border-radius: 0;
-    transition: border-color var(--transition-speed);
+    background-color: var(--kp-input-bg);
+    color: var(--kp-white);
+    border: 1px solid #333;
+    border-radius: 0.5rem; 
+    transition: all 0.2s;
+    box-sizing: border-box; 
 }
 
 .bowling-input:focus {
     outline: none;
-    border-color: var(--flat-white);
-    box-shadow: none; 
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
-.neon-action-button {
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 1px solid var(--flat-white);
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    box-shadow: none;
-    cursor: pointer; /* Ensure cursor is pointer for all action buttons */
-}
-
-.neon-action-button:hover {
-    opacity: 1;
-    box-shadow: none;
-    background-color: var(--flat-white) !important;
-    color: var(--dark-bg) !important;
-}
-
-/* Awards Section Gold text replacement */
-#awards p[style*="color: gold"] {
-    color: var(--flat-white) !important; 
-    text-shadow: none;
-}
-
-/* Specific styling for the white text/black text button (GO TO SCORE PAGE) */
-.neon-action-button[style*="background-color: var(--neon-white)"] {
-    background-color: var(--flat-white) !important;
-    color: var(--dark-bg) !important;
-    border: 1px solid var(--flat-white); 
-    box-shadow: none; 
-}
-
-.neon-action-button[style*="background-color: var(--neon-white)"]:hover {
-    background-color: var(--dark-bg) !important;
-    color: var(--flat-white) !important;
-}
-
-/* --- MODAL (POP-UP) STYLING --- */
-
+/* --- MODAL STYLING --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -279,98 +264,79 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px); 
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    /* The 'hidden' class on the HTML element controls visibility */
 }
 
-
 .modal-content {
-    background-color: var(--dark-bg);
+    background-color: var(--kp-card-bg);
     padding: 30px;
-    border-radius: 0;
+    border-radius: 1.5rem; 
     width: 90%;
     max-width: 450px;
-    box-shadow: none;
-    border: 2px solid var(--flat-white);
-    animation: none;
-    transform: none;
-    opacity: 1;
+    border: 1px solid var(--kp-border);
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.15);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .close-btn {
-    color: var(--flat-white);
+    color: var(--kp-white);
     font-size: 28px;
-    font-weight: bold;
     cursor: pointer;
     transition: color 0.2s;
 }
 
-.close-btn:hover {
-    color: var(--line-color);
-}
+.close-btn:hover { color: var(--kp-text-muted); }
 
-/* Styling for the trophy representation in the modal */
-.trophy-visual {
-    background-color: var(--award-accent); /* Gold-like color for the trophy */
-    color: var(--dark-bg);
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-    font-weight: 700;
-    font-size: 1.2rem;
-    border: 2px solid #b8860b; /* Darker gold border */
-}
-
-/* Simple visual representation of a trophy */
-.trophy-visual::before {
-    content: '🏆';
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 5px;
-}
-
-/* Container for the list of added awards with scrolling */
 .award-list-container {
     margin-top: 15px;
     padding-top: 10px;
-    border-top: 1px dashed var(--line-color);
-    /* Added scroll functionality */
+    border-top: 1px solid var(--kp-border);
     max-height: 200px; 
     overflow-y: auto;  
     padding-right: 5px; 
 }
 
 .award-item {
-    padding: 5px 0;
+    padding: 8px 10px;
     font-size: 1rem;
     font-weight: 500;
-    color: var(--flat-white);
-    /* Adding some subtle flair to the newly added awards */
+    color: var(--kp-white);
+    background: rgba(255,255,255,0.05);
+    border-radius: 0.5rem;
+    margin-bottom: 8px;
     border-left: 3px solid var(--award-accent);
-    padding-left: 10px;
-    margin-bottom: 5px;
 }
 
-.award-year {
-    font-weight: 300;
-    color: rgba(255, 255, 255, 0.7);
-    margin-left: 8px;
+/* Mobile Toggle */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
 }
 
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
-    }
+@media (max-width: 768px) {
+    .dashboard-container { flex-direction: column; }
+    .sidebar { display: none; width: 100%; height: auto; padding: 20px; border-right: none; border-bottom: 1px solid var(--kp-border); }
+    .sidebar.visible { display: flex; }
+    .menu-toggle { display: block; }
+    .main-area { flex-direction: column; padding: 15px; }
+    .left-column, .right-column { flex-basis: 100%; }
 }
