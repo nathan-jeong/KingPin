@@ -109,7 +109,7 @@
     text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.8); /* Optional glowing effect */
 }
 
-/* Logo responsive styling - matched to settings page */
+/* Logo responsive styling - matched to dashboard sidebar width */
 .logo-link img {
     width: 250px;
     height: auto;
@@ -120,5 +120,4 @@
 @media (max-width: 630px) {
     .logo-link img {
         width: 150px;
-    }
 }
