@@ -53,13 +53,15 @@
             </div>
         </div>
 
-        <div class="hidden sm:grid grid-cols-9 gap-2 font-bold text-xs uppercase text-white dark:text-white border-b-2 border-white dark:border-white py-2 mb-2 tracking-wider">
-            <div class="col-span-3">Match Name</div>
-            <div class="col-span-1 text-center">G1</div>
-            <div class="col-span-1 text-center mr-2">G2</div>
-            <div class="col-span-1 text-center mr-4">G3</div>
-            <div class="col-span-2 text-center mr-5">Series Total</div>
-            <div class="col-span-1 text-center -mr-1">Avg</div>
+        <div class="hidden sm:grid grid-cols-12 gap-2 font-bold text-xs uppercase text-white dark:text-white border-b-2 border-white dark:border-white py-2 mb-2 tracking-wider select-none">
+            <div id="sort-name" class="col-span-4 cursor-pointer hover:text-indigo-200">Match Name ↕</div>
+            <div class="col-span-1 text-center">Notes</div>
+            <div id="sort-date" class="col-span-2 text-center cursor-pointer hover:text-indigo-200">Date ↕</div>
+            <div id="sort-g1" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G1 ↕</div>
+            <div id="sort-g2" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G2 ↕</div>
+            <div id="sort-g3" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G3 ↕</div>
+            <div id="sort-series" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">Series ↕</div>
+            <div id="sort-avg" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">Avg ↕</div>
         </div>
 
         <div id="match-list" class="scroll-container max-h-[60vh] overflow-y-auto space-y-2 sm:space-y-0 pr-1">
