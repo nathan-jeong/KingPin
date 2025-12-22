@@ -6,48 +6,123 @@
     <title>KingPin Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> 
+    
+    <style>
+        /* Sidebar Container */
+        #sidebar {
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            padding: 10px 15px;
+            background-color: var(--sidebar-bg, #111);
+        }
+
+        /* Logo Styling - Fixed 3:1 Proportions */
+        .logo-link {
+            display: block;
+            margin-bottom: 8px; /* Tightened gap to button */
+            margin-top: 5px;
+        }
+
+        .logo-img {
+            height: 45px;      /* Set height to 1 unit */
+            width: 135px;     /* Set width to 3 units (45 x 3) */
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Team Selector Ghost Button */
+        .team-selector-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            width: fit-content;
+            font-size: 0.95rem;
+        }
+
+        .team-selector-btn:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .team-selector-btn i {
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+        }
+
+        .team-selector-btn:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* Mobile Layout */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar { display: none; }
+            .sidebar.visible { display: flex; }
+        }
+    </style>
 </head>
 <body>
 
     <div class="dashboard-container">
         
-        <a href="dashboard.html" class="logo-link" style="position: fixed; top: 5px; left: 5px; z-index: 1000;">
-            <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo"> 
-        </a>
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
 
-        <nav class="sidebar">
-            <a href="teamSelector.html" class="sidebar-label-link team-selector-btn"><span class="team-selector-inner">Team Selector</span></a>
+        <nav id="sidebar" class="sidebar">
+            <a href="Dashboard.html" class="logo-link">
+                <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo" class="logo-img"> 
+            </a>
+
+            <a href="teamSelector.html" class="team-selector-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Team Selector</span>
+            </a>
         </nav>
 
         <div class="main-area">
-
             <div class="left-column">
-
                 <section id="team-leaderboard" class="dashboard-section">
                     <div class="section-title">Top Scorers & Team Overview</div>
-                    <p style="color: rgba(255, 255, 255, 0.7);">
-                        Overall team statistics and the current top individual scores.
-                    </p>
-                    
+                    <p style="color: rgba(255, 255, 255, 0.7);">Overall team statistics and current top scores.</p>
                     <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Bowlers:</h3>
                     <ol id="top-scorers-list" style="padding-left: 20px; color: var(--flat-white);">
                         <li style="color: rgba(255, 255, 255, 0.5); font-style: italic;">Loading top scorers...</li>
                     </ol>
-
-                    <a href="#" id="add-new-player-link" style="display: block; text-align: center; color: var(--flat-white); text-decoration: none; margin-top: 15px; font-size: 0.9rem; opacity: 0.8; cursor: pointer;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    <a href="#" id="add-new-player-link" style="display: block; text-align: center; color: var(--flat-white); text-decoration: none; margin-top: 15px; font-size: 0.9rem; opacity: 0.8; cursor: pointer;">
                         + Add New Player
                     </a>
-
-                    <a href="teamScores.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--flat-white); color: #000; padding: 15px 15px; border: none; border-radius: 4px; margin-top: 20px; cursor: pointer; width: 100%; text-align: center; font-weight: 700; box-sizing: border-box;">
+                    <a href="tmScores.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--flat-white); color: #000; padding: 15px; border-radius: 4px; margin-top: 20px; text-align: center; font-weight: 700;">
                         View Full Team Overview
                     </a>
                 </section>
 
                 <section id="score-inputter" class="dashboard-section">
                     <div class="section-title">Score Inputter</div>
-                    <p style="color: rgba(255, 255, 255, 0.7);">
-                        Ready to throw a strike! Log your frames now!
-                    </p>
                     <a href="statInput.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--flat-white); color: #000; padding: 10px 15px; border-radius: 4px; font-weight: 700; margin-top: 10px; text-align: center;">
                         GO TO SCORE INPUTTER PAGE
                     </a>
@@ -55,86 +130,46 @@
                 
                 <section id="account-settings" class="dashboard-section">
                     <div class="section-title"> Account Settings</div>
-                    <p style="color: rgba(255, 255, 255, 0.7);">
-                        Manage your account settings, background, and account information.
-                    </p>
-                    <a href="settings.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--line-color); color: var(--flat-white); padding: 10px 15px; border-radius: 4px; font-weight: 700; margin-top: 10px; text-align: center;">
+                    <a href="settings.html" id="settings-icon-btn" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--line-color); color: var(--flat-white); padding: 10px 15px; border-radius: 4px; font-weight: 700; margin-top: 10px; text-align: center;">
                         Manage Settings
                     </a>
                 </section>
-                
-                </div>
+            </div>
 
             <div class="right-column">
-                
                 <section id="awards" class="dashboard-section">
-                    <div class="awards-header">
+                    <div class="awards-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="section-title" style="margin-bottom: 0; border: none;">Awards Section</div>
-                        <button id="add-award-popup-btn" class="add-award-btn" title="Add New Award">
-                            ADD AWARD
-                        </button>
+                        <button id="add-award-popup-btn" class="add-award-btn">ADD AWARD</button>
                     </div>
-                    <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 0;">
-                        View all earned badges and trophies.
-                    </p>
-                    
-                    <div id="current-awards-list" class="award-list-container">
-                        <div class="award-item">🏆 Team MVP <span class="award-year">(2024)</span></div>
-                    </div>
+                    <div id="current-awards-list" class="award-list-container"></div>
                 </section>
-
-                </div>
+            </div>
         </div>
     </div>
 
     <div id="new-player-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="section-title">New Player Registration</h2>
-                <span class="close-btn player-close-btn">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="new-player-form">
-                    <label for="player-name" style="display: block; margin-top: 10px;">Player Name:</label>
-                    <input type="text" id="player-name" class="bowling-input" required>
-                    
-                    <label for="graduation-year" style="display: block; margin-top: 10px;">Graduation Year:</label>
-                    <input type="number" id="graduation-year" class="bowling-input" placeholder="e.g., 2025" min="1900" max="2100">
-                    
-                    <button type="submit" class="neon-action-button" style="background-color: var(--award-accent); color: var(--dark-bg); padding: 10px 15px; border: none; border-radius: 4px; margin-top: 20px; width: 100%;">
-                        Register Player
-                    </button>
-                </form>
-                <p id="registration-status" style="margin-top: 10px; font-size: 0.9rem;"></p>
-            </div>
+            <span class="close-btn player-close-btn">&times;</span>
+            <form id="new-player-form">
+                <input type="text" id="player-name" placeholder="Player Name" required>
+                <input type="number" id="graduation-year" placeholder="Grad Year">
+                <button type="submit">Register Player</button>
+            </form>
+            <p id="registration-status"></p>
         </div>
     </div>
 
     <div id="add-award-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="section-title">Add Team Award</h2>
-                <span class="close-btn award-close-btn">&times;</span> 
-            </div>
-            <div class="modal-body">
-                
-                <div class="trophy-visual">
-                    <span id="award-title-display">New Award Title</span>
-                </div>
-
-                <form id="add-award-form">
-                    <label for="award-title" style="display: block; margin-top: 10px;">Award Title:</label>
-                    <input type="text" id="award-title" class="bowling-input" placeholder="e.g., League Champions" required maxlength="50">
-                    
-                    <label for="award-year" style="display: block;">Year Won (YYYY):</label>
-                    <input type="number" id="award-year" class="bowling-input" placeholder="e.g., 2024" min="1900" max="2099" value="2025" required>
-                    
-                    <button type="submit" class="neon-action-button" style="background-color: var(--award-accent); color: var(--dark-bg); padding: 10px 15px; border: none; border-radius: 4px; margin-top: 20px; width: 100%;">
-                        Save Award
-                    </button>
-                </form>
-                <p id="award-status" style="margin-top: 10px; font-size: 0.9rem;"></p>
-            </div>
+            <span class="close-btn award-close-btn">&times;</span>
+            <h3 id="award-title-display">New Award Title</h3>
+            <form id="add-award-form">
+                <input type="text" id="award-title" placeholder="Award Title" required>
+                <input type="number" id="award-year" value="2025" required>
+                <button type="submit">Save Award</button>
+            </form>
+            <p id="award-status"></p>
         </div>
     </div>
 
