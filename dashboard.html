@@ -108,24 +108,44 @@
             <div class="left-column">
                 <section id="team-leaderboard" class="dashboard-section">
                     <div class="section-title">Top Scorers & Team Overview</div>
-                    <p style="color: rgba(255, 255, 255, 0.7);">Overall team statistics and current top scores.</p>
-                    <h3 style="font-size: 1.25rem; margin-top: 30px; margin-bottom: 10px; color: var(--flat-white);">Current Top Bowlers:</h3>
-                    <ol id="top-scorers-list" style="padding-left: 20px; color: var(--flat-white);">
-                        <li style="color: rgba(255, 255, 255, 0.5); font-style: italic;">Loading top scorers...</li>
-                    </ol>
-                    <a href="#" id="add-new-player-link" style="display: block; text-align: center; color: var(--flat-white); text-decoration: none; margin-top: 15px; font-size: 0.9rem; opacity: 0.8; cursor: pointer;">
+                    <p style="color: rgba(255, 255, 255, 0.7);">Overall team statistics with sortable leaderboards.</p>
+                    <div class="table-card">
+                        <div class="table-head top-scorers-head">
+                            <button id="sort-player-name" class="sort-btn" type="button">Player</button>
+                            <button id="sort-total-score" class="sort-btn" type="button">Total Score</button>
+                            <button id="sort-average-score" class="sort-btn" type="button">Average</button>
+                            <div class="table-cell table-cell-games">Games</div>
+                            <div class="table-cell table-actions"></div>
+                        </div>
+                        <div id="top-scorers-body" class="table-body">
+                            <div class="empty-row">Loading top scorers...</div>
+                        </div>
+                    </div>
+                    <a href="#" id="add-new-player-link" class="muted-link">
                         + Add New Player
                     </a>
-                    <a href="teamScores.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--flat-white); color: #000; padding: 15px; border-radius: 4px; margin-top: 20px; text-align: center; font-weight: 700;">
+                    <a href="teamScores.html" class="neon-action-button">
                         View Full Team Overview
                     </a>
                 </section>
 
-                <section id="score-inputter" class="dashboard-section">
-                    <div class="section-title">Score Inputter</div>
-                    <a href="statInput.html" class="neon-action-button" style="text-decoration: none; display: block; background-color: var(--flat-white); color: #000; padding: 10px 15px; border-radius: 4px; font-weight: 700; margin-top: 10px; text-align: center;">
-                        GO TO SCORE INPUTTER PAGE
-                    </a>
+                <section id="match-center" class="dashboard-section">
+                    <div class="section-title">Match Center</div>
+                    <p style="color: rgba(255, 255, 255, 0.7);">Browse matches, jump to input, or open detailed views.</p>
+                    <div class="match-action">
+                        <a href="statInput.html" class="neon-action-button">
+                            Go to Score Inputter
+                        </a>
+                    </div>
+                    <div class="match-controls">
+                        <div class="sort-group">
+                            <button id="sort-match-date" class="sort-btn" type="button">Date</button>
+                            <button id="sort-match-wood" class="sort-btn" type="button">Total Wood</button>
+                        </div>
+                    </div>
+                    <div id="match-list" class="match-list">
+                        <div class="empty-row">Loading matches...</div>
+                    </div>
                 </section>
                 
                 <section id="account-settings" class="dashboard-section">
