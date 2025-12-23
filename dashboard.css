@@ -183,7 +183,7 @@ body {
 
 .table-head, .table-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 0.7fr;
+    grid-template-columns: 2fr 1fr 1fr 0.7fr 0.5fr;
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
@@ -216,6 +216,11 @@ body {
 .table-cell-games {
     text-align: right;
     color: var(--kp-text-muted);
+}
+
+.table-actions {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .sort-btn {
