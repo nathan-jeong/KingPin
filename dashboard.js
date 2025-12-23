@@ -8,6 +8,12 @@ const API_BASE = 'https://kingpin-backend-production.up.railway.app';
 let currentTeamId = localStorage.getItem('teamId');
 let currentUserId = localStorage.getItem('userId');
 let currentPassword = localStorage.getItem('password');
+let cachedPlayers = [];
+let cachedMatches = [];
+let cachedPlayerStats = [];
+let cachedMatchSummaries = [];
+let topSortState = { column: 'average', ascending: false };
+let matchSortState = { column: 'date', ascending: false };
 
 // 1. Sidebar Toggle Logic
 // We attach this to window so the onclick="" in HTML can find it
@@ -65,8 +71,8 @@ function renderAwardsList(awards) {
         
         // We use flex in CSS, but the structure needs to match
         awardItem.innerHTML = `
+            <button class="delete-award-btn" aria-label="Delete award">&times;</button>
             <span style="display: flex; align-items: center; gap: 8px;">🏆 ${award}</span>
-            <button class="delete-award-btn" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size:1.1rem;">&times;</button>
         `;
         
         awardsList.appendChild(awardItem);
@@ -166,6 +172,7 @@ function calculatePlayerAverages(players, matches) {
         playerStats[player.playerId] = {
             playerId: player.playerId,
             displayName: player.displayName,
+            graduationYear: player.graduationYear || null,
             totalScore: 0,
             gamesPlayed: 0,
             average: 0
@@ -194,10 +201,93 @@ function calculatePlayerAverages(players, matches) {
     // Calculate averages
     return Object.values(playerStats).map(stats => {
         if (stats.gamesPlayed > 0) {
-            stats.average = Math.round(stats.totalScore / stats.gamesPlayed);
+            stats.average = stats.totalScore / stats.gamesPlayed;
         }
         return stats;
     });
+}
+
+function labelWithArrow(label, column, state) {
+    if (state.column !== column) return label;
+    return `${label} ${state.ascending ? '▲' : '▼'}`;
+}
+
+function formatDate(value) {
+    if (!value) return 'Date TBD';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return 'Date TBD';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function buildMatchSummaries(matches) {
+    return (matches || []).map(match => {
+        let totalWood = 0;
+
+        if (match.perPlayerData) {
+            Object.values(match.perPlayerData).forEach(player => {
+                if (player && player.games) {
+                    Object.values(player.games).forEach(g => {
+                        if (g && typeof g.Wood === 'number') {
+                            totalWood += g.Wood;
+                        } else if (g && typeof g.Score === 'number') {
+                            totalWood += g.Score;
+                        }
+                    });
+                }
+            });
+        }
+
+        const rawDate = match.date || match.matchDate || null;
+        const parsedDate = rawDate ? new Date(rawDate) : null;
+
+        return {
+            matchId: match.matchId || match.id,
+            name: match.opposingTeamName || match.comment || `Match ${match.matchId || match.id}`,
+            dateValue: parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.getTime() : null,
+            displayDate: formatDate(rawDate),
+            totalWood,
+            comment: match.comment || ''
+        };
+    });
+}
+
+function sortMatchSummaries(list) {
+    const sorted = [...list];
+    sorted.sort((a, b) => {
+        let result = 0;
+        if (matchSortState.column === 'wood') {
+            result = (a.totalWood || 0) - (b.totalWood || 0);
+        } else {
+            const aDate = a.dateValue || 0;
+            const bDate = b.dateValue || 0;
+            result = aDate - bDate;
+        }
+
+        if (!matchSortState.ascending) result *= -1;
+        if (result === 0) result = (b.totalWood || 0) - (a.totalWood || 0);
+        return result;
+    });
+    return sorted;
+}
+
+async function loadTeamData() {
+    if (!currentUserId || !currentTeamId) {
+        cachedPlayers = [];
+        cachedMatches = [];
+        cachedPlayerStats = [];
+        cachedMatchSummaries = [];
+        renderTopScorers([]);
+        renderMatchList();
+        return;
+    }
+
+    cachedPlayers = await fetchPlayers();
+    cachedMatches = await fetchMatches();
+    cachedPlayerStats = calculatePlayerAverages(cachedPlayers, cachedMatches);
+    cachedMatchSummaries = buildMatchSummaries(cachedMatches);
+
+    renderTopScorers(cachedPlayerStats);
+    renderMatchList();
 }
 
 async function deletePlayer(playerId, playerName) {
@@ -215,7 +305,7 @@ async function deletePlayer(playerId, playerName) {
         if (!response.ok) throw new Error(`Server ${response.status}`);
 
         console.log(`Player ${playerId} deleted successfully`);
-        fetchAndDisplayTopScorers(); // Refresh list
+        loadTeamData(); // Refresh lists
     } catch (error) {
         console.error('Error deleting player:', error);
         alert(`Failed to delete player: ${error.message}`);
@@ -223,84 +313,138 @@ async function deletePlayer(playerId, playerName) {
 }
 
 function renderTopScorers(playerStats) {
-    const topScorersList = document.getElementById('top-scorers-list');
-    if (!topScorersList) return;
+    const container = document.getElementById('top-scorers-body');
+    const nameBtn = document.getElementById('sort-player-name');
+    const totalBtn = document.getElementById('sort-total-score');
+    const avgBtn = document.getElementById('sort-average-score');
 
-    topScorersList.innerHTML = '';
+    if (!container) return;
 
-    if (playerStats.length === 0) {
-        topScorersList.innerHTML = '<li style="color: rgba(255, 255, 255, 0.5); font-style: italic;">No players on team yet</li>';
+    if (nameBtn) nameBtn.textContent = labelWithArrow('Player', 'name', topSortState);
+    if (totalBtn) totalBtn.textContent = labelWithArrow('Total Score', 'total', topSortState);
+    if (avgBtn) avgBtn.textContent = labelWithArrow('Average', 'average', topSortState);
+
+    container.innerHTML = '';
+
+    if (!playerStats || playerStats.length === 0) {
+        container.innerHTML = '<div class="empty-row">No players on team yet</div>';
         return;
     }
 
-    // FIX: Combined Sort Logic
-    // 1. Sort primarily by Average (descending)
-    // 2. Put players with 0 games at the bottom
-    const sortedPlayers = playerStats.sort((a, b) => {
-        if (a.gamesPlayed === 0 && b.gamesPlayed > 0) return 1; // b comes first
-        if (a.gamesPlayed > 0 && b.gamesPlayed === 0) return -1; // a comes first
-        return b.average - a.average; // standard sort
+    const sorted = [...playerStats].sort((a, b) => {
+        let comparison = 0;
+        if (topSortState.column === 'name') {
+            comparison = (a.displayName || '').localeCompare(b.displayName || '', undefined, { sensitivity: 'base' });
+        } else if (topSortState.column === 'total') {
+            comparison = (a.totalScore || 0) - (b.totalScore || 0);
+        } else {
+            comparison = (a.average || 0) - (b.average || 0);
+        }
+
+        if (!topSortState.ascending) comparison *= -1;
+        if (comparison === 0) comparison = (b.gamesPlayed || 0) - (a.gamesPlayed || 0);
+        return comparison;
     });
 
-    // Take top 5
-    const displayPlayers = sortedPlayers.slice(0, 5);
+    sorted.forEach(player => {
+        const row = document.createElement('div');
+        row.className = 'table-row';
 
-    displayPlayers.forEach((player, index) => {
-        const li = document.createElement('li');
-        // Add subtle bolding to the #1 rank
-        li.style.fontWeight = (index === 0 && player.gamesPlayed > 0) ? '700' : '400';
-        li.style.marginBottom = '8px';
-        li.style.display = 'flex';
-        li.style.justifyContent = 'space-between';
-        li.style.alignItems = 'center';
-        
-        const link = document.createElement('a');
-        link.href = '#';
-        const avgDisplay = player.gamesPlayed > 0 ? player.average : 'N/A';
-        link.textContent = `${player.displayName} (${avgDisplay})`;
-        
-        // Basic link styling
-        link.style.color = 'inherit';
-        link.style.textDecoration = 'none';
-        link.style.flex = '1';
-        
-        link.addEventListener('click', (e) => {
+        const nameCell = document.createElement('div');
+        nameCell.className = 'table-cell name-cell';
+
+        const playerLink = document.createElement('a');
+        const gradSuffix = player.graduationYear ? ` (${player.graduationYear})` : ' (—)';
+        playerLink.className = 'player-link';
+        playerLink.href = '#';
+        playerLink.textContent = `${player.displayName}${gradSuffix}`;
+        playerLink.addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.setItem('selectedPlayerId', player.playerId);
             window.location.href = 'plyrScores.html';
         });
 
-        // Hover effect via JS since it's a dynamic element
-        link.onmouseover = () => link.style.textDecoration = 'underline';
-        link.onmouseout = () => link.style.textDecoration = 'none';
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.style.background = 'none';
-        deleteBtn.style.border = 'none';
-        deleteBtn.style.color = 'rgba(255, 255, 255, 0.3)';
-        deleteBtn.style.cursor = 'pointer';
-        deleteBtn.style.fontSize = '1.2rem';
-        
-        deleteBtn.onmouseover = () => deleteBtn.style.color = '#ff4d4d'; // Turn red on hover
-        deleteBtn.onmouseout = () => deleteBtn.style.color = 'rgba(255, 255, 255, 0.3)';
+        nameCell.appendChild(playerLink);
 
+        const totalCell = document.createElement('div');
+        totalCell.className = 'table-cell table-number';
+        totalCell.textContent = (player.totalScore || 0).toLocaleString();
+
+        const avgCell = document.createElement('div');
+        avgCell.className = 'table-cell table-number';
+        const avgDisplay = player.gamesPlayed > 0 ? (player.average || 0).toFixed(1) : '—';
+        avgCell.textContent = avgDisplay;
+
+        const gamesCell = document.createElement('div');
+        gamesCell.className = 'table-cell table-number table-cell-games';
+        gamesCell.textContent = player.gamesPlayed || 0;
+        const actionCell = document.createElement('div');
+        actionCell.className = 'table-cell table-actions';
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'icon-btn';
+        deleteBtn.type = 'button';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.title = 'Remove player';
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             deletePlayer(player.playerId, player.displayName);
         });
-        
-        li.appendChild(link);
-        li.appendChild(deleteBtn);
-        topScorersList.appendChild(li);
+        actionCell.appendChild(deleteBtn);
+
+        row.appendChild(nameCell);
+        row.appendChild(totalCell);
+        row.appendChild(avgCell);
+        row.appendChild(gamesCell);
+        row.appendChild(actionCell);
+
+        container.appendChild(row);
+    });
+}
+
+function renderMatchList() {
+    const listEl = document.getElementById('match-list');
+    const dateBtn = document.getElementById('sort-match-date');
+    const woodBtn = document.getElementById('sort-match-wood');
+
+    if (!listEl) return;
+
+    if (!cachedMatchSummaries.length) {
+        cachedMatchSummaries = buildMatchSummaries(cachedMatches);
+    }
+
+    const sorted = sortMatchSummaries(cachedMatchSummaries);
+
+    if (dateBtn) dateBtn.textContent = labelWithArrow('Date', 'date', matchSortState);
+    if (woodBtn) woodBtn.textContent = labelWithArrow('Total Wood', 'wood', matchSortState);
+
+    listEl.innerHTML = '';
+
+    if (sorted.length === 0) {
+        listEl.innerHTML = '<div class="empty-row">No matches yet</div>';
+        return;
+    }
+
+    sorted.forEach(match => {
+        const row = document.createElement('div');
+        row.className = 'match-row';
+        row.dataset.matchId = match.matchId;
+
+        row.innerHTML = `
+            <div class="match-info">
+                <a class="match-name" href="matchView.html" data-match-id="${match.matchId}">${match.name}</a>
+            </div>
+            <div class="match-meta">
+                <span class="match-pill">${match.displayDate}</span>
+                <span class="match-pill">Wood: ${match.totalWood || 0}</span>
+            </div>
+        `;
+
+        listEl.appendChild(row);
     });
 }
 
 async function fetchAndDisplayTopScorers() {
-    const players = await fetchPlayers();
-    const matches = await fetchMatches();
-    const playerStats = calculatePlayerAverages(players, matches);
-    renderTopScorers(playerStats);
+    await loadTeamData();
 }
 
 // ------------------------------------------------------------------
@@ -309,7 +453,7 @@ async function fetchAndDisplayTopScorers() {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplayAwards();
-    fetchAndDisplayTopScorers();
+    loadTeamData();
 
     // -- Modal Helpers --
     const setupModal = (triggerId, modalId, closeClass) => {
@@ -326,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(status) status.textContent = '';
             });
         }
-        
+
         if (closeBtn && modal) {
             closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
         }
@@ -337,6 +481,59 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     };
+
+    const topSortButtons = [
+        { id: 'sort-player-name', column: 'name' },
+        { id: 'sort-total-score', column: 'total' },
+        { id: 'sort-average-score', column: 'average' }
+    ];
+
+    topSortButtons.forEach(btn => {
+        const el = document.getElementById(btn.id);
+        if (el) {
+            el.addEventListener('click', () => {
+                if (topSortState.column === btn.column) {
+                    topSortState.ascending = !topSortState.ascending;
+                } else {
+                    topSortState.column = btn.column;
+                    topSortState.ascending = (btn.column === 'name'); // numeric columns default high-to-low
+                }
+                renderTopScorers(cachedPlayerStats);
+            });
+        }
+    });
+
+    const matchSortButtons = [
+        { id: 'sort-match-date', column: 'date' },
+        { id: 'sort-match-wood', column: 'wood' }
+    ];
+
+    matchSortButtons.forEach(btn => {
+        const el = document.getElementById(btn.id);
+        if (el) {
+            el.addEventListener('click', () => {
+                if (matchSortState.column === btn.column) {
+                    matchSortState.ascending = !matchSortState.ascending;
+                } else {
+                    matchSortState.column = btn.column;
+                    matchSortState.ascending = false;
+                }
+                renderMatchList();
+            });
+        }
+    });
+
+    const matchList = document.getElementById('match-list');
+    if (matchList) {
+        matchList.addEventListener('click', (e) => {
+            const link = e.target.closest('.match-name');
+            if (!link) return;
+            e.preventDefault();
+            const matchId = link.dataset.matchId || link.closest('.match-row')?.dataset.matchId;
+            if (matchId) localStorage.setItem('selectedMatchId', matchId);
+            window.location.href = 'matchView.html';
+        });
+    }
 
     // 1. New Player Modal
     setupModal('add-new-player-link', 'new-player-modal', 'player-close-btn');
@@ -373,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 setTimeout(() => {
                     document.getElementById('new-player-modal').classList.add('hidden');
-                    fetchAndDisplayTopScorers(); // Refresh data without full reload
+                    loadTeamData(); // Refresh data without full reload
                 }, 1000);
 
             } catch (error) {
