@@ -273,13 +273,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const prevBtn = document.getElementById('prev-match-btn');
     const nextBtn = document.getElementById('next-match-btn');
 
-    // Left arrow goes to older matches
+    // Left arrow goes to newer matches (forward in time)
     if (prevBtn) {
-        prevBtn.addEventListener('click', navigateToOlderMatch);
+        prevBtn.addEventListener('click', navigateToNewerMatch);
     }
 
-    // Right arrow goes to newer matches
+    // Right arrow goes to older matches (backward in time)
     if (nextBtn) {
-        nextBtn.addEventListener('click', navigateToNewerMatch);
+        nextBtn.addEventListener('click', navigateToOlderMatch);
     }
 });
