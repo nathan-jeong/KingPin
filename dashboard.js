@@ -174,7 +174,7 @@ function calculatePlayerAverages(players, matches) {
             displayName: player.displayName,
             graduationYear: player.graduationYear || null,
             totalScore: 0,
-            gamesPlayed: 0,
+            seriesPlayed: 0,
             average: 0
         };
     });
@@ -186,12 +186,18 @@ function calculatePlayerAverages(players, matches) {
                 if (playerStats[playerId]) {
                     const playerData = match.perPlayerData[playerId];
                     if (playerData.games) {
+                        let seriesTotal = 0;
+                        let hasGames = false;
                         Object.values(playerData.games).forEach(game => {
                             if (game && typeof game.Score === 'number') {
-                                playerStats[playerId].totalScore += game.Score;
-                                playerStats[playerId].gamesPlayed++;
+                                seriesTotal += game.Score;
+                                hasGames = true;
                             }
                         });
+                        if (hasGames) {
+                            playerStats[playerId].totalScore += seriesTotal;
+                            playerStats[playerId].seriesPlayed++;
+                        }
                     }
                 }
             });
@@ -200,8 +206,8 @@ function calculatePlayerAverages(players, matches) {
 
     // Calculate averages
     return Object.values(playerStats).map(stats => {
-        if (stats.gamesPlayed > 0) {
-            stats.average = stats.totalScore / stats.gamesPlayed;
+        if (stats.seriesPlayed > 0) {
+            stats.average = stats.totalScore / stats.seriesPlayed;
         }
         return stats;
     });
@@ -342,7 +348,7 @@ function renderTopScorers(playerStats) {
         }
 
         if (!topSortState.ascending) comparison *= -1;
-        if (comparison === 0) comparison = (b.gamesPlayed || 0) - (a.gamesPlayed || 0);
+        if (comparison === 0) comparison = (b.seriesPlayed || 0) - (a.seriesPlayed || 0);
         return comparison;
     });
 
@@ -372,12 +378,12 @@ function renderTopScorers(playerStats) {
 
         const avgCell = document.createElement('div');
         avgCell.className = 'table-cell table-number';
-        const avgDisplay = player.gamesPlayed > 0 ? (player.average || 0).toFixed(1) : '—';
+        const avgDisplay = player.seriesPlayed > 0 ? (player.average || 0).toFixed(1) : '—';
         avgCell.textContent = avgDisplay;
 
         const gamesCell = document.createElement('div');
         gamesCell.className = 'table-cell table-number table-cell-games';
-        gamesCell.textContent = player.gamesPlayed || 0;
+        gamesCell.textContent = player.seriesPlayed || 0;
         const actionCell = document.createElement('div');
         actionCell.className = 'table-cell table-actions';
         const deleteBtn = document.createElement('button');
