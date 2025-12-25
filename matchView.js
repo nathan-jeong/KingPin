@@ -212,18 +212,18 @@ function updateNavigationButtons() {
     const prevBtn = document.getElementById('prev-match-btn');
     const nextBtn = document.getElementById('next-match-btn');
 
-    // Left arrow (prev) goes to older matches (lower index)
+    // Left arrow (prev) goes to newer matches (higher index)
     if (prevBtn) {
-        prevBtn.disabled = currentMatchIndex === 0;
-        prevBtn.style.opacity = currentMatchIndex === 0 ? '0.3' : '1';
-        prevBtn.style.cursor = currentMatchIndex === 0 ? 'not-allowed' : 'pointer';
+        prevBtn.disabled = currentMatchIndex === allMatches.length - 1;
+        prevBtn.style.opacity = currentMatchIndex === allMatches.length - 1 ? '0.3' : '1';
+        prevBtn.style.cursor = currentMatchIndex === allMatches.length - 1 ? 'not-allowed' : 'pointer';
     }
 
-    // Right arrow (next) goes to newer matches (higher index)
+    // Right arrow (next) goes to older matches (lower index)
     if (nextBtn) {
-        nextBtn.disabled = currentMatchIndex === allMatches.length - 1;
-        nextBtn.style.opacity = currentMatchIndex === allMatches.length - 1 ? '0.3' : '1';
-        nextBtn.style.cursor = currentMatchIndex === allMatches.length - 1 ? 'not-allowed' : 'pointer';
+        nextBtn.disabled = currentMatchIndex === 0;
+        nextBtn.style.opacity = currentMatchIndex === 0 ? '0.3' : '1';
+        nextBtn.style.cursor = currentMatchIndex === 0 ? 'not-allowed' : 'pointer';
     }
 }
 
@@ -282,4 +282,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (nextBtn) {
         nextBtn.addEventListener('click', navigateToOlderMatch);
     }
+
+    // Add keyboard arrow key support
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            navigateToNewerMatch();
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            navigateToOlderMatch();
+        }
+    });
 });
