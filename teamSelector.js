@@ -104,6 +104,17 @@ let currentTeamsData = []; // Store the fetched teams globally for re-rendering
 
 // --- Data Handling ---
 
+/**
+ * Extracts the year from a team's displayName (e.g., "Team Name (2024)" -> 2024)
+ * @param {string} displayName - The display name of the team
+ * @returns {number} The extracted year, or 0 if not found
+ */
+function extractYearFromDisplayName(displayName) {
+    if (!displayName) return 0;
+    const match = displayName.match(/\((\d{4})\)/);
+    return match ? parseInt(match[1], 10) : 0;
+}
+
 function renderTeams(currentTeams) {
     // ... (NO CHANGE HERE) ...
     // Remove all existing children
@@ -313,8 +324,12 @@ async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
         // 4. Update the global data store with the new team
         currentTeamsData.push(savedTeam);
         
-        // 5. Re-sort alphabetically by displayName
-        currentTeamsData.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || '')); 
+        // 5. Re-sort by season year (extracted from displayName)
+        currentTeamsData.sort((a, b) => {
+            const yearA = extractYearFromDisplayName(a.displayName);
+            const yearB = extractYearFromDisplayName(b.displayName);
+            return yearB - yearA; // Sort descending (newest first)
+        }); 
 
         // 6. Re-render the list
         renderTeams(currentTeamsData);
@@ -446,8 +461,12 @@ async function initializeApp() { // NOW ASYNCHRONOUS
     // 1. Fetch data from the backend
     const fetchedTeams = await fetchTeamsFromBackend();
     
-    // 2. Sort the data by displayName alphabetically
-    fetchedTeams.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || '')); 
+    // 2. Sort the data by season year (extracted from displayName) descending
+    fetchedTeams.sort((a, b) => {
+        const yearA = extractYearFromDisplayName(a.displayName);
+        const yearB = extractYearFromDisplayName(b.displayName);
+        return yearB - yearA; // Sort descending (newest first)
+    }); 
     
     // 3. Store the data globally
     currentTeamsData = fetchedTeams;
