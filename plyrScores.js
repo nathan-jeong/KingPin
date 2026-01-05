@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
         if (backToTeamSelectorBtn) {
             backToTeamSelectorBtn.addEventListener('click', () => {
-                window.location.href = 'teamSelector.html';
+                window.location.href = 'dashboard.html';
             });
         }
 
