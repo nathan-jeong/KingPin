@@ -1,0 +1,29 @@
+/* Custom font import (Inter is standard) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+body {
+    font-family: 'Inter', sans-serif;
+    /* Set background to black as requested in the original code */
+    background-color: #000000; 
+}
+.stats-card {
+    /* Tailwind's utility classes are primarily used in HTML, but this custom shadow/transition is kept here */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+.stats-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Logo responsive styling - matched to settings page */
+.logo-link img {
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 630px) {
+    .logo-link img {
+        width: 150px;
+    }
+}
