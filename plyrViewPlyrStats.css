@@ -1,1 +1,36 @@
+:root {
+    font-family: 'Inter', sans-serif;
+}
+/* Custom scrollbar styling for the match list */
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: #FFFFFF; /* gray-400 */
+    border-radius: 4px;
+}
+.scroll-container::-webkit-scrollbar-track {
+    background-color: #000000; /* gray-100 */
+}
+@media (prefers-color-scheme: dark) {
+    .scroll-container::-webkit-scrollbar-thumb {
+        background-color: #000000; /* gray-600 */
+    }
+    .scroll-container::-webkit-scrollbar-track {
+        background-color: #000000; /* gray-800 */
+    }
+}
 
+/* Logo responsive styling - matched to settings page */
+.logo-link img {
+    width: 250px;
+    height: auto;
+    transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 630px) {
+    .logo-link img {
+        width: 150px;
+    }
+}
