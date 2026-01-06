@@ -5,88 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KingPin Login</title>
     <link rel="icon" href="SiteIcon.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
 
-    <a href="teamSelector.html" class="logo-link" style="position: fixed; top: 5px; left: 5px; z-index: 1000;">
+    <a href="teamSelector.html" class="logo-link" style="position: fixed; top: 1rem; left: 1rem; z-index: 1000;">
         <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo">
     </a>
 
-    <div id="login-card" class="login-card w-full max-w-md p-8 rounded-2xl">
+    <div id="login-card" class="login-card">
 
-        <h2 class="text-3xl font-black text-white mb-2 text-center tracking-wider">
-            Welcome to KingPin! Login Here:
-        </h2>
-        <p class="text-center text-gray-400 mb-8">
-            Grab your ball and get rolling!
-        </p>
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-black text-white mb-2 tracking-wider uppercase">
+                Welcome Back
+            </h2>
+            <p class="text-gray-400 text-sm font-medium">
+                Grab your ball and get rolling.
+            </p>
+        </div>
 
         <form id="login-form" class="space-y-6">
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-200">Email</label>
-                <div class="mt-1">
-                    <input id="email" name="email" type="email" autocomplete="email" required
-                        class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
-                        placeholder="yourname@alley.com">
-                </div>
+                <label for="email" class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required
+                    class="bowling-input"
+                    placeholder="yourname@alley.com">
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-200">Password</label>
-                <div class="mt-1 relative flex items-center">
+                <label for="password" class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Password</label>
+                <div class="relative">
                     <input id="password" name="password" type="password" autocomplete="current-password" required
-                        class="bowling-input appearance-none block w-full px-4 py-3 rounded-lg shadow-sm placeholder-gray-500 sm:text-sm transition duration-150 ease-in-out"
-                        placeholder="password">
+                        class="bowling-input pr-16" 
+                        placeholder="••••••••">
+                    
                     <button id="toggle-password" type="button" 
-                        class="ml-2 text-sm px-3 py-2 rounded-md bg-white text-black font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white" 
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs font-bold text-gray-400 hover:text-white uppercase px-2 py-1 transition-colors" 
                         aria-label="Show password">
                         Show
                     </button>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox"
-                        class="h-4 w-4 text-rose-500 border-gray-600 rounded focus:ring-rose-500 bg-gray-700">
-                    <label for="remember-me" class="ml-2 block text-sm text-gray-200">
-                        Keep my shoes on (save info)
+                        class="h-4 w-4 bg-[#1a1a1a] border-gray-600 rounded focus:ring-white focus:ring-offset-0 text-black accent-white">
+                    <label for="remember-me" class="ml-2 block text-xs text-gray-400 font-medium">
+                        Remember me
                     </label>
                 </div>
 
                 <div class="text-sm">
-                    <a href="#" id="forgot-password-link" class="font-medium text-white hover:text-white transition duration-150">
-                        Lost your Password?
+                    <a href="#" id="forgot-password-link" class="login-link">
+                        Forgot Password?
                     </a>
                 </div>
             </div>
 
-            <div>
-                <button type="submit"
-                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-black bg-white hover:bg-white focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900 transition duration-150 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
+            <div class="pt-2">
+                <button type="submit" class="login-btn">
                     Sign In
                 </button>
             </div>
         </form>
 
-        <div class="mt-6 text-center">
-            <p class="text-sm text-gray-400">
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-500">
                 New to the league?
-                <a href="signUp.html" class="font-medium text-white hover:text-white transition duration-150">
-                    Get registered (Sign up)
+                <a href="signUp.html" class="login-link ml-1 font-semibold text-white">
+                    Create Account
                 </a>
             </p>
         </div>
 
-        <div id="message-box" class="mt-6 p-4 rounded-lg text-sm hidden transition duration-300 ease-in-out" role="alert">
-            <p id="message-text" class="font-semibold"></p>
+        <div id="message-box" class="mt-6 p-4 rounded-lg text-sm hidden transition-all duration-300 border border-transparent" role="alert">
+            <p id="message-text" class="font-bold"></p>
         </div>
 
     </div>
 
-    <script src="login.js" defer></script>
+    <script src="login.js"></script>
 </body>
 </html>
