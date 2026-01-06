@@ -27,3 +27,26 @@ body {
         width: 150px;
     }
 }
+
+/* Styling for the Back to Login Button */
+.main-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #000000; /* Black background */
+    color: #FFFFFF; /* White text */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Hover style for button */
+.main-btn:hover {
+    background-color: #333333; /* Slightly lighter black for hover */
+}
+
+/* Button click effect */
+.main-btn:active {
+    transform: scale(0.98); /* Slightly smaller effect on click */
+}
