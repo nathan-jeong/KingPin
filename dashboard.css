@@ -156,6 +156,17 @@ body {
     gap: 25px;
 }
 
+.dashboard-footer {
+    width: 100%;
+    padding: 20px 30px 40px;
+    box-sizing: border-box;
+}
+
+.dashboard-footer .neon-action-button {
+    width: 100%;
+    margin: 0 auto;
+}
+
 /* --- Dashboard Section (Card) --- */
 .dashboard-section {
     background: var(--kp-card-bg);
