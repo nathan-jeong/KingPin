@@ -163,7 +163,153 @@ async function fetchMatches() {
         return [];
     }
 }
+//here starts the export feature
 
+async function ensureMatchDetails(matches) {
+    if (!currentUserId || !currentTeamId) return matches;
+
+    const enriched = await Promise.all((matches || []).map(async (match) => {
+        if (match && match.perPlayerData) return match;
+        const matchId = match?.matchId || match?.id;
+        if (!matchId) return match;
+
+        try {
+            const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}`);
+            if (!resp.ok) return match;
+            const data = await resp.json();
+            const detailed = data.match || data;
+            return { ...match, ...detailed };
+        } catch (err) {
+            console.warn('Could not fetch match details for export', matchId, err);
+            return match;
+        }
+    }));
+
+    return enriched;
+}
+
+function escapeCsv(value) {
+    if (value === null || value === undefined) return '';
+    const str = String(value);
+    if (/[",\n]/.test(str)) {
+        return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+}
+
+function buildCsv(players, matches) {
+    const playerLookup = (players || []).reduce((acc, p) => {
+        acc[p.playerId] = p;
+        return acc;
+    }, {});
+
+    const csvLines = [];
+    
+    // Build bowling sheet format: each match is a separate section
+    (matches || []).forEach(match => {
+        const matchId = match?.matchId || match?.id || '';
+        const matchName = match?.opposingTeamName || match?.comment || `Match ${matchId}`;
+        const matchDate = match?.date ? new Date(match.date).toLocaleDateString('en-US') : 'Date TBD';
+        const perPlayer = match?.perPlayerData || {};
+
+        // Match header section
+        csvLines.push([`MATCH: ${matchName}`]);
+        csvLines.push([`Date: ${matchDate}`]);
+        csvLines.push([]); // Blank line
+
+        // Bowling sheet header
+        const header = ['Player Name', 'Grad Year', 'Game 1', 'Game 2', 'Game 3', 'Series', 'Average'];
+        csvLines.push(header);
+
+        // Player rows for this match
+        const playerRows = [];
+        Object.entries(perPlayer).forEach(([playerId, playerData]) => {
+            const player = playerLookup[playerId] || {};
+            const games = playerData?.games || {};
+            
+            const game1 = games['1'] && typeof games['1'].Score === 'number' ? games['1'].Score : '';
+            const game2 = games['2'] && typeof games['2'].Score === 'number' ? games['2'].Score : '';
+            const game3 = games['3'] && typeof games['3'].Score === 'number' ? games['3'].Score : '';
+            
+            // Calculate series and average
+            const scores = [game1, game2, game3].filter(s => s !== '');
+            const series = scores.reduce((sum, s) => sum + s, 0);
+            const average = scores.length > 0 ? (series / scores.length).toFixed(1) : '';
+
+            playerRows.push([
+                player.displayName || 'Unknown Player',
+                player.graduationYear || '',
+                game1,
+                game2,
+                game3,
+                series,
+                average
+            ]);
+        });
+
+        // Sort by player name
+        playerRows.sort((a, b) => (a[0] || '').localeCompare(b[0] || ''));
+        playerRows.forEach(row => csvLines.push(row));
+
+        // Calculate team totals
+        const teamGame1 = playerRows.reduce((sum, r) => sum + (r[2] || 0), 0);
+        const teamGame2 = playerRows.reduce((sum, r) => sum + (r[3] || 0), 0);
+        const teamGame3 = playerRows.reduce((sum, r) => sum + (r[4] || 0), 0);
+        const teamSeries = teamGame1 + teamGame2 + teamGame3;
+        const gamesPlayed = (teamGame1 > 0 ? 1 : 0) + (teamGame2 > 0 ? 1 : 0) + (teamGame3 > 0 ? 1 : 0);
+        const teamAvg = gamesPlayed > 0 ? (teamSeries / gamesPlayed).toFixed(1) : '';
+
+        csvLines.push([]); // Blank line before totals
+        csvLines.push(['TEAM TOTAL', '', teamGame1, teamGame2, teamGame3, teamSeries, teamAvg]);
+        
+        // Add spacing between matches
+        csvLines.push([]);
+        csvLines.push([]);
+    });
+
+    if (!csvLines.length) return '';
+
+    return csvLines.map(line => line.map(escapeCsv).join(',').trim()).join('\n');
+}
+
+function downloadCsv(csvText) {
+    const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `kingpin-team-${currentTeamId || 'team'}-export-${today}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+async function exportTeamSpreadsheet() {
+    if (!currentUserId || !currentTeamId) {
+        alert('Please log in and select a team before exporting.');
+        return;
+    }
+
+    const players = cachedPlayers.length ? cachedPlayers : await fetchPlayers();
+    let matches = cachedMatches.length ? cachedMatches : await fetchMatches();
+
+    if (!matches.length) {
+        alert('No matches available to export yet.');
+        return;
+    }
+
+    matches = await ensureMatchDetails(matches);
+    const csv = buildCsv(players, matches);
+
+    if (!csv) {
+        alert('No game data found to export.');
+        return;
+    }
+
+    downloadCsv(csv);
+}
+//here ends the export feature
 function calculatePlayerAverages(players, matches) {
     const playerStats = {};
 
@@ -626,5 +772,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 awardStatus.style.color = '#f87171';
             }
         });
+    }
+
+    const exportBtn = document.getElementById('export-spreadsheet-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportTeamSpreadsheet);
     }
 });
