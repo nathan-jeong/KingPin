@@ -166,6 +166,14 @@ function showModal(title, htmlContent) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Attach navigation button listener FIRST
+    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
+    if (backToDashboardBtn) {
+        backToDashboardBtn.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    }
+
     const playerNameEl = document.getElementById('player-name');
     const matchListEl = document.getElementById('match-list');
 
@@ -287,14 +295,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (g2AvgValueEl) g2AvgValueEl.textContent = overallG2Avg.toFixed(1);
         if (g3AvgValueEl) g3AvgValueEl.textContent = overallG3Avg.toFixed(1);
         if (totalWoodValueEl) totalWoodValueEl.textContent = totalWood;
-
-        // Navigation buttons
-        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
-        if (backToDashboardBtn) {
-            backToDashboardBtn.addEventListener('click', () => {
-                window.location.href = 'dashboard.html';
-            });
-        }
 
         // Sorting header listeners (desktop)
         const sortables = [
