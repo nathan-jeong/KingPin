@@ -51,7 +51,7 @@ function renderAwardsList(awards) {
         const awardItem = document.createElement('div');
         awardItem.className = 'award-item'; 
         awardItem.innerHTML = `
-            <span style="display: flex; align-items: center; gap: 8px;">🏆 ${award}</span>
+            <span class="award-text">🏆 ${award}</span>
             <button class="delete-award-btn" aria-label="Delete award">&times;</button>
         `;
         awardsList.appendChild(awardItem);

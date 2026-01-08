@@ -463,6 +463,12 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.award-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .delete-award-btn {
     background: none;
     border: 1px solid transparent;
