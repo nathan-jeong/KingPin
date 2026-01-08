@@ -51,8 +51,8 @@ function renderAwardsList(awards) {
         const awardItem = document.createElement('div');
         awardItem.className = 'award-item'; 
         awardItem.innerHTML = `
-            <button class="delete-award-btn" aria-label="Delete award">&times;</button>
             <span style="display: flex; align-items: center; gap: 8px;">🏆 ${award}</span>
+            <button class="delete-award-btn" aria-label="Delete award">&times;</button>
         `;
         awardsList.appendChild(awardItem);
         awardItem.querySelector('.delete-award-btn').addEventListener('click', () => deleteAward(award));
@@ -94,6 +94,25 @@ async function deleteAward(awardToDelete) {
         renderAwardsList(data.awardsList || data);
     } catch (error) {
         console.error('Error deleting award:', error);
+    }
+}
+
+async function deletePlayer(playerId, playerName) {
+    if (!currentUserId || !currentTeamId || !currentPassword || !confirm(`Delete player: ${playerName}?`)) return;
+    try {
+        const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players/${playerId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: currentPassword })
+        });
+        if (response.ok) {
+            loadTeamData();
+        } else {
+            alert('Error deleting player');
+        }
+    } catch (error) {
+        console.error('Error deleting player:', error);
+        alert('Error deleting player');
     }
 }
 
@@ -193,6 +212,12 @@ function renderTopScorers(stats) {
             <div class="table-cell table-actions"><button class="icon-btn del-p" data-id="${p.playerId}" data-name="${p.displayName}">&times;</button></div>
         `;
         body.appendChild(row);
+        
+        // Attach delete event listener
+        const deleteBtn = row.querySelector('.del-p');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => deletePlayer(p.playerId, p.displayName));
+        }
     });
 }
 
@@ -257,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('player-name').value;
         const grad = document.getElementById('graduation-year').value;
         const status = document.getElementById('registration-status');
+        const form = document.getElementById('new-player-form');
 
         try {
             const res = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
@@ -265,10 +291,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ password: currentPassword, displayName: name, graduationYear: parseInt(grad) })
             });
             if (res.ok) {
-                status.textContent = "Player Added!";
-                setTimeout(() => { document.getElementById('new-player-modal').classList.add('hidden'); loadTeamData(); }, 1000);
+                status.textContent = "Saved!";
+                status.style.color = "";
+                loadTeamData();
+                form.reset();
+                setTimeout(() => { status.textContent = ''; }, 1500);
+            } else {
+                status.textContent = "Error saving.";
+                status.style.color = "red";
             }
-        } catch (err) { status.textContent = "Error saving."; }
+        } catch (err) {
+            status.textContent = "Error saving.";
+            status.style.color = "red";
+        }
     });
 
     // Handle Award Form Submit
@@ -277,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('award-title').value;
         const year = document.getElementById('award-year').value;
         const status = document.getElementById('award-status');
+        const form = document.getElementById('add-award-form');
         
         // Check for duplicates
         const newAward = `${title} (${year})`;
@@ -291,12 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (success) {
             status.textContent = "Saved!";
             status.style.color = "";
-            setTimeout(() => { 
-                document.getElementById('add-award-modal').classList.add('hidden');
-                document.body.style.overflow = '';
-                document.getElementById('add-award-form').reset();
-                status.textContent = '';
-            }, 1000);
+            form.reset();
+            setTimeout(() => { status.textContent = ''; }, 1500);
         } else {
             status.textContent = "Error saving award";
             status.style.color = "red";
