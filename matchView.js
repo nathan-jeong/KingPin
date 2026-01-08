@@ -293,4 +293,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             navigateToOlderMatch();
         }
     });
+
+    // Delete match button
+    const deleteBtn = document.getElementById('delete-match-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            if (!currentMatchId) {
+                alert('No match selected to delete.');
+                return;
+            }
+
+            const confirmed = confirm('Delete this match? This action cannot be undone.');
+            if (!confirmed) return;
+
+            const password = localStorage.getItem('password') || '';
+            try {
+                const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${currentMatchId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    throw new Error(`Delete failed: ${resp.status} ${txt}`);
+                }
+
+                alert('Match deleted successfully.');
+                // Clear selection and redirect to dashboard
+                localStorage.removeItem('selectedMatchId');
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                console.error('Error deleting match:', err);
+                alert('Failed to delete match: ' + err.message);
+            }
+        });
+    }
 });
