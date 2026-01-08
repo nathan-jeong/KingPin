@@ -297,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('add-award-form').reset();
                 status.textContent = '';
             }, 1000);
+        } else {
+            status.textContent = "Error saving award";
+            status.style.color = "red";
         }
     });
 });
