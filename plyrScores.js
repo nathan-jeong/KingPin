@@ -289,9 +289,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (totalWoodValueEl) totalWoodValueEl.textContent = totalWood;
 
         // Navigation buttons
-        const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
-        if (backToTeamSelectorBtn) {
-            backToTeamSelectorBtn.addEventListener('click', () => {
+        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
+        if (backToDashboardBtn) {
+            backToDashboardBtn.addEventListener('click', () => {
                 window.location.href = 'dashboard.html';
             });
         }
