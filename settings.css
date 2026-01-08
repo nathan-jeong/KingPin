@@ -1,147 +1,199 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        
-/* Dark background simulating a bowling lane texture */
+
+/* GLOBAL STYLES & BACKGROUND */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #000000; /* Very dark background */
-    /* Subtle lane texture via gradient */
+    background-color: #050505;
     background-image: repeating-linear-gradient(
         45deg,
-        rgba(255, 255, 255, 0.03) 0,
-        rgba(255, 255, 255, 0.03) 1px,
-        transparent 1px,
-        transparent 50px
+        #111 0,
+        #111 2px,
+        #000 2px,
+        #000 10px
     );
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start; 
     justify-content: center;
     padding: 1rem;
+    
+    /* Adjusted: Total 85px down from the top */
+    padding-top: 90px; 
+    box-sizing: border-box; 
 }
 
+/* UTILITIES FROM SOURCE */
+
+/* Remove spinners from number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ensure calendar icon is light in dark mode */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #111; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: #333; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+/* CARD STYLING */
+/* Replaces previous neon styling with Kingpin White Accent styling */
 .settings-card {
-    /* Dark, slightly transparent card for neon contrast */
-    background-color: rgba(0, 0, 0, 0.9); /* Zinc-900 with transparency */
-    /* Neon glow effect */
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.2);
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* White border */
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); /* White glow */
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px; /* Kept reasonable max-width */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #ffffff; /* Neon border color */
 }
 
 .settings-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+    /* Subtle lift effect */
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
 }
 
 /* Settings sections */
 .settings-section {
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
 }
 
 .settings-section:last-of-type {
     border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
-/* Input field custom styling for better dark mode look */
+/* INPUT STYLING */
+/* Matches .kingpin-input style */
 input.bowling-input {
-    background-color: #000000;
-    color: white;
-    border: 1px solid #FFFFFF;
-}
-
-/* Read-only email field styling */
-input.bowling-input.email-readonly {
     background-color: #1a1a1a;
-    color: #9CA3AF;
-    border-color: #4B5563;
-    cursor: not-allowed;
-    opacity: 0.7;
+    border: 1px solid #333;
+    border-radius: 0.5rem;
+    color: white;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    transition: all 0.2s;
 }
 
 /* Focus ring color change */
 .bowling-input:focus {
+    border-color: #ffffff; /* White focus */
     outline: none;
-    border-color: #ffffff;
-    box-shadow: 0 0 0 2px #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
-/* Disabled fields should not show focus */
+/* Disabled fields */
 .bowling-input:disabled:focus {
     box-shadow: none;
 }
 
-/* Button styles */
+/* Read-only email field styling */
+input.bowling-input.email-readonly {
+    background-color: #111; /* Slightly darker than normal input */
+    color: #666;
+    border-color: #222;
+    cursor: not-allowed;
+}
+
+/* BUTTON STYLES */
 .edit-btn, .save-btn, .cancel-btn {
     padding: 0.5rem 1.5rem;
     border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: all 0.15s ease-in-out;
+    transition: transform 0.1s ease, background-color 0.2s;
     cursor: pointer;
-    border: 1px solid;
+    border: 1px solid transparent;
 }
 
-.edit-btn {
-    background-color: transparent;
-    color: white;
-    border-color: #FFFFFF;
-}
-
-.edit-btn:hover {
-    background-color: #FFFFFF;
-    color: #000000;
-    transform: scale(1.05);
-}
-
+/* Save Btn - Matches .kingpin-btn (White button, Black text) */
 .save-btn {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     color: #000000;
-    border-color: #FFFFFF;
 }
 
 .save-btn:hover {
-    background-color: #f0f0f0;
-    transform: scale(1.05);
+    background-color: #e5e5e5;
+    transform: scale(1.02);
 }
 
+.save-btn:active {
+    transform: scale(0.98);
+}
+
+/* Edit Btn - Outline White Style to match aesthetic */
+.edit-btn {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.edit-btn:hover {
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
+}
+
+/* Cancel Btn - Muted Grey */
 .cancel-btn {
     background-color: transparent;
     color: #9CA3AF;
-    border-color: #4B5563;
+    border-color: #333;
 }
 
 .cancel-btn:hover {
-    background-color: #1F2937;
+    background-color: #1a1a1a;
     color: white;
-    border-color: #6B7280;
+    border-color: #555;
 }
 
-/* Message box styles */
+/* MESSAGE BOX STYLES */
 #message-box {
     transition: all 0.3s ease-in-out;
+    padding: 10px;
+    border-radius: 0.5rem;
+    margin-top: 10px;
 }
 
 #message-box.success {
-    background-color: rgba(34, 197, 94, 0.2);
-    border: 1px solid #22C55E;
-    color: #22C55E;
+    background-color: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    color: #4ade80;
 }
 
 #message-box.error {
-    background-color: rgba(239, 68, 68, 0.2);
-    border: 1px solid #EF4444;
-    color: #EF4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #f87171;
 }
 
-/* Logo responsive styling - matched to dashboard sidebar width */
+/* LOGO & RESPONSIVE */
 .logo-link img {
     width: 250px;
     height: auto;
     transition: width 0.3s ease;
 }
 
-/* Responsive adjustments */
 @media (max-width: 630px) {
     .logo-link img {
         width: 150px;
@@ -150,5 +202,10 @@ input.bowling-input.email-readonly {
     .edit-btn, .save-btn, .cancel-btn {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;
+    }
+    
+    /* Adjust padding for mobile to keep the 50px separation feel */
+    body {
+        padding-top: 70px;
     }
 }
