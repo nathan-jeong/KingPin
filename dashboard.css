@@ -471,101 +471,108 @@ body {
 }
 
 /* --- MODAL STYLING --- */
+/* --- MODERN MODAL SYSTEM --- */
+
 .modal-overlay {
-    position: fixed;
+    position: fixed; /* Fixes it to the screen viewport */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px); 
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px); /* Blurred background effect */
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999; /* Higher than all dashboard elements */
+    padding: 20px;
 }
 
 .modal-content {
-    background-color: var(--kp-card-bg);
-    padding: 30px;
-    border-radius: 1.5rem; 
-    width: 90%;
-    max-width: 450px;
-    border: 1px solid var(--kp-border);
-    box-shadow: 0 0 50px rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, #121212, #080808);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    text-align: center;
 }
 
+.modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+}
+
+/* Close Button */
 .close-btn {
-    color: var(--kp-white);
-    font-size: 28px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: var(--kp-text-muted);
+    font-size: 24px;
     cursor: pointer;
     transition: color 0.2s;
 }
 
-.close-btn:hover { color: var(--kp-text-muted); }
+.close-btn:hover { color: #fff; }
 
-.award-list-container {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid var(--kp-border);
-    max-height: 200px; 
-    overflow-y: auto;  
-    padding-right: 5px; 
-}
-
-.award-item {
-    padding: 8px 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--kp-white);
-    background: rgba(255,255,255,0.05);
-    border-radius: 0.5rem;
-    margin-bottom: 8px;
-    border-left: 3px solid var(--award-accent);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.delete-award-btn {
-    background: none;
-    border: none;
-    color: #ff4d4d;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 6px;
-}
-
-/* Mobile Toggle */
-.menu-toggle {
-    display: none;
-    background: none;
-    border: none;
+/* Styled Form Elements */
+.modal-content input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    padding: 14px 18px;
+    border-radius: 12px;
     color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 10px;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 1000;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
 }
 
-@media (max-width: 768px) {
-    .dashboard-container { flex-direction: column; }
-    .sidebar { display: none; width: 100%; height: auto; padding: 20px; border-right: none; border-bottom: 1px solid var(--kp-border); }
-    .sidebar.visible { display: flex; }
-    .menu-toggle { display: block; }
-    .main-area { flex-direction: column; padding: 15px; }
-    .left-column, .right-column { flex-basis: 100%; }
+.modal-content input:focus {
+    outline: none;
+    border-color: #fff;
+}
+
+.modal-content button[type="submit"] {
+    width: 100%;
+    padding: 16px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+}
+
+.modal-content button[type="submit"]:hover {
+    background: #e5e5e5;
+}
+
+.modal-content button[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+/* Special Case for Award Modal Header */
+#award-title-display {
+    color: var(--award-accent);
+    margin-bottom: 15px;
+    font-weight: 800;
 }
