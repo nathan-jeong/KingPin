@@ -35,6 +35,7 @@ async function fetchAndDisplayAwards() {
         renderAwardsList(team.awardsList || []);
     } catch (error) {
         console.error('Error fetching awards:', error);
+        alert('Failed to load awards. Please refresh the page.');
         displayEmptyAwards();
     }
 }
@@ -78,6 +79,8 @@ async function addAwardToBackend(awardTitle, awardYear) {
         renderAwardsList(data.awardsList || data);
         return true;
     } catch (error) {
+        console.error('Error adding award:', error);
+        alert('Failed to save award. Please try again.');
         return false;
     }
 }
@@ -90,10 +93,12 @@ async function deleteAward(awardToDelete) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: currentPassword, award: awardToDelete })
         });
+        if (!response.ok) throw new Error('Delete failed');
         const data = await response.json();
         renderAwardsList(data.awardsList || data);
     } catch (error) {
         console.error('Error deleting award:', error);
+        alert('Failed to delete award. Please try again.');
     }
 }
 
@@ -119,7 +124,15 @@ async function loadTeamData() {
 
         renderTopScorers(cachedPlayerStats);
         renderMatchList();
-    } catch (err) { console.error("Load Failed", err); }
+    } catch (err) { 
+        console.error("Load Failed", err);
+        alert('Failed to load team data. Please refresh the page.');
+        // Display error state in UI
+        const body = document.getElementById('top-scorers-body');
+        if (body) body.innerHTML = '<div class="empty-row" style="color: #ff6b6b;">Error loading data. Please refresh the page.</div>';
+        const list = document.getElementById('match-list');
+        if (list) list.innerHTML = '<div class="empty-row" style="color: #ff6b6b;">Error loading matches. Please refresh the page.</div>';
+    }
 }
 
 function calculatePlayerAverages(players, matches) {
@@ -202,6 +215,13 @@ function renderMatchList() {
 // ------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Validate localStorage credentials
+    if (!currentUserId || !currentTeamId) {
+        alert('Please log in to access the dashboard.');
+        window.location.href = 'index.html';
+        return;
+    }
+
     loadTeamData();
     fetchAndDisplayAwards();
 
@@ -225,34 +245,64 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModal(document.getElementById('add-award-popup-btn'), 'add-award-modal', 'award-close-btn');
 
     // Handle Player Form Submit
-    document.getElementById('new-player-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('player-name').value;
-        const grad = document.getElementById('graduation-year').value;
-        const status = document.getElementById('registration-status');
+    const playerForm = document.getElementById('new-player-form');
+    if (playerForm) {
+        playerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('player-name')?.value;
+            const grad = document.getElementById('graduation-year')?.value;
+            const status = document.getElementById('registration-status');
 
-        try {
-            const res = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: currentPassword, displayName: name, graduationYear: parseInt(grad) })
-            });
-            if (res.ok) {
-                status.textContent = "Player Added!";
-                setTimeout(() => { document.getElementById('new-player-modal').classList.add('hidden'); loadTeamData(); }, 1000);
+            if (!name || !grad) {
+                if (status) status.textContent = "Please fill in all fields.";
+                return;
             }
-        } catch (err) { status.textContent = "Error saving."; }
-    });
+
+            try {
+                const res = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: currentPassword, displayName: name, graduationYear: parseInt(grad) })
+                });
+                if (res.ok) {
+                    if (status) status.textContent = "Player Added!";
+                    setTimeout(() => { 
+                        const modal = document.getElementById('new-player-modal');
+                        if (modal) modal.classList.add('hidden');
+                        loadTeamData(); 
+                    }, 1000);
+                } else {
+                    if (status) status.textContent = "Error saving player.";
+                }
+            } catch (err) { 
+                console.error('Error adding player:', err);
+                if (status) status.textContent = "Error saving."; 
+            }
+        });
+    }
 
     // Handle Award Form Submit
-    document.getElementById('add-award-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('award-title').value;
-        const year = document.getElementById('award-year').value;
-        const success = await addAwardToBackend(title, year);
-        if (success) {
-            document.getElementById('award-status').textContent = "Saved!";
-            setTimeout(() => { document.getElementById('add-award-modal').classList.add('hidden'); }, 1000);
-        }
-    });
+    const awardForm = document.getElementById('add-award-form');
+    if (awardForm) {
+        awardForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('award-title')?.value;
+            const year = document.getElementById('award-year')?.value;
+            const awardStatus = document.getElementById('award-status');
+
+            if (!title || !year) {
+                if (awardStatus) awardStatus.textContent = "Please fill in all fields.";
+                return;
+            }
+
+            const success = await addAwardToBackend(title, year);
+            if (success) {
+                if (awardStatus) awardStatus.textContent = "Saved!";
+                setTimeout(() => { 
+                    const modal = document.getElementById('add-award-modal');
+                    if (modal) modal.classList.add('hidden');
+                }, 1000);
+            }
+        });
+    }
 });

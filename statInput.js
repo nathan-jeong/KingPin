@@ -30,7 +30,7 @@ function goToDashboard() {
     // Logic to return to dashboard
     console.log("Navigating to dashboard...");
     if(confirm("Return to Dashboard? Unsaved progress will be lost.")) {
-        // window.location.href = '/dashboard'; 
+        window.location.href = 'dashboard.html';
     }
 }
 
