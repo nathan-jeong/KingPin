@@ -105,8 +105,8 @@ function getCurrentAwards() {
     awardItems.forEach(item => {
         const awardText = item.querySelector('span')?.textContent?.trim();
         if (awardText) {
-            // Remove the trophy emoji and extract the award string
-            awards.push(awardText.replace('🏆 ', '').trim());
+            // Remove the trophy emoji (and any whitespace) and extract the award string
+            awards.push(awardText.replace(/🏆\s*/g, '').trim());
         }
     });
     return awards;
