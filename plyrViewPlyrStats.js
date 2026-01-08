@@ -166,6 +166,14 @@ function showModal(title, htmlContent) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Attach navigation button listener FIRST
+    const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
+    if (backToTeamSelectorBtn) {
+        backToTeamSelectorBtn.addEventListener('click', () => {
+            window.location.href = 'plyrViewTeamStats.html';
+        });
+    }
+
     const playerNameEl = document.getElementById('player-name');
     const matchListEl = document.getElementById('match-list');
 
@@ -287,14 +295,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (g2AvgValueEl) g2AvgValueEl.textContent = overallG2Avg.toFixed(1);
         if (g3AvgValueEl) g3AvgValueEl.textContent = overallG3Avg.toFixed(1);
         if (totalWoodValueEl) totalWoodValueEl.textContent = totalWood;
-
-        // Navigation buttons
-        const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
-        if (backToTeamSelectorBtn) {
-            backToTeamSelectorBtn.addEventListener('click', () => {
-                window.location.href = 'plyrViewTeamStats.html';
-            });
-        }
 
         // Sorting header listeners (desktop)
         const sortables = [
