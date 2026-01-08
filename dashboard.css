@@ -451,6 +451,41 @@ body {
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
+/* Award Item Layout */
+.award-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.award-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-award-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+.delete-award-btn:hover {
+    color: #ff4d4d;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 /* --- Inputs --- */
 .bowling-input {
     width: 100%;
