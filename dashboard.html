@@ -21,13 +21,13 @@
         /* Logo Styling - Fixed 3:1 Proportions */
         .logo-link {
             display: block;
-            margin-bottom: 8px; /* Tightened gap to button */
+            margin-bottom: 8px; 
             margin-top: 5px;
         }
 
         .logo-img {
-            height: 45px;      /* Set height to 1 unit */
-            width: 135px;     /* Set width to 3 units (45 x 3) */
+            height: 45px;      
+            width: 135px;     
             object-fit: contain;
             display: block;
         }
@@ -173,31 +173,35 @@
                 </section>
             </div>
         </div>
-
     </div>
 
     <div id="new-player-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn player-close-btn">&times;</span>
+            <div class="modal-header">
+                <h3>Register Player</h3>
+            </div>
             <form id="new-player-form">
-                <input type="text" id="player-name" placeholder="Player Name" required>
-                <input type="number" id="graduation-year" placeholder="Grad Year">
-                <button type="submit">Register Player</button>
+                <input type="text" id="player-name" placeholder="Full Name" required>
+                <input type="number" id="graduation-year" placeholder="Graduation Year (e.g. 2026)">
+                <button type="submit">Add to Roster</button>
             </form>
-            <p id="registration-status"></p>
+            <p id="registration-status" style="text-align: center; font-size: 0.9rem; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div id="add-award-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn award-close-btn">&times;</span>
-            <h3 id="award-title-display">New Award Title</h3>
+            <div class="modal-header">
+                <h3>🏆 Create Award</h3>
+            </div>
             <form id="add-award-form">
-                <input type="text" id="award-title" placeholder="Award Title" required>
+                <input type="text" id="award-title" placeholder="Award Title (e.g. MVP)" required>
                 <input type="number" id="award-year" value="2025" required>
-                <button type="submit">Save Award</button>
+                <button type="submit" style="background: var(--award-accent);">Save Award</button>
             </form>
-            <p id="award-status"></p>
+            <p id="award-status" style="text-align: center; font-size: 0.9rem; margin-top: 10px;"></p>
         </div>
     </div>
 
