@@ -213,6 +213,16 @@ function renderTopScorers(stats) {
         `;
         body.appendChild(row);
         
+        // Attach player link click handler
+        const playerLink = row.querySelector('.player-link');
+        if (playerLink) {
+            playerLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('selectedPlayerId', p.playerId);
+                window.location.href = 'plyrScores.html';
+            });
+        }
+        
         // Attach delete event listener
         const deleteBtn = row.querySelector('.del-p');
         if (deleteBtn) {
@@ -234,6 +244,16 @@ function renderMatchList() {
             <div class="match-meta"><span class="match-pill">${m.displayDate}</span><span class="match-pill">Wood: ${m.totalWood}</span></div>
         `;
         list.appendChild(row);
+        
+        // Attach match link click handler
+        const matchLink = row.querySelector('.match-name');
+        if (matchLink) {
+            matchLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('selectedMatchId', m.matchId);
+                window.location.href = 'matchView.html';
+            });
+        }
     });
 }
 
