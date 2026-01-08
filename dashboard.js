@@ -97,6 +97,21 @@ async function deleteAward(awardToDelete) {
     }
 }
 
+function getCurrentAwards() {
+    const awardsList = document.getElementById('current-awards-list');
+    if (!awardsList) return [];
+    const awardItems = awardsList.querySelectorAll('.award-item');
+    const awards = [];
+    awardItems.forEach(item => {
+        const awardText = item.querySelector('span')?.textContent?.trim();
+        if (awardText) {
+            // Remove the trophy emoji (and any whitespace) and extract the award string
+            awards.push(awardText.replace(/🏆\s*/g, '').trim());
+        }
+    });
+    return awards;
+}
+
 // ------------------------------------------------------------------
 // PLAYER & MATCH STATS LOGIC
 // ------------------------------------------------------------------
@@ -224,6 +239,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModal(document.getElementById('add-new-player-link'), 'new-player-modal', 'player-close-btn');
     setupModal(document.getElementById('add-award-popup-btn'), 'add-award-modal', 'award-close-btn');
 
+    // Clear status message when award modal opens
+    const addAwardBtn = document.getElementById('add-award-popup-btn');
+    if (addAwardBtn) {
+        addAwardBtn.addEventListener('click', () => {
+            const status = document.getElementById('award-status');
+            if (status) {
+                status.textContent = '';
+                status.style.color = '';
+            }
+        });
+    }
+
     // Handle Player Form Submit
     document.getElementById('new-player-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -249,10 +276,30 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const title = document.getElementById('award-title').value;
         const year = document.getElementById('award-year').value;
+        const status = document.getElementById('award-status');
+        
+        // Check for duplicates
+        const newAward = `${title} (${year})`;
+        const existingAwards = getCurrentAwards();
+        if (existingAwards.includes(newAward)) {
+            status.textContent = "This award already exists";
+            status.style.color = "red";
+            return;
+        }
+        
         const success = await addAwardToBackend(title, year);
         if (success) {
-            document.getElementById('award-status').textContent = "Saved!";
-            setTimeout(() => { document.getElementById('add-award-modal').classList.add('hidden'); }, 1000);
+            status.textContent = "Saved!";
+            status.style.color = "";
+            setTimeout(() => { 
+                document.getElementById('add-award-modal').classList.add('hidden');
+                document.body.style.overflow = '';
+                document.getElementById('add-award-form').reset();
+                status.textContent = '';
+            }, 1000);
+        } else {
+            status.textContent = "Error saving award";
+            status.style.color = "red";
         }
     });
 });
