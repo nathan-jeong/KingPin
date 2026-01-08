@@ -93,7 +93,7 @@ async function deleteAward(awardToDelete) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: currentPassword, award: awardToDelete })
         });
-        if (!response.ok) throw new Error('Delete failed');
+        if (!response.ok) throw new Error(`Delete failed (${response.status})`);
         const data = await response.json();
         renderAwardsList(data.awardsList || data);
     } catch (error) {
@@ -105,6 +105,13 @@ async function deleteAward(awardToDelete) {
 // ------------------------------------------------------------------
 // PLAYER & MATCH STATS LOGIC
 // ------------------------------------------------------------------
+
+function displayErrorInElement(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `<div class="empty-row" style="color: #ff6b6b;">${message}</div>`;
+    }
+}
 
 async function loadTeamData() {
     if (!currentUserId || !currentTeamId) return;
@@ -128,10 +135,8 @@ async function loadTeamData() {
         console.error("Load Failed", err);
         alert('Failed to load team data. Please refresh the page.');
         // Display error state in UI
-        const body = document.getElementById('top-scorers-body');
-        if (body) body.innerHTML = '<div class="empty-row" style="color: #ff6b6b;">Error loading data. Please refresh the page.</div>';
-        const list = document.getElementById('match-list');
-        if (list) list.innerHTML = '<div class="empty-row" style="color: #ff6b6b;">Error loading matches. Please refresh the page.</div>';
+        displayErrorInElement('top-scorers-body', 'Error loading data. Please refresh the page.');
+        displayErrorInElement('match-list', 'Error loading matches. Please refresh the page.');
     }
 }
 
@@ -272,11 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         loadTeamData(); 
                     }, 1000);
                 } else {
-                    if (status) status.textContent = "Error saving player.";
+                    const errorText = await res.text();
+                    console.error('Error adding player:', res.status, errorText);
+                    if (status) status.textContent = `Error saving player (${res.status}).`;
                 }
             } catch (err) { 
                 console.error('Error adding player:', err);
-                if (status) status.textContent = "Error saving."; 
+                if (status) status.textContent = "Error saving. Check your connection."; 
             }
         });
     }
