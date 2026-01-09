@@ -67,6 +67,71 @@ document.addEventListener('DOMContentLoaded', () => {
             this.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
         });
     }
+
+    // Team-code lookup handler (if team-code UI exists)
+    const teamCodeForm = document.getElementById('team-code-form');
+    const teamCodeInput = document.getElementById('team-code');
+    const teamLookupBtn = document.getElementById('team-code-lookup-btn');
+
+    async function lookupTeamByCode(code) {
+        if (!code) throw new Error('Empty team code');
+        const endpoint = `${API_BASE}/teams/lookup`;
+        const resp = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        if (!resp.ok) {
+            const txt = await resp.text().catch(() => resp.statusText || 'Lookup failed');
+            throw new Error(`Lookup failed: ${txt}`);
+        }
+        return resp.json();
+    }
+
+    async function handleTeamLookup(code) {
+        try {
+            const result = await lookupTeamByCode(code);
+            const teamId = result.teamId;
+            const userId = result.userId;
+            if (!teamId) throw new Error('No teamId returned');
+
+            // Persist to cookies and localStorage
+            setCookie('teamId', teamId);
+            setCookie('teamUserId', userId || '');
+            localStorage.setItem('teamId', teamId);
+            if (userId) localStorage.setItem('teamUserId', userId);
+
+            // Redirect to team player view
+            window.location.href = 'plyerViewTeamStats.html';
+        } catch (err) {
+            console.error('Team lookup error:', err);
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            if (messageBox && messageText) {
+                messageBox.className = 'mt-6 p-4 rounded-lg text-sm border bg-red-900/50 border-red-500 text-red-200';
+                messageBox.style.display = 'block';
+                messageText.textContent = 'Team code lookup failed. Please check the code and try again.';
+            } else {
+                alert('Team code lookup failed.');
+            }
+        }
+    }
+
+    if (teamCodeForm && teamCodeInput) {
+        teamCodeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = (teamCodeInput.value || '').trim();
+            handleTeamLookup(code);
+        });
+    }
+
+    if (teamLookupBtn && teamCodeInput) {
+        teamLookupBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const code = (teamCodeInput.value || '').trim();
+            handleTeamLookup(code);
+        });
+    }
 });
 
 // --- Main Login Handling ---
