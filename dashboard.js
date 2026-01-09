@@ -188,6 +188,103 @@ function buildMatchSummaries(matches) {
 }
 
 // ------------------------------------------------------------------
+// CSV EXPORT HELPERS
+// ------------------------------------------------------------------
+
+function buildTeamCsv(players, matches) {
+    // Sort matches by date ascending
+    const sortedMatches = (matches || []).slice().sort((a,b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0;
+        const db = b.date ? new Date(b.date).getTime() : 0;
+        return da - db;
+    });
+
+    // Build header: Name, Grad, then per-match columns, then totals
+    const header = ['Player Name', 'Grad Year'];
+    sortedMatches.forEach((m, idx) => {
+        const label = m.opposingTeamName || m.comment || `Match ${idx+1}`;
+        const date = m.date ? new Date(m.date).toLocaleDateString() : '';
+        const prefix = `${label} ${date}`.trim();
+        header.push(`${prefix} - G1 Score`, `${prefix} - G1 Wood`, `${prefix} - G2 Score`, `${prefix} - G2 Wood`, `${prefix} - G3 Score`, `${prefix} - G3 Wood`, `${prefix} - Series`);
+    });
+    header.push('Total Pins', 'Series Played', 'Average');
+
+    const rows = [header];
+
+    // Map matches by id for quick lookup
+    const matchMap = {};
+    sortedMatches.forEach(m => { matchMap[m.matchId || m.id] = m; });
+
+    players.forEach(p => {
+        const row = [];
+        row.push(p.displayName || '');
+        row.push(p.graduationYear || '');
+
+        let totalPins = 0;
+        let seriesPlayed = 0;
+
+        sortedMatches.forEach(m => {
+            let per = (m.perPlayerData && (m.perPlayerData[p.playerId] || m.perPlayerData[p.playerId])) || null;
+            // Some backends use playerId keys, others may use numeric ids - attempt both
+            if (!per && m.perPlayerData) {
+                // brute force search by matching player name if available
+                Object.values(m.perPlayerData).forEach(v => {
+                    if (!per && v && v.displayName === p.displayName) per = v;
+                });
+            }
+
+            let seriesSum = 0;
+            let hasGame = false;
+            for (let gi = 1; gi <= 3; gi++) {
+                const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
+                const score = g && typeof g.Score === 'number' ? g.Score : '';
+                const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
+                if (score !== '') { hasGame = true; seriesSum += score; }
+                row.push(score, wood);
+            }
+            if (hasGame) {
+                row.push(seriesSum);
+                totalPins += seriesSum;
+                seriesPlayed += 1;
+            } else {
+                row.push('');
+            }
+        });
+
+        row.push(totalPins || '');
+        row.push(seriesPlayed || '');
+        row.push(seriesPlayed > 0 ? (totalPins / seriesPlayed).toFixed(1) : '');
+
+        rows.push(row);
+    });
+
+    // Build CSV string
+    const csvLines = rows.map(r => r.map(cell => {
+        if (cell === null || cell === undefined) return '';
+        const s = String(cell);
+        // Escape double quotes
+        if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+            return '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+    }).join(','));
+
+    return csvLines.join('\n');
+}
+
+function downloadCsv(filename, csvContent) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ------------------------------------------------------------------
 // RENDERING & UI
 // ------------------------------------------------------------------
 
@@ -354,4 +451,104 @@ document.addEventListener('DOMContentLoaded', () => {
             status.style.color = "red";
         }
     });
+
+    // Excel (.xls HTML) Export button (styled to match sample workbook)
+    const exportBtn = document.getElementById('export-spreadsheet-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('[dashboard] Exporting XLS (HTML)', { players: cachedPlayers.length, matches: cachedMatches.length });
+            const html = buildExcelHtml(cachedPlayers, cachedMatches, document.title || `Team ${currentTeamId || ''}`);
+            const fname = `Team_${currentTeamId || 'team'}_${new Date().toISOString().slice(0,10)}.xls`;
+            downloadXls(fname, html);
+        });
+    }
 });
+
+// Build Excel-compatible HTML that mimics the sample workbook layout/colors/merges
+function buildExcelHtml(players, matches, title) {
+    const sortedMatches = (matches || []).slice().sort((a,b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0;
+        const db = b.date ? new Date(b.date).getTime() : 0;
+        return da - db;
+    });
+
+    // color palette based on sample styles.xml
+    const palette = ['#0000FF','#6AA84F','#FFE599','#EFEFEF','#FFFFFF','#FF0000'];
+
+    // header rows
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>${escapeHtml(title)}</title>`;
+    html += `<style>body{font-family:Arial,Helvetica,sans-serif;font-size:10pt}table{border-collapse:collapse;}td,th{border:1px solid #999;padding:4px;vertical-align:middle;} .title{font-size:14pt;font-weight:bold;} .hdr{background:#F3F3F3;font-weight:bold;text-align:center;} .matchhdr{color:#ffffff;font-weight:bold;text-align:center;} .subhdr{background:#EFEFEF;text-align:center;font-weight:bold;} .namecol{min-width:200px;} .num{mso-number-format:\@;text-align:center;}</style></head><body>`;
+
+    html += `<table>`;
+
+    // Top metadata rows (team title + exported date)
+    html += `<tr><td colspan="${2 + sortedMatches.length*7}" class="title">${escapeHtml(title)}</td></tr>`;
+    html += `<tr><td colspan="${2 + sortedMatches.length*7}" style="background:#FFFFFF;">Exported: ${new Date().toLocaleString()}</td></tr>`;
+
+    // Match merged header row: two leading cells for name/grad, then merged per-match
+    html += `<tr><th class="hdr">Player Name</th><th class="hdr">Grad Year</th>`;
+    sortedMatches.forEach((m, idx) => {
+        const color = palette[idx % palette.length];
+        const label = (m.opposingTeamName || m.comment || `Match ${idx+1}`) + (m.date ? ` ${new Date(m.date).toLocaleDateString()}` : '');
+        html += `<th class="matchhdr" colspan="7" style="background:${color};">${escapeHtml(label)}</th>`;
+    });
+    html += `<th class="hdr">Total Pins</th><th class="hdr">Series Played</th><th class="hdr">Average</th></tr>`;
+
+    // Subheader row: G1 Score, G1 Wood, etc.
+    html += `<tr><th class="hdr subhdr"></th><th class="hdr subhdr"></th>`;
+    sortedMatches.forEach(() => {
+        html += `<th class="hdr subhdr">G1 Score</th><th class="hdr subhdr">G1 Wood</th><th class="hdr subhdr">G2 Score</th><th class="hdr subhdr">G2 Wood</th><th class="hdr subhdr">G3 Score</th><th class="hdr subhdr">G3 Wood</th><th class="hdr subhdr">Series</th>`;
+    });
+    html += `<th class="hdr subhdr">Total</th><th class="hdr subhdr">Played</th><th class="hdr subhdr">Avg</th></tr>`;
+
+    // Player rows
+    players.forEach(p => {
+        html += `<tr>`;
+        html += `<td class="namecol">${escapeHtml(p.displayName || '')}</td>`;
+        html += `<td style="text-align:center">${p.graduationYear || ''}</td>`;
+
+        let totalPins = 0; let series = 0;
+        sortedMatches.forEach(m => {
+            let per = (m.perPlayerData && (m.perPlayerData[p.playerId] || m.perPlayerData[p.playerId])) || null;
+            if (!per && m.perPlayerData) {
+                Object.values(m.perPlayerData).forEach(v => { if (!per && v && v.displayName === p.displayName) per = v; });
+            }
+
+            let seriesSum = 0; let hasGame = false;
+            for (let gi=1; gi<=3; gi++) {
+                const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
+                const score = g && typeof g.Score === 'number' ? g.Score : '';
+                const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
+                if (score !== '') { seriesSum += score; hasGame = true; }
+                html += `<td class="num">${score}</td><td class="num">${wood}</td>`;
+            }
+            if (hasGame) { html += `<td class="num">${seriesSum}</td>`; totalPins += seriesSum; series += 1; } else { html += `<td class="num"></td>`; }
+        });
+
+        html += `<td class="num">${totalPins || ''}</td>`;
+        html += `<td class="num">${series || ''}</td>`;
+        html += `<td class="num">${series>0 ? (totalPins/series).toFixed(1) : ''}</td>`;
+        html += `</tr>`;
+    });
+
+    html += `</table></body></html>`;
+    return html;
+}
+
+function downloadXls(filename, htmlContent) {
+    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
