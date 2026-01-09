@@ -7,6 +7,11 @@ let sortState = {
     ascending: true
 };
 
+// Helper: treat zeros as "no score" and only count finite non-zero numbers
+function isCountedScore(s) {
+    return s != null && Number.isFinite(s) && Number(s) !== 0;
+}
+
 /**
  * Fetch all players for the current team
  */
@@ -95,13 +100,13 @@ function calculatePlayerStats(players, matches) {
                     let hasGameData = false;
                     
                     if (playerData.games) {
-                        // Process each game
+                        // Process each game and only count non-zero scores
                         [1, 2, 3].forEach(gameNum => {
                             const game = playerData.games[gameNum];
-                            if (game && game.Score !== undefined && game.Score !== null) {
+                            if (game && isCountedScore(game.Score)) {
                                 const score = game.Score;
                                 hasGameData = true;
-                                
+
                                 if (gameNum === 1) {
                                     playerStats[playerId].game1Total += score;
                                     playerStats[playerId].game1Count++;
@@ -112,7 +117,7 @@ function calculatePlayerStats(players, matches) {
                                     playerStats[playerId].game3Total += score;
                                     playerStats[playerId].game3Count++;
                                 }
-                                
+
                                 // Track best game
                                 if (score > playerStats[playerId].bestGame) {
                                     playerStats[playerId].bestGame = score;
