@@ -13,6 +13,11 @@ let cachedMatchSummaries = [];
 let topSortState = { column: 'average', ascending: false };
 let matchSortState = { column: 'date', ascending: false };
 
+// Helper: treat zeros as "no score" and only count finite non-zero numbers
+function isCountedScore(s) {
+    return s != null && Number.isFinite(s) && Number(s) !== 0;
+}
+
 // 1. Sidebar Toggle Logic
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
@@ -166,7 +171,9 @@ function calculatePlayerAverages(players, matches) {
             Object.keys(m.perPlayerData).forEach(pid => {
                 if (playerStats[pid] && m.perPlayerData[pid].games) {
                     let sTotal = 0; let hasG = false;
-                    Object.values(m.perPlayerData[pid].games).forEach(g => { if (g?.Score) { sTotal += g.Score; hasG = true; }});
+                    Object.values(m.perPlayerData[pid].games).forEach(g => {
+                        if (isCountedScore(g?.Score)) { sTotal += g.Score; hasG = true; }
+                    });
                     if (hasG) { playerStats[pid].totalScore += sTotal; playerStats[pid].seriesPlayed++; }
                 }
             });
@@ -239,7 +246,7 @@ function buildTeamCsv(players, matches) {
                 const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
                 const score = g && typeof g.Score === 'number' ? g.Score : '';
                 const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
-                if (score !== '') { hasGame = true; seriesSum += score; }
+                if (isCountedScore(score)) { hasGame = true; seriesSum += score; }
                 row.push(score, wood);
             }
             if (hasGame) {
@@ -483,22 +490,22 @@ function buildExcelHtml(players, matches, title) {
     html += `<table>`;
 
     // Top metadata rows (team title + exported date)
-    html += `<tr><td colspan="${2 + sortedMatches.length*7}" class="title">${escapeHtml(title)}</td></tr>`;
-    html += `<tr><td colspan="${2 + sortedMatches.length*7}" style="background:#FFFFFF;">Exported: ${new Date().toLocaleString()}</td></tr>`;
+    html += `<tr><td colspan="${2 + sortedMatches.length*4}" class="title">${escapeHtml(title)}</td></tr>`;
+    html += `<tr><td colspan="${2 + sortedMatches.length*4}" style="background:#FFFFFF;">Exported: ${new Date().toLocaleString()}</td></tr>`;
 
     // Match merged header row: two leading cells for name/grad, then merged per-match
     html += `<tr><th class="hdr">Player Name</th><th class="hdr">Grad Year</th>`;
     sortedMatches.forEach((m, idx) => {
         const color = palette[idx % palette.length];
         const label = (m.opposingTeamName || m.comment || `Match ${idx+1}`) + (m.date ? ` ${new Date(m.date).toLocaleDateString()}` : '');
-        html += `<th class="matchhdr" colspan="7" style="background:${color};">${escapeHtml(label)}</th>`;
+        html += `<th class="matchhdr" colspan="4" style="background:${color};">${escapeHtml(label)}</th>`;
     });
     html += `<th class="hdr">Total Pins</th><th class="hdr">Series Played</th><th class="hdr">Average</th></tr>`;
 
     // Subheader row: G1 Score, G1 Wood, etc.
     html += `<tr><th class="hdr subhdr"></th><th class="hdr subhdr"></th>`;
     sortedMatches.forEach(() => {
-        html += `<th class="hdr subhdr">G1 Score</th><th class="hdr subhdr">G1 Wood</th><th class="hdr subhdr">G2 Score</th><th class="hdr subhdr">G2 Wood</th><th class="hdr subhdr">G3 Score</th><th class="hdr subhdr">G3 Wood</th><th class="hdr subhdr">Series</th>`;
+        html += `<th class="hdr subhdr">G1 Wood</th><th class="hdr subhdr">G2 Wood</th><th class="hdr subhdr">G3 Wood</th><th class="hdr subhdr">Series</th>`;
     });
     html += `<th class="hdr subhdr">Total</th><th class="hdr subhdr">Played</th><th class="hdr subhdr">Avg</th></tr>`;
 
@@ -520,8 +527,8 @@ function buildExcelHtml(players, matches, title) {
                 const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
                 const score = g && typeof g.Score === 'number' ? g.Score : '';
                 const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
-                if (score !== '') { seriesSum += score; hasGame = true; }
-                html += `<td class="num">${score}</td><td class="num">${wood}</td>`;
+                if (isCountedScore(score)) { seriesSum += score; hasGame = true; }
+                html += `<td class="num">${wood}</td>`;
             }
             if (hasGame) { html += `<td class="num">${seriesSum}</td>`; totalPins += seriesSum; series += 1; } else { html += `<td class="num"></td>`; }
         });
