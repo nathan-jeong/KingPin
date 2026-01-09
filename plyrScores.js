@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let totalG1 = 0, totalG2 = 0, totalG3 = 0, totalPoints = 0, totalWood = 0, gameCounts = [0,0,0];
         playerMatches.forEach(pm => {
             pm.games.forEach((g, idx) => {
-                if (g && g.Score != null) {
+                if (g && isCountedScore(g.Score)) {
                     if (idx === 0) { totalG1 += g.Score; gameCounts[0]++; }
                     if (idx === 1) { totalG2 += g.Score; gameCounts[1]++; }
                     if (idx === 2) { totalG3 += g.Score; gameCounts[2]++; }
