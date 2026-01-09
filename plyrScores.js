@@ -13,6 +13,10 @@ function formatDate(ms) {
     if (Number.isNaN(d.getTime())) return '--';
     return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
+// Helper: treat zeros as "no score" and only count finite positive numbers
+function isCountedScore(s) {
+    return s != null && Number.isFinite(s) && Number(s) !== 0;
+}
 
 function getSortValue(match, column) {
     switch (column) {
@@ -249,8 +253,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return g && g.Score != null ? { Score: g.Score, Wood: g.Wood, isVarsity: !!g.isVarsity } : null;
             });
 
-            const seriesTotal = games.reduce((s, g) => s + (g && g.Score ? g.Score : 0), 0);
-            const gamesCount = games.filter(g => g && g.Score != null).length;
+            // Only include valid (non-zero) scores when calculating totals and counts
+            const seriesTotal = games.reduce((s, g) => s + (g && isCountedScore(g.Score) ? g.Score : 0), 0);
+            const gamesCount = games.filter(g => g && isCountedScore(g.Score)).length;
             const avg = gamesCount > 0 ? (seriesTotal / gamesCount) : null;
             const totalWood = games.reduce((s, g) => s + (g && g.Wood ? g.Wood : 0), 0);
             const anyVarsity = games.some(g => g && g.isVarsity);
