@@ -1,16 +1,13 @@
 // --- API Configuration and Backend Hooks ---
 // ⚠️ TEMPLATE: Replace these with your actual backend URLs and logic
-const API_BASE_URL = 'https://kingpin-backend-production.up.railway.app'; // Example Node.js/Express server URL
+const API_BASE_URL = 'https://kingpin-backend-production.up.railway.app';
 
 /**
  * Fetches the list of teams from a backend API.
- * ⚠️ TEMPLATE: Update this endpoint to match your backend route.
- * @returns {Promise<Array<Object>>} A promise that resolves with the team data.
  */
 async function fetchTeamsFromBackend() {
     console.log("Fetching teams from backend...");
     try {
-        // Get userId from localStorage (set during login)
         const userId = localStorage.getItem('userId');
 
         if (!userId) {
@@ -18,7 +15,6 @@ async function fetchTeamsFromBackend() {
             return [];
         }
 
-        // TODO: Replace with your actual backend endpoint
         const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
             method: 'GET',
             headers: {
@@ -33,40 +29,32 @@ async function fetchTeamsFromBackend() {
         const teamsData = await response.json();
         console.log("Teams fetched successfully:", teamsData);
         
-        // Handle response structure: { teams: [...] }
         if (teamsData.teams && Array.isArray(teamsData.teams)) {
             return teamsData.teams;
         }
-        // If response is directly an array, return it
         if (Array.isArray(teamsData)) {
             return teamsData;
         }
-        // Otherwise, return empty array
         console.warn("Response is not in expected format:", teamsData);
         return [];
 
     } catch (error) {
         console.error("Could not fetch teams:", error);
-        return []; // Return empty array on error
+        return []; 
     }
 }
 
 /**
  * Saves a new team object to the backend API.
- * ⚠️ TEMPLATE: Update this endpoint and schema to match your backend.
- * @param {Object} newTeam - The team data (name, year) to save.
- * @returns {Promise<Object>} A promise that resolves with the saved team object (including its new ID).
  */
 async function saveNewTeamToBackend(newTeam) {
     console.log("Saving new team to backend:", newTeam);
     try {
-        // Get userId from localStorage
         const userId = localStorage.getItem('userId');
         if (!userId) {
             throw new Error('User ID not found. Please log in first.');
         }
 
-        // TODO: Replace with your actual backend endpoint and schema
         const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
             method: 'POST',
             headers: {
@@ -82,7 +70,7 @@ async function saveNewTeamToBackend(newTeam) {
 
         const savedTeam = await response.json();
         console.log("Team saved successfully:", savedTeam);
-        return savedTeam; // Backend should return the saved team with its ID
+        return savedTeam; 
     } catch (error) {
         console.error("Could not save new team:", error);
         throw error;
@@ -100,15 +88,10 @@ const newTeamForm = document.getElementById('new-team-form');
 const submissionMessage = document.getElementById('submission-message');
 
 let isDragging = false;
-let currentTeamsData = []; // Store the fetched teams globally for re-rendering
+let currentTeamsData = []; 
 
 // --- Data Handling ---
 
-/**
- * Extracts the year from a team's displayName (e.g., "Team Name (2024)" -> 2024)
- * @param {string} displayName - The display name of the team
- * @returns {number} The extracted year, or 0 if not found
- */
 function extractYearFromDisplayName(displayName) {
     if (!displayName) return 0;
     const match = displayName.match(/\((\d{4})\)/);
@@ -116,31 +99,33 @@ function extractYearFromDisplayName(displayName) {
 }
 
 function renderTeams(currentTeams) {
-    // ... (NO CHANGE HERE) ...
-    // Remove all existing children
     scrollContainer.innerHTML = ''; 
 
     if (currentTeams.length === 0) {
-        // Add a message if no teams exist
+        // UPDATED: Styling to match Dark Mode CSS
         scrollContainer.innerHTML = `
-            <div class="team-card flex-shrink-0 w-64 h-80 bg-gray-100 border-4 border-dashed border-gray-400 rounded-xl p-6 flex flex-col justify-center items-center text-center">
-                <p class="text-xl font-medium text-gray-500">No teams yet!</p>
-                <p class="text-sm text-gray-400">Click 'Create New League/Team' to start.</p>
+            <div class="team-card flex-shrink-0 w-64 h-80 flex flex-col justify-center items-center text-center opacity-70">
+                <p class="text-xl font-medium text-gray-300">No teams yet!</p>
+                <p class="text-sm text-gray-500 mt-2">Click 'Create New League/Team' to start.</p>
             </div>
         `;
     } 
     
     currentTeams.forEach(team => {
         const card = document.createElement('div');
-        card.className = "team-card flex-shrink-0 w-64 h-80 bg-white border-4 border-gray-200 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center hover:shadow-xl hover:border-gray-300 relative";
+        
+        // UPDATED: Removed bg-white, border-gray, shadow-lg. 
+        // We rely on the CSS class .team-card for colors and borders.
+        card.className = "team-card flex-shrink-0 w-64 h-80 flex flex-col justify-center items-center text-center relative";
+        
         card.dataset.teamId = team.teamId;
         card.dataset.displayName = team.displayName || 'Untitled Team';
+        
         card.innerHTML = `
-            <button class="delete-team-btn absolute top-2 right-2 text-gray-400 hover:text-gray-700 font-bold text-2xl transition-colors z-10" aria-label="Delete team">
+            <button class="delete-team-btn absolute top-2 right-2 text-gray-500 hover:text-white font-bold text-2xl transition-colors z-10" aria-label="Delete team">
                 ×
             </button>
             <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
-            <!-- TODO: Add additional fields to display (e.g., player count, awards, etc.) -->
         `;
         scrollContainer.appendChild(card);
 
@@ -157,12 +142,10 @@ function renderTeams(currentTeams) {
         }
     });
 
-    // Add padding element to ensure the last card can scroll fully into view
     const padding = document.createElement('div');
     padding.className = 'flex-shrink-0 w-4 h-1';
     scrollContainer.appendChild(padding);
     
-    // Update UI elements
     const teamCountNumber = document.getElementById('team-count-number');
     if (teamCountNumber) {
         teamCountNumber.textContent = currentTeams.length;
@@ -172,17 +155,9 @@ function renderTeams(currentTeams) {
 
 // --- Event Handlers ---
 
-/**
- * Handles team deletion with confirmation and backend integration
- * @param {string} teamId - The ID of the team to delete
- * @param {string} teamDisplayName - The display name of the team
- */
 async function handleDeleteTeam(teamId, teamDisplayName) {
-    // Confirm deletion
     const confirmed = confirm(`Are you sure you want to delete "${teamDisplayName}"? This action cannot be undone.`);
-    if (!confirmed) {
-        return;
-    }
+    if (!confirmed) return;
 
     try {
         const userId = localStorage.getItem('userId');
@@ -193,7 +168,6 @@ async function handleDeleteTeam(teamId, teamDisplayName) {
             return;
         }
 
-        // Send DELETE request to backend
         const response = await fetch(`${API_BASE_URL}/users/${userId}/teams/${teamId}`, {
             method: 'DELETE',
             headers: {
@@ -208,11 +182,7 @@ async function handleDeleteTeam(teamId, teamDisplayName) {
         }
 
         console.log(`Team ${teamId} deleted successfully`);
-
-        // Remove from local data store
         currentTeamsData = currentTeamsData.filter(team => team.teamId !== teamId);
-
-        // Re-render the list
         renderTeams(currentTeamsData);
 
     } catch (error) {
@@ -222,26 +192,26 @@ async function handleDeleteTeam(teamId, teamDisplayName) {
 }
 
 function handleTeamCardClick(event) {
-    // ... (NO CHANGE HERE) ...
     const card = event.currentTarget;
-    document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected', 'border-teal-600'));
-    card.classList.add('selected', 'border-teal-600');
+    
+    // UPDATED: Only use 'selected'. The CSS handles the border color change.
+    document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    
     const teamName = card.dataset.displayName || card.querySelector('p:first-child').textContent;
     const teamId = card.dataset.teamId;
     console.log(`Team Selected: ${teamName} (${teamId})`);
+    
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
     localStorage.setItem('teamId', teamId);
     localStorage.setItem('teamDisplayName', teamName);
     window.location.href = "dashboard.html";
-
-
 }
 
 // --- Modal Logic ---
 
 function showModal() {
-    // ... (NO CHANGE HERE) ...
     if (modal) {
         modal.classList.remove('hidden');
     }
@@ -251,7 +221,6 @@ function showModal() {
 }
 
 function hideModal() {
-    // ... (NO CHANGE HERE) ...
     if (modal) {
         modal.classList.add('hidden');
     }
@@ -260,11 +229,7 @@ function hideModal() {
     }
 }
 
-/**
- * Handles the form submission, calling the backend save function and re-rendering.
- * @param {Event} e - The form submission event.
- */
-async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
+async function handleSubmitNewTeam(e) { 
     e.preventDefault();
     
     const teamNameInput = document.getElementById('team-name');
@@ -291,10 +256,8 @@ async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
     }
 
     try {
-        // 1. Get userId from localStorage (set during login)
         const userId = localStorage.getItem('userId');
         const password = localStorage.getItem('password');
-
         
         if (!userId) {
             if (submissionMessage) {
@@ -304,36 +267,26 @@ async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
             return;
         }
 
-        // 2. Create the new team object with form data
-        // TODO: Update payload based on your backend schema
-        // Required fields: name, and any other fields your backend expects
         const newTeamPayload = {
             password: password,
             displayName: name + ' (' + year + ')'
-            // TODO: Add other required fields (e.g., description, teamType, year, etc.)
         };
 
-        // 3. Save to the backend (returns the full saved object with its ID)
         const savedTeam = await saveNewTeamToBackend(newTeamPayload);
         
-        // Ensure displayName is set (in case backend doesn't return it)
         if (!savedTeam.displayName) {
             savedTeam.displayName = newTeamPayload.displayName;
         }
 
-        // 4. Update the global data store with the new team
         currentTeamsData.push(savedTeam);
         
-        // 5. Re-sort by season year (extracted from displayName)
         currentTeamsData.sort((a, b) => {
             const yearA = extractYearFromDisplayName(a.displayName);
             const yearB = extractYearFromDisplayName(b.displayName);
-            return yearB - yearA; // Sort descending (newest first)
+            return yearB - yearA; 
         }); 
 
-        // 6. Re-render the list
         renderTeams(currentTeamsData);
-        
         hideModal();
         
     } catch (error) {
@@ -350,18 +303,11 @@ async function handleSubmitNewTeam(e) { // NOW ASYNCHRONOUS
     }
 }
 
-// Attach modal event listeners
-if (openModalBtn) {
-    openModalBtn.addEventListener('click', showModal);
-}
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', hideModal);
-}
-if (newTeamForm) {
-    newTeamForm.addEventListener('submit', handleSubmitNewTeam);
-}
+if (openModalBtn) openModalBtn.addEventListener('click', showModal);
+if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
+if (newTeamForm) newTeamForm.addEventListener('submit', handleSubmitNewTeam);
 
-// --- Bowling Ball Drag and Scroll Logic (NO CHANGE HERE) ---
+// --- Bowling Ball Drag and Scroll Logic ---
 
 function updateBallPosition() {
     if (isDragging || !ballIndicator || !track) return;
@@ -376,7 +322,6 @@ function updateBallPosition() {
         
         ballIndicator.style.left = `${Math.max(0, Math.min(maxTravel, newLeft))}px`;
     } else {
-         // Hide ball if no scrolling is possible
         ballIndicator.style.left = `0px`;
     }
 }
@@ -384,6 +329,7 @@ function updateBallPosition() {
 function startDrag(clientX) {
     isDragging = true;
     if (ballIndicator) {
+        // The CSS handles cursor: grabbing via :active or .grabbing
         ballIndicator.classList.add('grabbing');
     }
 }
@@ -392,20 +338,15 @@ function doDrag(clientX) {
     if (!isDragging || !ballIndicator || !track) return;
     
     const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-    
     if (maxScrollLeft <= 0) return;
 
     const trackRect = track.getBoundingClientRect();
     
-    // Map the mouse position to a scroll ratio (0 to 1)
     let scrollRatio = (clientX - trackRect.left) / trackRect.width;
-    
-    // Clamp the ratio
     scrollRatio = Math.max(0, Math.min(1, scrollRatio));
     
     const newScrollLeft = scrollRatio * maxScrollLeft;
     
-    // Update the scrollable container and the ball's visual position
     scrollContainer.scrollLeft = newScrollLeft;
     ballIndicator.style.left = `${scrollRatio * trackRect.width}px`;
 }
@@ -416,13 +357,11 @@ function endDrag() {
     if (ballIndicator) {
         ballIndicator.classList.remove('grabbing');
     }
-    // Force an update to ensure position is accurate after drag ends
     updateBallPosition(); 
 }
 
 // Attach Drag/Scroll Listeners 
 if (ballIndicator) {
-    // Mouse Events
     ballIndicator.addEventListener('mousedown', (e) => {
         e.preventDefault(); 
         startDrag(e.clientX);
@@ -434,7 +373,6 @@ if (ballIndicator) {
         endDrag();
     });
 
-    // Touch Events
     ballIndicator.addEventListener('touchstart', (e) => {
         const touch = e.touches[0];
         startDrag(touch.clientX);
@@ -449,32 +387,23 @@ if (ballIndicator) {
     });
 }
 
-// Scroll and Resize Listeners
-if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', updateBallPosition);
-}
+if (scrollContainer) scrollContainer.addEventListener('scroll', updateBallPosition);
 window.addEventListener('resize', updateBallPosition);
 
 // --- Initialization ---
 
-async function initializeApp() { // NOW ASYNCHRONOUS
-    // 1. Fetch data from the backend
+async function initializeApp() { 
     const fetchedTeams = await fetchTeamsFromBackend();
     
-    // 2. Sort the data by season year (extracted from displayName) descending
     fetchedTeams.sort((a, b) => {
         const yearA = extractYearFromDisplayName(a.displayName);
         const yearB = extractYearFromDisplayName(b.displayName);
-        return yearB - yearA; // Sort descending (newest first)
+        return yearB - yearA; 
     }); 
     
-    // 3. Store the data globally
     currentTeamsData = fetchedTeams;
-    
-    // 4. Render the list
     renderTeams(currentTeamsData);
 
-    // 5. Attach Account Settings button listener
     const accountSettingsBtn = document.getElementById('account-settings-btn');
     if (accountSettingsBtn) {
         accountSettingsBtn.addEventListener('click', () => {
