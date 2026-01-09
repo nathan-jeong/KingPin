@@ -61,6 +61,17 @@ function addPlayerRow(player) {
         });
     });
 
+    // Absence checkbox (new): toggles row appearance and disables inputs when absent
+    const absence = row.querySelector('.absence-checkbox');
+    if (absence) {
+        absence.addEventListener('change', () => {
+            const isAbsent = !!absence.checked;
+            row.classList.toggle('opacity-60', isAbsent);
+            // Disable score inputs when absent to avoid accidental edits
+            row.querySelectorAll('.score-input').forEach(inp => inp.disabled = isAbsent);
+        });
+    }
+
     // Varsity checkbox doesn't affect totals but keep an accessible attribute
     const varsity = row.querySelector('.varsity-checkbox');
     if (varsity) {
@@ -82,8 +93,8 @@ function updateRowTotal(rowElement) {
     let rowSum = 0;
 
     inputs.forEach(input => {
-        // Use unary plus operator for fast integer conversion
-        const val = +input.value || 0; 
+        // Sum numeric values; blank or invalid -> treated as 0 for totals
+        const val = +input.value || 0;
         rowSum += val;
     });
 
@@ -98,8 +109,7 @@ function updateTeamScore() {
     let totalScore = 0;
 
     allInputs.forEach(input => {
-        // Use unary plus operator for fast integer conversion
-        const val = +input.value || 0; 
+        const val = +input.value || 0;
         totalScore += val;
     });
 
@@ -146,7 +156,9 @@ function submitMatch() {
             return v === '' ? null : +v;
         });
 
-        playerEntries.push({ playerId, name, isVarsity, gameScores });
+        const absenceChecked = !!row.querySelector('.absence-checkbox')?.checked;
+
+        playerEntries.push({ playerId, name, isVarsity, gameScores, absent: absenceChecked });
     });
 
     if (!currentUserId || !currentTeamId) {
@@ -209,32 +221,44 @@ function submitMatch() {
             for (const p of playerEntries) {
                 if (!p.playerId) continue; // skip rows without playerId
 
-                for (let gi = 0; gi < 3; gi++) {
-                    const val = p.gameScores[gi];
-                    // If value is null, still send 0 to ensure record exists (or skip based on preference)
-                    const scoreVal = val === null ? 0 : val;
+                    // If the player is marked absent, skip sending any data for them
+                    if (p.absent) continue;
 
-                    const gamePayload = {
-                        password,
-                        Wood: scoreVal,
-                        Score: scoreVal,
-                        isVarsity: !!p.isVarsity
-                    };
+                    // Upload each game; if user left input blank we send 0 (original behavior)
+                    for (let gi = 0; gi < 3; gi++) {
+                        const val = p.gameScores[gi];
+                        const scoreVal = val === null ? 0 : val;
 
-                    const gameIndex = gi + 1;
-                    const putUrl = `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}/players/${p.playerId}/games/${gameIndex}`;
+                        const gamePayload = {
+                            password,
+                            Wood: scoreVal,
+                            Score: scoreVal,
+                            isVarsity: !!p.isVarsity
+                        };
 
-                    const putResp = await fetch(putUrl, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(gamePayload)
-                    });
+                        const gameIndex = gi + 1;
+                        const putUrl = `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}/players/${p.playerId}/games/${gameIndex}`;
 
-                    if (!putResp.ok) {
-                        const t = await putResp.text();
-                        console.warn('Game upload failed for', p.name, 'game', gameIndex, t);
+                        console.log('[statInput] Uploading game', {
+                            player: p.name,
+                            playerId: p.playerId,
+                            matchId,
+                            gameIndex,
+                            payload: gamePayload,
+                            url: putUrl
+                        });
+
+                        const putResp = await fetch(putUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(gamePayload)
+                        });
+
+                        if (!putResp.ok) {
+                            const t = await putResp.text();
+                            console.warn('Game upload failed for', p.name, 'game', gameIndex, t);
+                        }
                     }
-                }
             }
 
             // On success, reset form
