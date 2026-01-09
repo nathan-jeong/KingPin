@@ -1,51 +1,94 @@
-/* Custom styles for the scroll area visualization and team card aesthetics */
+/* =========================================
+   1. Global Variables & Body (Kingpin Theme)
+   ========================================= */
 :root {
-    --primary-color: #0d9488; /* Teal color for bowling theme */
-    --card-bg: #f3f4f6;
-    --scroll-bar-color: #374151;
+    --primary-color: #ffffff;       /* Changed to White */
+    --primary-glow: rgba(255, 255, 255, 0.3);
+    --card-bg: #0f0f0f;            /* Dark Grey */
+    --card-border: rgba(255, 255, 255, 0.3);
+    --scroll-track: #111111;
+    --text-main: #ffffff;
 }
 
+body { 
+    font-family: 'Inter', sans-serif;
+    background-color: #050505;
+    color: var(--text-main);
+    /* Kingpin Diagonal stripe pattern */
+    background-image: repeating-linear-gradient(
+        45deg,
+        #111 0,
+        #111 2px,
+        #000 2px,
+        #000 10px
+    );
+    min-height: 100vh;
+}
+
+/* =========================================
+   2. Scroll Container Logic (Functionality)
+   ========================================= */
 /* Hide the actual scrollbar while allowing scrolling */
 .scroll-container::-webkit-scrollbar {
     display: none;
 }
 .scroll-container {
     -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    padding-bottom: 2rem; 
+    scrollbar-width: none;     /* Firefox */
+    padding-bottom: 3rem;      /* Increased slightly for the new visual belt */
 }
 
+/* =========================================
+   3. Team Card Aesthetics (Kingpin Style)
+   ========================================= */
 .team-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    color: white;
+    
+    /* Animation props */
     transform: translateY(5px);
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    transition: all 0.2s ease;
     cursor: pointer;
-}
-.team-card:hover {
-    transform: translateY(0px); 
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-.team-card.selected {
-    border: 4px solid var(--primary-color);
-    box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.3), 0 10px 10px -5px rgba(13, 148, 136, 0.1);
-    transform: scale(1.02);
+    
+    /* Initial subtle glow */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Basic animation for the scroll belt visualization */
+.team-card:hover {
+    transform: translateY(0px) scale(1.01); 
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); /* White glow on hover */
+}
+
+.team-card.selected {
+    border: 2px solid var(--primary-color); /* Solid White Border */
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), 
+                0 0 10px rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+    background-color: #1a1a1a;
+}
+
+/* =========================================
+   4. Scroll Belt Visualization
+   ========================================= */
 @keyframes scroll-belt-move {
     0% { background-position: 0 0; }
     100% { background-position: -200px 0; }
 }
 
 .scroll-belt {
-    height: 10px;
-    background-color: var(--scroll-bar-color);
+    height: 12px; /* Slightly thicker */
+    background-color: var(--scroll-track);
+    border: 1px solid #333; /* Subtle border */
     position: absolute;
     left: 0;
     right: 0;
     top: 100%; 
     border-radius: 9999px;
     overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8);
 }
 
 .scroll-belt-texture {
@@ -54,35 +97,50 @@
     left: 0;
     width: 200%;
     height: 100%;
+    /* Adjusted texture to be subtle grey on black */
     background-image: repeating-linear-gradient(
         45deg,
-        rgba(255, 255, 255, 0.1),
-        rgba(255, 255, 255, 0.1) 10px,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 10px,
         transparent 10px,
         transparent 20px
     );
     animation: scroll-belt-move 10s linear infinite;
 }
 
-/* Bowling Ball Scroll Indicator (using inline SVG for simplicity) */
+/* =========================================
+   5. Bowling Ball / Indicator
+   ========================================= */
 .bowling-ball {
     position: absolute;
     left: 0;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     cursor: grab;
     touch-action: none; 
-}
-.bowling-ball:active {
-    cursor: grabbing;
+    
+    /* Aesthetic: White Sphere */
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    border: 2px solid #000; /* Contrast ring */
 }
 
+.bowling-ball:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+/* =========================================
+   6. Utilities & Mobile
+   ========================================= */
 /* Modal Backdrop */
 .modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.8); /* Darker backdrop */
+    backdrop-filter: blur(6px);
 }
 
 /* Layout for better mobile viewing */
@@ -100,25 +158,4 @@
     .main-content {
         padding: 1rem;
     }
-}
-
-/* Added brighter text for total teams */
-.total-teams {
-    color: #ffffff; /* Bright white text */
-    font-weight: bold; /* Makes the text stand out more */
-    text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.8); /* Optional glowing effect */
-}
-
-/* Logo responsive styling - matched to dashboard sidebar width */
-.logo-link img {
-    width: 250px;
-    height: auto;
-    transition: width 0.3s ease;
-}
-
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
-}
 }
