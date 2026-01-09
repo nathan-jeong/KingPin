@@ -36,6 +36,12 @@ body {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;     /* Firefox */
     padding-bottom: 3rem;      /* Increased slightly for the new visual belt */
+
+    /* Ensure hover shadows and transforms are not clipped */
+    padding-top: 1.5rem;
+    overflow-x: auto; /* horizontal scrolling */
+    overflow-y: visible; /* allow vertical overflow for hover effects */
+    padding-left: 2rem; /* added so the first card isn't flush to the edge */
 }
 
 /* =========================================
@@ -60,6 +66,7 @@ body {
     transform: translateY(0px) scale(1.01); 
     border-color: rgba(255, 255, 255, 0.6);
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); /* White glow on hover */
+    z-index: 20; /* lift above sibling cards so glow doesn't get clipped */
 }
 
 .team-card.selected {
