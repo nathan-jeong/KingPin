@@ -212,18 +212,18 @@ function updateNavigationButtons() {
     const prevBtn = document.getElementById('prev-match-btn');
     const nextBtn = document.getElementById('next-match-btn');
 
-    // Left arrow (prev) goes to newer matches (higher index)
+    // Left arrow (prev) goes to older matches (lower index)
     if (prevBtn) {
-        prevBtn.disabled = currentMatchIndex === allMatches.length - 1;
-        prevBtn.style.opacity = currentMatchIndex === allMatches.length - 1 ? '0.3' : '1';
-        prevBtn.style.cursor = currentMatchIndex === allMatches.length - 1 ? 'not-allowed' : 'pointer';
+        prevBtn.disabled = currentMatchIndex === 0;
+        prevBtn.style.opacity = currentMatchIndex === 0 ? '0.3' : '1';
+        prevBtn.style.cursor = currentMatchIndex === 0 ? 'not-allowed' : 'pointer';
     }
 
-    // Right arrow (next) goes to older matches (lower index)
+    // Right arrow (next) goes to newer matches (higher index)
     if (nextBtn) {
-        nextBtn.disabled = currentMatchIndex === 0;
-        nextBtn.style.opacity = currentMatchIndex === 0 ? '0.3' : '1';
-        nextBtn.style.cursor = currentMatchIndex === 0 ? 'not-allowed' : 'pointer';
+        nextBtn.disabled = currentMatchIndex === allMatches.length - 1;
+        nextBtn.style.opacity = currentMatchIndex === allMatches.length - 1 ? '0.3' : '1';
+        nextBtn.style.cursor = currentMatchIndex === allMatches.length - 1 ? 'not-allowed' : 'pointer';
     }
 }
 
@@ -273,24 +273,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const prevBtn = document.getElementById('prev-match-btn');
     const nextBtn = document.getElementById('next-match-btn');
 
-    // Left arrow goes to newer matches (forward in time)
+    // Left arrow goes to older matches (backward in time)
     if (prevBtn) {
-        prevBtn.addEventListener('click', navigateToNewerMatch);
+        prevBtn.addEventListener('click', navigateToOlderMatch);
     }
 
-    // Right arrow goes to older matches (backward in time)
+    // Right arrow goes to newer matches (forward in time)
     if (nextBtn) {
-        nextBtn.addEventListener('click', navigateToOlderMatch);
+        nextBtn.addEventListener('click', navigateToNewerMatch);
     }
 
     // Add keyboard arrow key support
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') {
             e.preventDefault();
-            navigateToNewerMatch();
+            navigateToOlderMatch();
         } else if (e.key === 'ArrowRight') {
             e.preventDefault();
-            navigateToOlderMatch();
+            navigateToNewerMatch();
         }
     });
 
