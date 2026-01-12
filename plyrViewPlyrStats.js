@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
     if (backToTeamSelectorBtn) {
         backToTeamSelectorBtn.addEventListener('click', () => {
-            window.location.href = 'plyrViewTeamStats.html';
+            window.location.href = 'plyerViewTeamStats.html';
         });
     }
 
