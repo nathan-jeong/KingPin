@@ -179,7 +179,7 @@ function calculatePlayerAverages(players, matches) {
             });
         }
     });
-    return Object.values(playerStats).map(s => { if (s.seriesPlayed > 0) s.average = s.totalScore / s.seriesPlayed; return s; });
+    return Object.values(playerStats).map(s => { if (s.seriesPlayed > 0) s.average = s.totalScore / (s.seriesPlayed*3); return s; });
 }
 
 function buildMatchSummaries(matches) {
