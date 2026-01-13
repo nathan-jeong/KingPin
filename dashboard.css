@@ -610,4 +610,14 @@ body {
     color: var(--award-accent);
     margin-bottom: 15px;
     font-weight: 800;
+}Q
+.match-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.right-info {
+  display: flex;
+  gap: 1rem; /* Adjust the gap as needed for spacing */
 }
