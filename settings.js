@@ -19,6 +19,7 @@ function clearAllCookies() {
     });
 }
 
+
 function clearAllAuthStorage() {
     // Clear known auth-related cookies
     ['email', 'password', 'rememberMe', 'school', 'teamId', 'teamDisplayName', 'teamName', 'userId'].forEach(name => {
