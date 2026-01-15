@@ -283,7 +283,7 @@ body {
 }
 
 .table-number {
-    text-align: right;
+    text-align: center;
     font-variant-numeric: tabular-nums;
 }
 
