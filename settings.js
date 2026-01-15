@@ -135,7 +135,6 @@ saveDisplayNameBtn.addEventListener('click', () => {
         editDisplayNameBtn.classList.remove('hidden');
         displayNameEditControls.classList.add('hidden');
         localStorage.setItem('displayName', newDisplayName);
-        localStorage.setItem('school', newDisplayName);
         showMessage('Display name updated successfully!', 'success');
     })
     .catch((err) => {
