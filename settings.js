@@ -51,15 +51,17 @@ if (emailInput) {
 const schoolInput = document.getElementById('school-input');
 // We don't need to look for 'school' anymore because the username IS the school
 
-// Display saved school (Use the Display Name instead!)
+// Display saved school (from localStorage) if available
 if (schoolInput) {
-    if (savedDisplayName) {
-        // Since the username is the school name, just copy it here
-        schoolInput.value = savedDisplayName;
-    } else {
-        schoolInput.value = "No School Name Found";
+    // Since the UserID IS the school name, we just display the userId here
+    if (userId) {
+        schoolInput.value = userId;
     }
-    // (They should use the "Display Name" edit button above if they need to fix a typo)
+    // Make it look nicer by capitalizing it (if your IDs are lowercase)
+     if (userId) {
+        schoolInput.value = userId.charAt(0).toUpperCase() + userId.slice(1);
+     }
+    
     schoolInput.disabled = true;
 }
 
