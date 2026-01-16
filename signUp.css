@@ -47,16 +47,18 @@ input.bowling-input {
     box-shadow: 0 0 0 2px #00FFD1, 0 0 8px #00FFD1;
 }
 
-/* Logo responsive styling - matched to settings page */
-.logo-link img {
-    width: 250px;
-    height: auto;
-    transition: width 0.3s ease;
+/* Logo responsive styling */
+.logo-static {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    z-index: 1000;
 }
 
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
-    }
+.logo-static img,
+.logo-img {
+    height: 45px;
+    width: 135px;
+    object-fit: contain;
+    display: block;
 }
