@@ -49,13 +49,17 @@ if (emailInput) {
 }
 
 const schoolInput = document.getElementById('school-input');
-const savedSchool = localStorage.getItem('school');
+// We don't need to look for 'school' anymore because the username IS the school
 
-// Display saved school (from localStorage) if available
+// Display saved school (Use the Display Name instead!)
 if (schoolInput) {
-    if (savedSchool) {
-        schoolInput.value = savedSchool;
+    if (savedDisplayName) {
+        // Since the username is the school name, just copy it here
+        schoolInput.value = savedDisplayName;
+    } else {
+        schoolInput.value = "No School Name Found";
     }
+    // (They should use the "Display Name" edit button above if they need to fix a typo)
     schoolInput.disabled = true;
 }
 
