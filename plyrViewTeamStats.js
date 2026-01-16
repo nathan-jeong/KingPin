@@ -150,7 +150,7 @@ function renderTeamTable(data) {
                 localStorage.setItem('selectedPlayerId', player.id);
                 localStorage.setItem('selectedPlayerName', player.name || '');
             }
-            window.location.href = 'plyerViewPlyerStats.html';
+            window.location.href = 'plyrViewPlyrStats.html';
         });
 
         tbody.appendChild(tr);
