@@ -36,18 +36,31 @@
             
             <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-6 mb-8">
                 
-                <div class="w-full md:w-1/3">
+                <div class="w-full md:w-1/4">
                     <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1 block ml-1">Opposing School/Team <span class="text-red-500">*</span></label>
-                    <input type="text" id="location-input" placeholder="e.g. Downtown Lanes" class="kingpin-input w-full px-4 py-3 text-lg placeholder-gray-600 font-medium">
-                    <p id="location-error" class="hidden text-red-500 text-xs mt-1 font-semibold">Opposing School/Team is required</p>
+                    <input type="text" id="opponent-input" placeholder="e.g. Central High" class="kingpin-input w-full px-4 py-3 text-lg placeholder-gray-600 font-medium">
+                    <p id="opponent-error" class="hidden text-red-500 text-xs mt-1 font-semibold">Opposing School/Team is required</p>
                 </div>
 
-                <div class="w-full md:w-1/3">
+                <div class="w-full md:w-1/4">
+                    <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1 block ml-1">Location <span class="text-red-500">*</span></label>
+                    <select id="location-select" class="kingpin-input w-full px-4 py-3 text-lg font-medium">
+                        <option value="">Select location...</option>
+                        <option value="Home Lanes">Home Lanes</option>
+                        <option value="Away Lanes">Away Lanes</option>
+                        <option value="Neutral Site">Neutral Site</option>
+                        <option value="__custom__">Custom...</option>
+                    </select>
+                    <input type="text" id="custom-location-input" placeholder="Enter custom location" class="kingpin-input w-full px-4 py-3 text-lg placeholder-gray-600 font-medium mt-2 hidden">
+                    <p id="location-error" class="hidden text-red-500 text-xs mt-1 font-semibold">Location is required</p>
+                </div>
+
+                <div class="w-full md:w-1/4">
                     <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1 block ml-1">Date</label>
                     <input type="date" id="date-input" class="kingpin-input w-full px-4 py-3 text-lg font-medium text-gray-300">
                 </div>
 
-                <div class="w-full md:w-1/3 text-right">
+                <div class="w-full md:w-1/4 text-right">
                     <div class="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 inline-block">
                         <span class="text-gray-400 text-sm font-medium mr-2 uppercase tracking-wide">Team Score</span>
                         <span id="team-score-display" class="text-2xl font-black text-white">0</span>
