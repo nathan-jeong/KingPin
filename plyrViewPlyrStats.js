@@ -12,7 +12,7 @@ function attachBackButton() {
     const backBtn = document.getElementById('back-to-team-selector-btn');
     if (backBtn) {
         backBtn.onclick = () => {
-            window.location.href = 'plyerViewTeamStats.html';
+            window.location.href = 'plyrViewTeamStats.html';
         };
     }
 }
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
         if (backToTeamSelectorBtn) {
             backToTeamSelectorBtn.addEventListener('click', () => {
-                window.location.href = 'plyerViewTeamStats.html';
+                window.location.href = 'plyrViewTeamStats.html';
             });
         }
 
