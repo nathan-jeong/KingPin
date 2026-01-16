@@ -35,35 +35,71 @@ let currentUserId = localStorage.getItem('userId');
 let currentTeamId = localStorage.getItem('teamId');
 
 // --- Location Management ---
-function loadCustomLocations() {
-    const stored = localStorage.getItem('customLocations');
-    return stored ? JSON.parse(stored) : [];
+let userLocations = []; // Cached locations from API
+
+async function fetchLocationsFromAPI() {
+    if (!currentUserId) {
+        console.warn('No userId available to fetch locations');
+        return [];
+    }
+    
+    try {
+        const resp = await fetch(`${API_BASE}/accounts/${currentUserId}/locations`);
+        if (!resp.ok) {
+            throw new Error(`Failed to fetch locations: ${resp.status}`);
+        }
+        const data = await resp.json();
+        return data.locations || [];
+    } catch (err) {
+        console.error('Error fetching locations:', err);
+        return [];
+    }
 }
 
-function saveCustomLocation(location) {
-    const locations = loadCustomLocations();
-    if (!locations.includes(location)) {
-        locations.push(location);
-        localStorage.setItem('customLocations', JSON.stringify(locations));
+async function createLocationViaAPI(locationName) {
+    if (!currentUserId || !locationName) {
+        throw new Error('Missing userId or location name');
     }
+    
+    const encodedLocation = encodeURIComponent(locationName.trim());
+    const resp = await fetch(`${API_BASE}/accounts/${currentUserId}/locations?location=${encodedLocation}`);
+    
+    if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`Failed to create location: ${resp.status} ${txt}`);
+    }
+    
+    const data = await resp.json();
+    return data.locations || [];
+}
+
+async function loadAndPopulateLocations() {
+    userLocations = await fetchLocationsFromAPI();
+    populateLocationDropdown();
 }
 
 function populateLocationDropdown() {
-    const customLocations = loadCustomLocations();
     const select = locationSelect;
     
-    // Remove existing custom options (keep first 5: blank, Home, Away, Neutral Site, Custom)
-    while (select.options.length > 5) {
-        select.remove(4); // Remove at index 4 (between Neutral Site and Custom)
-    }
+    // Clear all options except the first one (blank) and last one (Custom)
+    // We'll rebuild the options list
+    const firstOption = select.options[0]; // "Select location..." option
+    select.innerHTML = '';
+    select.appendChild(firstOption);
     
-    // Add custom locations before the "Custom..." option (which is at index 4)
-    customLocations.forEach((loc, i) => {
+    // Add all user locations from API
+    userLocations.forEach(loc => {
         const option = document.createElement('option');
         option.value = loc;
         option.textContent = loc;
-        select.insertBefore(option, select.options[4 + i]); // Insert before Custom option
+        select.appendChild(option);
     });
+    
+    // Add the "Custom..." option at the end
+    const customOption = document.createElement('option');
+    customOption.value = '__custom__';
+    customOption.textContent = 'Custom...';
+    select.appendChild(customOption);
 }
 
 function getSelectedLocation() {
@@ -171,7 +207,7 @@ function updateTeamScore() {
 /**
  * Validates the form data, collects match results, and simulates submission.
  */
-function submitMatch() {
+async function submitMatch() {
     const opponent = opponentInput.value.trim();
     const location = getSelectedLocation();
     const date = dateInput.value;
@@ -236,15 +272,26 @@ function submitMatch() {
     if (!confirm(`Submit match vs ${opponent} at ${location} on ${date}?\nTeam Score: ${score}`)) {
         return;
     }
-    
-    // Save custom location if entered
-    if (locationSelect.value === '__custom__' && location) {
-        saveCustomLocation(location);
-        populateLocationDropdown();
-    }
 
     // Show loading overlay
     showLoading();
+
+    // If custom location, create it via API first
+    const isCustomLocation = locationSelect.value === '__custom__' && location;
+    
+    if (isCustomLocation) {
+        try {
+            console.log('[statInput] Creating new location via API:', location);
+            userLocations = await createLocationViaAPI(location);
+            populateLocationDropdown();
+            console.log('[statInput] Location created successfully');
+        } catch (err) {
+            console.error('Failed to create location:', err);
+            hideLoading();
+            alert('Failed to create location: ' + err.message);
+            return;
+        }
+    }
 
     // Build match create payload
     const password = localStorage.getItem('password') || '';
@@ -257,104 +304,102 @@ function submitMatch() {
     };
 
     // POST match then PUT per-player games
-    (async () => {
+    try {
+        const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(matchPayload)
+        });
+
+        if (!resp.ok) {
+            const txt = await resp.text();
+            throw new Error(`Create match failed: ${resp.status} ${txt}`);
+        }
+
+        const data = await resp.json();
+        const match = data.match || data;
+        const matchId = match.matchId || match.id;
+
+        if (!matchId) throw new Error('No matchId returned from server');
+
+        // Update match (attach teamScore/comment) using returned matchId before per-player uploads
         try {
-            const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`, {
-                method: 'POST',
+            const updatePayload = { password, comment: matchPayload.comment };
+            const updateResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(matchPayload)
+                body: JSON.stringify(updatePayload)
             });
 
-            if (!resp.ok) {
-                const txt = await resp.text();
-                throw new Error(`Create match failed: ${resp.status} ${txt}`);
+            if (!updateResp.ok) {
+                const ut = await updateResp.text();
+                console.warn('Match update (attach comment/teamScore) failed:', updateResp.status, ut);
             }
+        } catch (uErr) {
+            console.warn('Match update request failed:', uErr);
+        }
 
-            const data = await resp.json();
-            const match = data.match || data;
-            const matchId = match.matchId || match.id;
+        // For each player, upload games (1..3)
+        for (const p of playerEntries) {
+            if (!p.playerId) continue; // skip rows without playerId
 
-            if (!matchId) throw new Error('No matchId returned from server');
+            // If the player is marked absent, skip sending any data for them
+            if (p.absent) continue;
 
-            // Update match (attach teamScore/comment) using returned matchId before per-player uploads
-            try {
-                const updatePayload = { password, comment: matchPayload.comment };
-                const updateResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatePayload)
+            // Upload each game; if user left input blank we send 0 (original behavior)
+            for (let gi = 0; gi < 3; gi++) {
+                const val = p.gameScores[gi];
+                const scoreVal = val === null ? 0 : val;
+
+                const gamePayload = {
+                    password,
+                    Wood: scoreVal,
+                    Score: scoreVal,
+                    isVarsity: !!p.isVarsity
+                };
+
+                const gameIndex = gi + 1;
+                const putUrl = `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}/players/${p.playerId}/games/${gameIndex}`;
+
+                console.log('[statInput] Uploading game', {
+                    player: p.name,
+                    playerId: p.playerId,
+                    matchId,
+                    gameIndex,
+                    payload: gamePayload,
+                    url: putUrl
                 });
 
-                if (!updateResp.ok) {
-                    const ut = await updateResp.text();
-                    console.warn('Match update (attach comment/teamScore) failed:', updateResp.status, ut);
+                const putResp = await fetch(putUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(gamePayload)
+                });
+
+                if (!putResp.ok) {
+                    const t = await putResp.text();
+                    console.warn('Game upload failed for', p.name, 'game', gameIndex, t);
                 }
-            } catch (uErr) {
-                console.warn('Match update request failed:', uErr);
             }
-
-            // For each player, upload games (1..3)
-            for (const p of playerEntries) {
-                if (!p.playerId) continue; // skip rows without playerId
-
-                    // If the player is marked absent, skip sending any data for them
-                    if (p.absent) continue;
-
-                    // Upload each game; if user left input blank we send 0 (original behavior)
-                    for (let gi = 0; gi < 3; gi++) {
-                        const val = p.gameScores[gi];
-                        const scoreVal = val === null ? 0 : val;
-
-                        const gamePayload = {
-                            password,
-                            Wood: scoreVal,
-                            Score: scoreVal,
-                            isVarsity: !!p.isVarsity
-                        };
-
-                        const gameIndex = gi + 1;
-                        const putUrl = `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}/players/${p.playerId}/games/${gameIndex}`;
-
-                        console.log('[statInput] Uploading game', {
-                            player: p.name,
-                            playerId: p.playerId,
-                            matchId,
-                            gameIndex,
-                            payload: gamePayload,
-                            url: putUrl
-                        });
-
-                        const putResp = await fetch(putUrl, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(gamePayload)
-                        });
-
-                        if (!putResp.ok) {
-                            const t = await putResp.text();
-                            console.warn('Game upload failed for', p.name, 'game', gameIndex, t);
-                        }
-                    }
-            }
-
-            // On success, reset form
-            opponentInput.value = '';
-            locationSelect.value = '';
-            customLocationInput.value = '';
-            customLocationInput.classList.add('hidden');
-            if (commentInput) commentInput.value = '';
-            document.querySelectorAll('.score-input').forEach(input => input.value = '');
-            document.querySelectorAll('.player-total').forEach(total => total.textContent = '0');
-            updateTeamScore();
-
-            hideLoading();
-            alert('Match submitted successfully');
-        } catch (err) {
-            console.error('Submit match error:', err);
-            hideLoading();
-            alert('Failed to submit match: ' + err.message);
         }
-    })();
+
+        // On success, reset form
+        opponentInput.value = '';
+        locationSelect.value = '';
+        customLocationInput.value = '';
+        customLocationInput.classList.add('hidden');
+        if (commentInput) commentInput.value = '';
+        document.querySelectorAll('.score-input').forEach(input => input.value = '');
+        document.querySelectorAll('.player-total').forEach(total => total.textContent = '0');
+        updateTeamScore();
+
+        hideLoading();
+        alert('Match submitted successfully');
+    } catch (err) {
+        console.error('Submit match error:', err);
+        hideLoading();
+        alert('Failed to submit match: ' + err.message);
+    }
 }
 
 // --- Initialization ---
@@ -375,8 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
     
-    // Load custom locations into dropdown
-    populateLocationDropdown();
+    // Load locations from API and populate dropdown
+    loadAndPopulateLocations();
     
     // Handle location dropdown change
     locationSelect.addEventListener('change', () => {
