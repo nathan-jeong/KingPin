@@ -113,10 +113,6 @@ input.bowling-input:focus {
 
 /* Responsive adjustments */
 @media (max-width: 630px) {
-    .logo-static img {
-        width: 135px;
-        height: 45px;
-    }
     .login-card {
         padding: 1.5rem;
     }

@@ -30,14 +30,6 @@ body {
     display: block;
 }
 
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-static img {
-        width: 135px;
-        height: 45px;
-    }
-}
-
 /* Styling for the Back to Login Button */
 .main-btn {
     padding: 12px 24px;

@@ -62,11 +62,3 @@ input.bowling-input {
     object-fit: contain;
     display: block;
 }
-
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-static img {
-        width: 135px;
-        height: 45px;
-    }
-}

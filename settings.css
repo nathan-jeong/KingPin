@@ -214,11 +214,6 @@ input.bowling-input.email-readonly {
 }
 
 @media (max-width: 630px) {
-    .logo-link img {
-        width: 135px;
-        height: 45px;
-    }
-    
     .edit-btn, .save-btn, .cancel-btn {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;

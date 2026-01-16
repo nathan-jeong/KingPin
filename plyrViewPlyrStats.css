@@ -46,11 +46,3 @@
     object-fit: contain;
     display: block;
 }
-
-/* Responsive adjustments */
-@media (max-width: 630px) {
-    .logo-link img {
-        width: 135px;
-        height: 45px;
-    }
-}
