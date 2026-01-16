@@ -1,3 +1,20 @@
+// --- Loading Overlay Functions ---
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
 // --- State ---
 const API_BASE = 'https://kingpin-backend-production.up.railway.app';
 const container = document.getElementById('player-rows-container');
@@ -170,6 +187,9 @@ function submitMatch() {
         return;
     }
 
+    // Show loading overlay
+    showLoading();
+
     // Build match create payload
     const password = localStorage.getItem('password') || '';
 
@@ -268,9 +288,11 @@ function submitMatch() {
             document.querySelectorAll('.player-total').forEach(total => total.textContent = '0');
             updateTeamScore();
 
+            hideLoading();
             alert('Match submitted successfully');
         } catch (err) {
             console.error('Submit match error:', err);
+            hideLoading();
             alert('Failed to submit match: ' + err.message);
         }
     })();
