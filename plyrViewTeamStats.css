@@ -14,17 +14,27 @@ body {
     transform: translateY(-2px);
 }
 
-/* Logo responsive styling - matched to settings page */
-.logo-link img {
-    width: 250px;
-    height: auto;
-    transition: width 0.3s ease;
+/* Logo static styling */
+.logo-static {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    z-index: 1000;
+}
+
+.logo-static img,
+.logo-img {
+    height: 45px;
+    width: 135px;
+    object-fit: contain;
+    display: block;
 }
 
 /* Responsive adjustments */
 @media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
+    .logo-static img {
+        width: 135px;
+        height: 45px;
     }
 }
 
