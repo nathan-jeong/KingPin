@@ -12,7 +12,7 @@ function attachBackButton() {
     const backBtn = document.getElementById('back-to-team-selector-btn');
     if (backBtn) {
         backBtn.onclick = () => {
-            window.location.href = 'plyrViewTeamStats.html';
+            window.location.href = 'plyerViewTeamStats.html';
         };
     }
 }
@@ -97,7 +97,7 @@ function renderMatches() {
         const mobileView = `
             <div class="sm:hidden space-y-2">
                 <div class="flex items-center space-x-3">
-                    <a href="matchView.html" data-match-id="${match.matchId}" class="match-link font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</a>${varsityBadge}
+                    <span class="font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</span>${varsityBadge}
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
                 </div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">Date: ${dateLabel}</div>
@@ -115,7 +115,7 @@ function renderMatches() {
         const desktopView = `
             <div class="hidden sm:grid grid-cols-12 gap-2 items-center text-sm">
                 <div class="col-span-4 font-medium truncate">
-                    <a href="matchView.html" data-match-id="${match.matchId}" class="match-link text-indigo-600 dark:text-indigo-400 hover:underline">${match.name}</a>${varsityBadge}
+                    <span class="text-indigo-600 dark:text-indigo-400">${match.name}</span>${varsityBadge}
                 </div>
                 <div class="col-span-1 text-center">
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
@@ -150,16 +150,6 @@ function renderMatches() {
             });
         } else {
             console.warn('[plyrScores] Inline: comment button not found for match row', match.matchId, match.name);
-        }
-
-        // Attach match link listener
-        const link = row.querySelector('.match-link');
-        if (link) {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.setItem('selectedMatchId', match.matchId);
-                window.location.href = 'matchView.html';
-            });
         }
     });
 }
@@ -354,7 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
         if (backToTeamSelectorBtn) {
             backToTeamSelectorBtn.addEventListener('click', () => {
-                window.location.href = 'plyrViewTeamStats.html';
+                window.location.href = 'plyerViewTeamStats.html';
             });
         }
 
