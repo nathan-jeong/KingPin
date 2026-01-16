@@ -17,13 +17,9 @@ function hideLoading() {
 
 // --- State ---
 const API_BASE = 'https://kingpin-backend-production.up.railway.app';
-const container = document.getElementById('player-rows-container');
-const teamScoreDisplay = document.getElementById('team-score-display');
-const locationInput = document.getElementById('location-input');
-const locationError = document.getElementById('location-error');
-const dateInput = document.getElementById('date-input');
-const rowTemplate = document.getElementById('player-row-template');
-const commentInput = document.getElementById('match-comment');
+let container, teamScoreDisplay, opponentInput, opponentError;
+let locationSelect, customLocationInput, locationError;
+let dateInput, rowTemplate, commentInput;
 
 // Fallback roster if backend unavailable
 const PRESET_ROSTER = [
@@ -37,6 +33,45 @@ const PRESET_ROSTER = [
 
 let currentUserId = localStorage.getItem('userId');
 let currentTeamId = localStorage.getItem('teamId');
+
+// --- Location Management ---
+function loadCustomLocations() {
+    const stored = localStorage.getItem('customLocations');
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveCustomLocation(location) {
+    const locations = loadCustomLocations();
+    if (!locations.includes(location)) {
+        locations.push(location);
+        localStorage.setItem('customLocations', JSON.stringify(locations));
+    }
+}
+
+function populateLocationDropdown() {
+    const customLocations = loadCustomLocations();
+    const select = locationSelect;
+    
+    // Remove existing custom options (keep first 5: blank, Home, Away, Neutral Site, Custom)
+    while (select.options.length > 5) {
+        select.remove(4); // Remove at index 4 (between Neutral Site and Custom)
+    }
+    
+    // Add custom locations before the "Custom..." option (which is at index 4)
+    customLocations.forEach((loc, i) => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        select.insertBefore(option, select.options[4 + i]); // Insert before Custom option
+    });
+}
+
+function getSelectedLocation() {
+    if (locationSelect.value === '__custom__') {
+        return customLocationInput.value.trim();
+    }
+    return locationSelect.value;
+}
 
 // --- Functions ---
 
@@ -137,23 +172,38 @@ function updateTeamScore() {
  * Validates the form data, collects match results, and simulates submission.
  */
 function submitMatch() {
-    const location = locationInput.value.trim();
+    const opponent = opponentInput.value.trim();
+    const location = getSelectedLocation();
     const date = dateInput.value;
     const comment = commentInput ? commentInput.value.trim() : '';
     const score = +teamScoreDisplay.textContent || 0;
     
     // Reset Error States
     let hasError = false;
-    locationInput.classList.remove('kingpin-input-error');
+    opponentInput.classList.remove('kingpin-input-error');
+    opponentError.classList.add('hidden');
+    locationSelect.classList.remove('kingpin-input-error');
+    customLocationInput.classList.remove('kingpin-input-error');
     locationError.classList.add('hidden');
 
+    // Validate Opponent
+    if (!opponent) {
+        opponentInput.classList.add('kingpin-input-error');
+        opponentError.classList.remove('hidden');
+        hasError = true;
+        opponentInput.focus();
+    }
+    
     // Validate Location
     if (!location) {
-        locationInput.classList.add('kingpin-input-error');
+        if (locationSelect.value === '__custom__') {
+            customLocationInput.classList.add('kingpin-input-error');
+        } else {
+            locationSelect.classList.add('kingpin-input-error');
+        }
         locationError.classList.remove('hidden');
         hasError = true;
-        // Optional: Focus the input
-        locationInput.focus();
+        if (!opponent) locationSelect.focus();
     }
 
     if (hasError) {
@@ -183,8 +233,14 @@ function submitMatch() {
         return;
     }
 
-    if (!confirm(`Submit match at ${location} on ${date}?\nTeam Score: ${score}`)) {
+    if (!confirm(`Submit match vs ${opponent} at ${location} on ${date}?\nTeam Score: ${score}`)) {
         return;
+    }
+    
+    // Save custom location if entered
+    if (locationSelect.value === '__custom__' && location) {
+        saveCustomLocation(location);
+        populateLocationDropdown();
     }
 
     // Show loading overlay
@@ -195,9 +251,9 @@ function submitMatch() {
 
     const matchPayload = {
         password,
-        opposingTeamName: location,
+        opposingTeamName: opponent,
         date: date ? new Date(date).getTime() : Date.now(),
-        comment: comment ? comment + `\nTeamScore:${score}` : `TeamScore:${score}`
+        comment: `Location: ${location}` + (comment ? `\n${comment}` : '') + `\nTeamScore:${score}`
     };
 
     // POST match then PUT per-player games
@@ -282,7 +338,10 @@ function submitMatch() {
             }
 
             // On success, reset form
-            locationInput.value = '';
+            opponentInput.value = '';
+            locationSelect.value = '';
+            customLocationInput.value = '';
+            customLocationInput.classList.add('hidden');
             if (commentInput) commentInput.value = '';
             document.querySelectorAll('.score-input').forEach(input => input.value = '');
             document.querySelectorAll('.player-total').forEach(total => total.textContent = '0');
@@ -300,9 +359,35 @@ function submitMatch() {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize DOM elements
+    container = document.getElementById('player-rows-container');
+    teamScoreDisplay = document.getElementById('team-score-display');
+    opponentInput = document.getElementById('opponent-input');
+    opponentError = document.getElementById('opponent-error');
+    locationSelect = document.getElementById('location-select');
+    customLocationInput = document.getElementById('custom-location-input');
+    locationError = document.getElementById('location-error');
+    dateInput = document.getElementById('date-input');
+    rowTemplate = document.getElementById('player-row-template');
+    commentInput = document.getElementById('match-comment');
+    
     // Set Default Date to Today
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
+    
+    // Load custom locations into dropdown
+    populateLocationDropdown();
+    
+    // Handle location dropdown change
+    locationSelect.addEventListener('change', () => {
+        if (locationSelect.value === '__custom__') {
+            customLocationInput.classList.remove('hidden');
+            customLocationInput.focus();
+        } else {
+            customLocationInput.classList.add('hidden');
+            customLocationInput.value = '';
+        }
+    });
 
     // Fetch roster from backend and render alphabetically; fallback to preset roster
     (async () => {
