@@ -207,8 +207,8 @@ input.bowling-input.email-readonly {
 
 .logo-link img,
 .logo-img {
-    height: 45px;
-    width: 135px;
+    width: 240px;
+    height: 82px;
     object-fit: contain;
     display: block;
 }
