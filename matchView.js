@@ -84,6 +84,12 @@ function updateLeagueTitle() {
     }
 }
 
+function parseLocation(comment) {
+    if (!comment) return '—';
+    const match = comment.match(/Location:\s*([^\n]+)/);
+    return match ? match[1].trim() : '—';
+}
+
 // ------------------------------------------------------------------
 // RENDER MATCH DATA
 // ------------------------------------------------------------------
@@ -126,6 +132,10 @@ function updateMatchHeader(match, matchDetails) {
     const matchDate = fullMatch.date ? new Date(fullMatch.date) : new Date();
     const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date').textContent = matchDate.toLocaleDateString('en-US', dateOptions);
+    
+    // Update location
+    const location = parseLocation(fullMatch.comment);
+    document.getElementById('match-location-display').textContent = location;
 }
 
 async function renderPlayerStats(matchDetails, players) {
