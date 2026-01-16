@@ -52,25 +52,44 @@ if (teamCodeForm) {
         updateTeamMessage('Verifying team code...', 'info');
         
         try {
-            // TODO: Replace with actual API endpoint when available
-            // For now, simulate a response
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Call actual API to lookup team by code
+            const endpoint = `${API_BASE}/teams/lookup?code=${encodeURIComponent(teamCode)}`;
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
             
-            // Example success (replace with actual API call)
-            updateTeamMessage(`Team code ${teamCode} verified! Redirecting...`, 'success');
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => 'Invalid team code');
+                throw new Error(errorText);
+            }
             
-            // Store team code if needed
+            const data = await response.json();
+            const teamId = data.teamId;
+            const userId = data.userId;
+            
+            if (!teamId) {
+                throw new Error('No team ID returned from server');
+            }
+            
+            // Store team info to localStorage
+            localStorage.setItem('teamId', teamId);
+            localStorage.setItem('userId', userId);
             localStorage.setItem('teamCode', teamCode);
             
-            // Optional: redirect or perform action
-            // setTimeout(() => {
-            //     window.location.href = 'dashboard.html';
-            // }, 1500);
+            console.log('Team verified - teamId:', teamId, 'userId:', userId);
+            updateTeamMessage('Strike! Team verified. Redirecting...', 'success');
+            
+            // Redirect after short delay
+            setTimeout(() => {
+                window.location.href = 'plyerViewTeamStats.html';
+            }, 1500);
             
         } catch (error) {
             console.error('Team code verification error:', error);
             updateTeamMessage('Invalid team code. Please try again.', 'error');
-        } finally {
+            
+            // Re-enable button on error
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
