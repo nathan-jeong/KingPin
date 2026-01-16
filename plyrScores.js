@@ -76,7 +76,7 @@ function renderMatches() {
         const desktopView = `
             <div class="hidden sm:grid grid-cols-12 gap-2 items-center text-sm">
                 <div class="col-span-4 font-medium truncate">
-                    <span class="text-indigo-600 dark:text-indigo-400">${match.name}</span>${varsityBadge}
+                    <span class="text-black dark:text-black">${match.name}</span>${varsityBadge}
                 </div>
                 <div class="col-span-1 text-center">
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
