@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Team lookup successful - teamId:', teamId, 'userId:', userId);
 
             // Redirect to team player view
-            window.location.href = 'plyerViewTeamStats.html';
+            window.location.href = 'plyrViewTeamStats.html';
         } catch (err) {
             console.error('Team lookup error:', err);
             const messageBox = document.getElementById('team-code-message') || document.getElementById('message-box');
