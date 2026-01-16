@@ -70,11 +70,6 @@ body {
     display: block;
 }
 
-/* Optional: Add hover glow to logo to match the theme's interactivity */
-.logo-link:hover img {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-}
-
 /* Responsive adjustments */
 @media (max-width: 630px) {
     .logo-link img {
