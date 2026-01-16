@@ -45,23 +45,32 @@ body {
    because this theme is always Dark Mode. */
 
 /* Logo responsive styling */
-.logo-link img {
-    width: 250px;
-    height: auto;
-    transition: all 0.3s ease; 
-    /* Added drop shadow to make logo pop against the striped background */
-    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
+.logo-link {
+    display: block;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    z-index: 1000;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
 }
 
-/* Optional: Add hover glow to logo to match the theme's interactivity */
-.logo-link:hover img {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-    transform: scale(1.02);
+.logo-link:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.logo-link img,
+.logo-img {
+    height: 45px;
+    width: 135px;
+    object-fit: contain;
+    display: block;
 }
 
 /* Responsive adjustments */
 @media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
-    }
+    /* No additional responsive changes needed for logo */
 }

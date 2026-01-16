@@ -84,13 +84,29 @@ input.bowling-input:focus {
 }
 
 /* 5. Logo / Image Styling */
-.logo-link img {
-    width: 250px;
-    height: auto;
+.logo-link {
     display: block;
-    margin: 0 auto 2rem auto; /* Center and add space below */
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2)); /* Add subtle glow to logo */
-    transition: width 0.3s ease;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    z-index: 1000;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.logo-link:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.logo-link img,
+.logo-img {
+    height: 45px;
+    width: 135px;
+    object-fit: contain;
+    display: block;
 }
 
 /* Text links (e.g., "Forgot Password") */
@@ -107,9 +123,6 @@ input.bowling-input:focus {
 
 /* Responsive adjustments */
 @media (max-width: 630px) {
-    .logo-link img {
-        width: 150px;
-    }
     .login-card {
         padding: 1.5rem;
     }
