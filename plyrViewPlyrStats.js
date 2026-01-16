@@ -1,11 +1,54 @@
 const API_BASE = 'https://kingpin-backend-production.up.railway.app';
 
-const currentUserId = localStorage.getItem('userId');
-const currentTeamId = localStorage.getItem('teamId');
-const selectedPlayerId = localStorage.getItem('selectedPlayerId');
+let currentUserId = localStorage.getItem('userId') || localStorage.getItem('teamUserId');
+let currentTeamId = localStorage.getItem('teamId');
+let selectedPlayerId = localStorage.getItem('selectedPlayerId');
+let selectedPlayerName = localStorage.getItem('selectedPlayerName');
 
 let playerMatches = [];
 let sortState = { column: 'name', ascending: true };
+
+function attachBackButton() {
+    const backBtn = document.getElementById('back-to-team-selector-btn');
+    if (backBtn) {
+        backBtn.onclick = () => {
+            window.location.href = 'plyerViewTeamStats.html';
+        };
+    }
+}
+
+async function ensureIdsFromTeamCode() {
+    // If ids already present, nothing to do
+    if (currentUserId && currentTeamId) return true;
+
+    const teamCode = (localStorage.getItem('teamCode') || '').trim();
+    if (!teamCode) return false;
+
+    try {
+        const endpoint = `${API_BASE}/teams/lookup?code=${encodeURIComponent(teamCode)}`;
+        const resp = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        if (!resp.ok) throw new Error(`Lookup failed ${resp.status}`);
+        const data = await resp.json();
+        if (data.teamId) {
+            localStorage.setItem('teamId', data.teamId);
+            currentTeamId = data.teamId;
+        }
+        if (data.userId) {
+            localStorage.setItem('userId', data.userId);
+            localStorage.setItem('teamUserId', data.userId);
+            currentUserId = data.userId;
+        }
+        return !!(currentTeamId && currentUserId);
+    } catch (err) {
+        console.error('Failed to resolve IDs from team code:', err);
+        return false;
+    }
+}
+
+// Helper: treat zeros as "no score" and only count finite non-zero numbers
+function isCountedScore(s) {
+    return s != null && Number.isFinite(s) && Number(s) !== 0;
+}
 
 function formatDate(ms) {
     if (!ms) return '--';
@@ -166,13 +209,8 @@ function showModal(title, htmlContent) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Attach navigation button listener FIRST
-    const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
-    if (backToTeamSelectorBtn) {
-        backToTeamSelectorBtn.addEventListener('click', () => {
-            window.location.href = 'plyerViewTeamStats.html';
-        });
-    }
+    // Ensure back button works even if data fetch fails early
+    attachBackButton();
 
     const playerNameEl = document.getElementById('player-name');
     const matchListEl = document.getElementById('match-list');
@@ -211,8 +249,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const g3AvgValueEl = document.getElementById('g3-avg-value');
     const totalWoodValueEl = document.getElementById('total-wood-value');
 
-    if (!currentUserId || !currentTeamId || !selectedPlayerId) {
-        showMessage('Missing user, team, or player context. Please select a player from the dashboard.');
+    const haveIds = await ensureIdsFromTeamCode();
+    // Refresh in case storage was updated elsewhere
+    currentUserId = localStorage.getItem('userId') || localStorage.getItem('teamUserId');
+    currentTeamId = localStorage.getItem('teamId');
+    selectedPlayerId = localStorage.getItem('selectedPlayerId');
+    selectedPlayerName = localStorage.getItem('selectedPlayerName');
+
+    if (!currentUserId || !currentTeamId) {
+        showMessage('Missing team context. Please re-enter the team code.');
+        return;
+    }
+
+    if (!selectedPlayerId) {
+        showMessage('No player selected. Please choose a player from the team stats page.');
         return;
     }
 
@@ -226,7 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!playerResp.ok) throw new Error('Failed to load player profile');
         const playerData = await playerResp.json();
         const player = playerData.player || playerData;
-        const displayName = player.displayName || 'Unknown Player';
+        const displayName = player.displayName || selectedPlayerName || 'Unknown Player';
         if (playerNameEl) playerNameEl.textContent = displayName;
 
         // Fetch matches for team
@@ -241,7 +291,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Extract per-player match entries
         playerMatches = matches.map(m => {
-            const per = m.perPlayerData ? m.perPlayerData[selectedPlayerId] : null;
+            const perData = m.perPlayerData || {};
+            const per = perData[selectedPlayerId]
+                ?? perData[String(selectedPlayerId)]
+                ?? perData[Number(selectedPlayerId)]
+                ?? null;
             if (!per || !per.games) return null;
 
             const games = [1,2,3].map(i => {
@@ -249,8 +303,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return g && g.Score != null ? { Score: g.Score, Wood: g.Wood, isVarsity: !!g.isVarsity } : null;
             });
 
-            const seriesTotal = games.reduce((s, g) => s + (g && g.Score ? g.Score : 0), 0);
-            const gamesCount = games.filter(g => g && g.Score != null).length;
+            const seriesTotal = games.reduce((s, g) => s + (g && isCountedScore(g.Score) ? g.Score : 0), 0);
+            const gamesCount = games.filter(g => g && isCountedScore(g.Score)).length;
             const avg = gamesCount > 0 ? (seriesTotal / gamesCount) : null;
             const totalWood = games.reduce((s, g) => s + (g && g.Wood ? g.Wood : 0), 0);
             const anyVarsity = games.some(g => g && g.isVarsity);
@@ -274,7 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let totalG1 = 0, totalG2 = 0, totalG3 = 0, totalPoints = 0, totalWood = 0, gameCounts = [0,0,0];
         playerMatches.forEach(pm => {
             pm.games.forEach((g, idx) => {
-                if (g && g.Score != null) {
+                if (g && isCountedScore(g.Score)) {
                     if (idx === 0) { totalG1 += g.Score; gameCounts[0]++; }
                     if (idx === 1) { totalG2 += g.Score; gameCounts[1]++; }
                     if (idx === 2) { totalG3 += g.Score; gameCounts[2]++; }
@@ -295,6 +349,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (g2AvgValueEl) g2AvgValueEl.textContent = overallG2Avg.toFixed(1);
         if (g3AvgValueEl) g3AvgValueEl.textContent = overallG3Avg.toFixed(1);
         if (totalWoodValueEl) totalWoodValueEl.textContent = totalWood;
+
+        // Navigation buttons
+        const backToTeamSelectorBtn = document.getElementById('back-to-team-selector-btn');
+        if (backToTeamSelectorBtn) {
+            backToTeamSelectorBtn.addEventListener('click', () => {
+                window.location.href = 'plyerViewTeamStats.html';
+            });
+        }
 
         // Sorting header listeners (desktop)
         const sortables = [
@@ -355,4 +417,3 @@ function showMessage(message) {
     setTimeout(() => modal.style.opacity = '1', 10);
     setTimeout(() => modal.querySelector('div').style.transform = 'scale(1)', 10);
 }
-
