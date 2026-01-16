@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Run Auto Login Check
     checkAndAutoLogin();
 
+    // Always default Remember Me to checked for coach login
+    const rememberCheckbox = document.getElementById('remember-me');
+    if (rememberCheckbox) rememberCheckbox.checked = true;
+
     // 2. Setup Password Toggle Button
     const passwordInput = document.getElementById('password');
     const toggleButton = document.getElementById('toggle-password');
@@ -75,11 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function lookupTeamByCode(code) {
         if (!code) throw new Error('Empty team code');
-        const endpoint = `${API_BASE}/teams/lookup`;
+        const endpoint = `${API_BASE}/teams/lookup?code=${encodeURIComponent(code)}`;
         const resp = await fetch(endpoint, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code })
+            headers: { 'Content-Type': 'application/json' }
         });
         if (!resp.ok) {
             const txt = await resp.text().catch(() => resp.statusText || 'Lookup failed');
@@ -91,28 +94,30 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleTeamLookup(code) {
         try {
             const result = await lookupTeamByCode(code);
-            const teamId = result.teamId;
-            const userId = result.userId;
+            const teamId = result.teamId || result.id;
+            const userId = result.userId || result.user_id;
             if (!teamId) throw new Error('No teamId returned');
 
             // Persist to cookies and localStorage
             setCookie('teamId', teamId);
             setCookie('teamUserId', userId || '');
             localStorage.setItem('teamId', teamId);
-            if (userId) localStorage.setItem('teamUserId', userId);
+            if (userId) localStorage.setItem('userId', userId);
+
+            console.log('Team lookup successful - teamId:', teamId, 'userId:', userId);
 
             // Redirect to team player view
             window.location.href = 'plyerViewTeamStats.html';
         } catch (err) {
             console.error('Team lookup error:', err);
-            const messageBox = document.getElementById('message-box');
-            const messageText = document.getElementById('message-text');
+            const messageBox = document.getElementById('team-code-message') || document.getElementById('message-box');
+            const messageText = document.getElementById('team-code-text') || document.getElementById('message-text');
             if (messageBox && messageText) {
                 messageBox.className = 'mt-6 p-4 rounded-lg text-sm border bg-red-900/50 border-red-500 text-red-200';
                 messageBox.style.display = 'block';
                 messageText.textContent = 'Team code lookup failed. Please check the code and try again.';
             } else {
-                alert('Team code lookup failed.');
+                alert('Team code lookup failed: ' + err.message);
             }
         }
     }
@@ -120,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (teamCodeForm && teamCodeInput) {
         teamCodeForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const code = (teamCodeInput.value || '').trim();
+            const code = (teamCodeInput.value || '').trim().toUpperCase();
             handleTeamLookup(code);
         });
     }
@@ -128,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (teamLookupBtn && teamCodeInput) {
         teamLookupBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const code = (teamCodeInput.value || '').trim();
+            const code = (teamCodeInput.value || '').trim().toUpperCase();
             handleTeamLookup(code);
         });
     }
@@ -144,7 +149,8 @@ if (loginForm) {
         // Get form data
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const rememberMe = document.getElementById('remember-me').checked;
+        // Coach login: always remember
+        const rememberMe = true;
 
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
@@ -215,24 +221,17 @@ if (loginForm) {
             .then(response => {
                 console.log('Login response:', response);
                 
-                // Persist credentials in cookies when remember-me is checked
-                if (rememberMe) {
-                    setCookie('email', email);
-                    setCookie('password', password);
-                    setCookie('rememberMe', 'true');
-                    setCookie('displayName', response.user.displayName || '');
-                    setCookie('school', response.user.displayName || '');
-                    
-                    // Also save to LocalStorage for redundancy as per original code
-                    localStorage.setItem('email', email);
-                    localStorage.setItem('password', password);
-                    localStorage.setItem('rememberMe', 'true');
-                } else {
-                    ['email', 'password', 'rememberMe', 'displayName', 'school'].forEach(eraseCookie);
-                    localStorage.removeItem('email');
-                    localStorage.removeItem('password');
-                    localStorage.removeItem('rememberMe');
-                }
+                // Persist credentials in cookies (always on for coach login)
+                setCookie('email', email);
+                setCookie('password', password);
+                setCookie('rememberMe', 'true');
+                setCookie('displayName', response.user.displayName || '');
+                setCookie('school', response.user.displayName || '');
+                
+                // Also save to LocalStorage for redundancy
+                localStorage.setItem('email', email);
+                localStorage.setItem('password', password);
+                localStorage.setItem('rememberMe', 'true');
 
                 console.log('Credentials stored for', email, 'Remember me:', rememberMe);
                 
