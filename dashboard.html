@@ -18,11 +18,13 @@
             background-color: var(--sidebar-bg, #111);
         }
 
-        /* Logo Styling - Fixed 3:1 Proportions */
+        /* Logo Styling - Fixed Position */
         .logo-link {
             display: block;
-            margin-bottom: 8px; 
-            margin-top: 5px;
+            position: fixed;
+            top: 5px;
+            left: 5px;
+            z-index: 1000;
             padding: 4px;
             border-radius: 6px;
             transition: all 0.2s ease;
@@ -35,8 +37,8 @@
         }
 
         .logo-img {
-            height: 45px;      
-            width: 135px;     
+            width: 240px;
+            height: 82px;
             object-fit: contain;
             display: block;
         }

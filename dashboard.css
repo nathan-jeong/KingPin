@@ -60,32 +60,14 @@ body {
     width: 250px; 
     background-color: rgba(5, 5, 5, 0.8); 
     backdrop-filter: blur(5px);
-    /* Changed padding to standard (removed the huge 130px top padding) */
-    padding: 20px; 
+    /* Padding adjusted for fixed logo positioning */
+    padding: 100px 20px 20px 20px; 
     border-right: 1px solid var(--kp-border); 
     flex-shrink: 0; 
-    /* Added Flex to stack Logo and Button vertically */
+    /* Added Flex to stack elements vertically */
     display: flex;
     flex-direction: column;
     gap: 15px;
-}
-
-/* Fixed Logo Link - No longer absolute */
-.logo-link {
-    display: block; 
-    /* 3:1 Aspect Ratio Sizing */
-    width: 100%; 
-    height: auto;
-    box-sizing: border-box;
-    position: relative; /* Changed from absolute */
-    margin: 0 0 10px 0; /* Reset margins */
-    z-index: 10;
-}
-
-.logo-link img {
-    width: 100%;
-    height: auto;
-    display: block;
 }
 
 /* Team Selector Button (New Style) */
