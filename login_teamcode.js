@@ -82,7 +82,7 @@ if (teamCodeForm) {
             
             // Redirect after short delay
             setTimeout(() => {
-                window.location.href = 'plyerViewTeamStats.html';
+                window.location.href = 'plyrViewTeamStats.html';
             }, 1500);
             
         } catch (error) {
