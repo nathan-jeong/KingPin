@@ -31,17 +31,17 @@ body {
 
 /* 3. Updated Card Logic - Replaces .stats-card with .kingpin-card features */
 .stats-card, .kingpin-card {
-    background: #d3d3d3;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     border-radius: 1.5rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    color: black;
+    color: white;
 }
 
 .stats-card:hover, .kingpin-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
 }
 
 /* 4. Functional UI Styling from target code */

@@ -133,16 +133,16 @@ function renderTeamTable(data) {
 
     data.forEach(player => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 cursor-pointer';
+        tr.className = 'hover:bg-gray-800 cursor-pointer';
         tr.innerHTML = `
-            <td class="px-3 py-3 md:px-6 whitespace-nowrap font-semibold text-gray-900">${player.name}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${player.graduationYear || '--'}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${player.matchesPlayed || 0}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${formatStat(player.game1Avg)}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${formatStat(player.game2Avg)}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${formatStat(player.game3Avg)}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${formatStat(player.totalWoodAvg)}</td>
-            <td class="px-3 py-3 md:px-6 text-center text-gray-700">${player.bestGame != null ? player.bestGame : '--'}</td>
+            <td class="px-3 py-3 md:px-6 whitespace-nowrap font-semibold text-white">${player.name}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${player.graduationYear || '--'}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${player.matchesPlayed || 0}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${formatStat(player.game1Avg)}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${formatStat(player.game2Avg)}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${formatStat(player.game3Avg)}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${formatStat(player.totalWoodAvg)}</td>
+            <td class="px-3 py-3 md:px-6 text-center text-gray-300">${player.bestGame != null ? player.bestGame : '--'}</td>
         `;
 
         tr.addEventListener('click', () => {

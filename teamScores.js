@@ -203,7 +203,7 @@ function renderTeamStats() {
 
     teamData.forEach(player => {
         const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-200 cursor-pointer'; 
+        row.className = 'hover:bg-gray-800 cursor-pointer'; 
         
         // Make row clickable to navigate to player scores page
         row.addEventListener('click', () => {
@@ -216,27 +216,27 @@ function renderTeamStats() {
 
         row.innerHTML = `
             <td class="px-3 py-4 whitespace-nowrap md:px-6">
-                <div class="text-sm font-medium text-gray-900">${player.displayName}</div>
+                <div class="text-sm font-medium text-white">${player.displayName}</div>
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.graduationYear)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${player.matchesPlayed}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.game1Avg)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.game2Avg)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.game3Avg)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.totalWoodAvg)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-700 md:px-6">
+            <td class="px-3 py-4 whitespace-nowrap text-center text-sm text-gray-300 md:px-6">
                 ${displayValue(player.bestGame > 0 ? player.bestGame : null)}
             </td>
         `;
