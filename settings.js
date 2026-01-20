@@ -49,18 +49,36 @@ if (emailInput) {
 }
 
 const schoolInput = document.getElementById('school-input');
-// We don't need to look for 'school' anymore because the username IS the school
 
-// Display saved school (from localStorage) if available
-if (schoolInput) {
-    // Since the UserID IS the school name, we just display the userId here
-    if (userId) {
-        schoolInput.value = userId;
-    }
-    // Make it look nicer by capitalizing it (if your IDs are lowercase)
-     if (userId) {
-        schoolInput.value = userId.charAt(0).toUpperCase() + userId.slice(1);
-     }
+// Fetch full user data to get username
+if (schoolInput && userId) {
+    fetch(`${API_BASE}/accounts/${userId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(async (response) => {
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `Server ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((userData) => {
+        // Extract username from user data and display it
+        if (userData.user.username) {
+            schoolInput.value = userData.user.username;
+        } else if (userId) {
+            // Fallback to userId if username not found
+            schoolInput.value = "Failed to load School";
+        }
+    })
+    .catch((err) => {
+        console.error('Failed to fetch user data:', err);
+        // Fallback to userId on error
+        if (userId) {
+            schoolInput.value = "Failed to load School";
+        }
+    });
     
     schoolInput.disabled = true;
 }
