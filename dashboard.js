@@ -342,7 +342,8 @@ function renderMatchList() {
     
     // Sort matches by date (newest first)
     const sortedMatches = [...cachedMatchSummaries].sort((a, b) => {
-        return b.dateValue - a.dateValue; // Descending (newest first)
+        const res = b.dateValue - a.dateValue;
+        return matchSortState.ascending ? res * -1 : res;
     });
     
     sortedMatches.forEach(m => {
