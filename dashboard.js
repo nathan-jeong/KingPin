@@ -10,12 +10,31 @@ let cachedPlayers = [];
 let cachedMatches = [];
 let cachedPlayerStats = [];
 let cachedMatchSummaries = [];
+let cachedLocations = [];
 let topSortState = { column: 'average', ascending: false };
 let matchSortState = { column: 'date', ascending: false };
+let matchFilterLocation = '';
 
 // Helper: treat zeros as "no score" and only count finite non-zero numbers
 function isCountedScore(s) {
     return s != null && Number.isFinite(s) && Number(s) !== 0;
+}
+
+// Display team code from team info
+async function displayTeamCode() {
+    if (!currentUserId || !currentTeamId) return;
+    try {
+        const response = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        const team = data.team || data;
+        const codeDisplay = document.getElementById('team-code-value');
+        if (codeDisplay && team.code) {
+            codeDisplay.textContent = team.code;
+        }
+    } catch (error) {
+        console.error('Error fetching team code:', error);
+    }
 }
 
 // 1. Sidebar Toggle Logic
@@ -38,6 +57,7 @@ async function fetchAndDisplayAwards() {
         const data = await response.json();
         const team = data.team || data;
         renderAwardsList(team.awardsList || []);
+        displayTeamCode();
     } catch (error) {
         console.error('Error fetching awards:', error);
         displayEmptyAwards();
@@ -143,9 +163,10 @@ function getCurrentAwards() {
 async function loadTeamData() {
     if (!currentUserId || !currentTeamId) return;
     try {
-        const [pResp, mResp] = await Promise.all([
+        const [pResp, mResp, locResp] = await Promise.all([
             fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`),
-            fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`)
+            fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`),
+            fetchUserLocations()
         ]);
         
         const pData = await pResp.json();
@@ -153,13 +174,16 @@ async function loadTeamData() {
 
         cachedPlayers = pData.players || [];
         cachedMatches = mData.matches || [];
+        cachedLocations = Array.isArray(locResp) ? locResp : (locResp.locations || []);
         cachedPlayerStats = calculatePlayerAverages(cachedPlayers, cachedMatches);
         cachedMatchSummaries = buildMatchSummaries(cachedMatches);
 
         renderTopScorers(cachedPlayerStats);
+        populateLocationFilter();
         renderMatchList();
     } catch (err) { console.error("Load Failed", err); }
 }
+
 
 function calculatePlayerAverages(players, matches) {
     const playerStats = {};
@@ -190,7 +214,18 @@ function buildMatchSummaries(matches) {
                 if (p?.games) Object.values(p.games).forEach(g => { wood += (g.Wood || g.Score || 0); });
             });
         }
-        return { matchId: m.matchId || m.id, name: m.opposingTeamName || m.comment || 'Match', dateValue: m.date ? new Date(m.date).getTime() : 0, displayDate: m.date ? new Date(m.date).toLocaleDateString() : 'TBD', totalWood: wood };
+        // Get win/loss status: if teamWonMatch is null, default to "W"
+        const result = m.teamWonMatch === false ? 'L' : 'W';
+        
+        return { 
+            matchId: m.matchId || m.id, 
+            name: m.opposingTeamName || m.comment || 'Match', 
+            dateValue: m.date ? new Date(m.date).getTime() : 0, 
+            displayDate: m.date ? new Date(m.date).toLocaleDateString() : 'TBD', 
+            totalWood: wood,
+            location: m.location || 'Unknown',
+            result: result
+        };
     });
 }
 
@@ -338,20 +373,48 @@ function renderTopScorers(stats) {
 function renderMatchList() {
     const list = document.getElementById('match-list');
     if (!list) return;
-    list.innerHTML = cachedMatchSummaries.length ? '' : '<div class="empty-row">No matches found</div>';
     
-    // Sort matches by date (newest first)
-    const sortedMatches = [...cachedMatchSummaries].sort((a, b) => {
-        const res = a.dateValue - b.dateValue;
-        return matchSortState.ascending ? res : res * -1;
+    // Filter matches by location
+    let filtered = cachedMatchSummaries.filter(m => {
+        if (!matchFilterLocation) return true;
+        return m.location === matchFilterLocation;
     });
     
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-row">No matches found</div>';
+        return;
+    }
+    
+    // Sort matches based on selected sort option
+    const sortedMatches = [...filtered].sort((a, b) => {
+        const sortBy = document.getElementById('sort-by')?.value || 'date-desc';
+        
+        if (sortBy === 'date-desc') {
+            return b.dateValue - a.dateValue;
+        } else if (sortBy === 'date-asc') {
+            return a.dateValue - b.dateValue;
+        } else if (sortBy === 'score-desc') {
+            return b.totalWood - a.totalWood;
+        } else if (sortBy === 'score-asc') {
+            return a.totalWood - b.totalWood;
+        }
+        return 0;
+    });
+    
+    list.innerHTML = '';
     sortedMatches.forEach(m => {
         const row = document.createElement('div');
         row.className = 'match-row';
         row.innerHTML = `
-            <div class="match-info"><a class="match-name" href="#" data-id="${m.matchId}">${m.name}</a></div>
-            <div class="match-meta"><span class="match-pill">${m.displayDate}</span><span class="match-pill">Wood: ${m.totalWood}</span></div>
+            <div class="match-info">
+                <a class="match-name" href="#" data-id="${m.matchId}">${m.name}</a>
+                <div class="match-subtext">${m.location}</div>
+            </div>
+            <div class="match-meta">
+                <span class="match-pill">${m.displayDate}</span>
+                <span class="match-pill">Wood: ${m.totalWood}</span>
+                <span class="match-pill" style="font-weight: bold; color: ${m.result === 'W' ? '#4CAF50' : '#F44336'};">${m.result}</span>
+            </div>
         `;
         list.appendChild(row);
         
@@ -367,6 +430,45 @@ function renderMatchList() {
     });
 }
 
+// Populate location filter dropdown
+function populateLocationFilter() {
+    const locationFilter = document.getElementById('location-filter');
+    if (!locationFilter) return;
+    
+    // Keep the "All Locations" option, remove existing location options, and add new ones
+    const firstOption = locationFilter.options[0];
+    locationFilter.innerHTML = '';
+    locationFilter.appendChild(firstOption);
+    
+    // Add all user locations from cachedLocations
+    cachedLocations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location;
+        option.textContent = location;
+        locationFilter.appendChild(option);
+    });
+}
+
+// Fetch locations from API
+async function fetchUserLocations() {
+    if (!currentUserId) {
+        console.warn('No userId available to fetch locations');
+        return [];
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/accounts/${currentUserId}/locations`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch locations: ${response.status}`);
+        }
+        const data = await response.json();
+        return data.locations || [];
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+        return [];
+    }
+}
+
 // ------------------------------------------------------------------
 // INITIALIZATION & MODAL SYSTEM
 // ------------------------------------------------------------------
@@ -374,6 +476,23 @@ function renderMatchList() {
 document.addEventListener('DOMContentLoaded', () => {
     loadTeamData();
     fetchAndDisplayAwards();
+
+    // Setup match filter and sort controls
+    const locationFilter = document.getElementById('location-filter');
+    const sortBy = document.getElementById('sort-by');
+    
+    if (locationFilter) {
+        locationFilter.addEventListener('change', (e) => {
+            matchFilterLocation = e.target.value;
+            renderMatchList();
+        });
+    }
+    
+    if (sortBy) {
+        sortBy.addEventListener('change', () => {
+            renderMatchList();
+        });
+    }
 
     // Consolidated Modal Helper
     const setupModal = (trigger, modalId, closeClass) => {
