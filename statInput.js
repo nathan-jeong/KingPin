@@ -299,7 +299,7 @@ async function submitMatch() {
     const matchPayload = {
         password,
         opposingTeamName: opponent,
-        date: date ? new Date(date).getTime() : Date.now(),
+        date: date ? new Date(date + 'T12:00:00').getTime() : Date.now(),
         comment: `Location: ${location}` + (comment ? `\n${comment}` : '') + `\nTeamScore:${score}`
     };
 
