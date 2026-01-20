@@ -1,29 +1,128 @@
-/* Custom font import (Inter is standard) */
+/* 1. Custom font import preserved from original */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-body {
+
+body { 
     font-family: 'Inter', sans-serif;
-    /* Set background to black as requested in the original code */
-    background-color: #000000; 
-}
-.stats-card {
-    /* Tailwind's utility classes are primarily used in HTML, but this custom shadow/transition is kept here */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-.stats-card:hover {
-    transform: translateY(-2px);
+    background-color: #050505;
+    /* Diagonal stripe pattern from target code */
+    background-image: repeating-linear-gradient(
+        45deg,
+        #111 0,
+        #111 2px,
+        #000 2px,
+        #000 10px
+    );
+    min-height: 100vh;
+    color: white;
 }
 
-/* Logo responsive styling - matched to settings page */
+/* 2. Original Logo Logic - Integrated with new theme */
 .logo-link img {
     width: 250px;
     height: auto;
     transition: width 0.3s ease;
 }
 
-/* Responsive adjustments */
 @media (max-width: 630px) {
     .logo-link img {
         width: 150px;
     }
+}
+
+/* 3. Updated Card Logic - Replaces .stats-card with .kingpin-card features */
+.stats-card, .kingpin-card {
+    background: #d3d3d3;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    border-radius: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: black;
+}
+
+.stats-card:hover, .kingpin-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 4. Functional UI Styling from target code */
+
+/* Remove spinners from number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ensure calendar icon is light */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #111; 
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #333; 
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+/* Input Styling */
+.kingpin-input {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 0.5rem;
+    color: rgb(255, 255, 255);
+    padding: 0.5rem 0.75rem; /* Added padding for usability */
+    transition: all 0.2s;
+}
+.kingpin-input:focus {
+    border-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.kingpin-input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Button - High Contrast White */
+.kingpin-btn {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: transform 0.1s ease, background-color 0.2s;
+    cursor: pointer;
+}
+.kingpin-btn:hover {
+    background-color: #e5e5e5;
+    transform: scale(1.02);
+}
+.kingpin-btn:active {
+    transform: scale(0.98);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
