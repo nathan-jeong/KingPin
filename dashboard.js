@@ -340,7 +340,12 @@ function renderMatchList() {
     if (!list) return;
     list.innerHTML = cachedMatchSummaries.length ? '' : '<div class="empty-row">No matches found</div>';
     
-    cachedMatchSummaries.forEach(m => {
+    // Sort matches by date (newest first)
+    const sortedMatches = [...cachedMatchSummaries].sort((a, b) => {
+        return b.dateValue - a.dateValue; // Descending (newest first)
+    });
+    
+    sortedMatches.forEach(m => {
         const row = document.createElement('div');
         row.className = 'match-row';
         row.innerHTML = `
