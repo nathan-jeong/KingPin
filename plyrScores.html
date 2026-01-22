@@ -9,67 +9,67 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="plyrScores.css">
 </head>
-<body class="bg-black dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen p-4 sm:p-8">
+<body class="text-white min-h-screen p-4 sm:p-8">
 
-    <!-- Logo in top left corner -->
-    <a href="teamSelector.html" class="logo-link">
-        <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo" class="logo-img">
-    </a>
-
-    <div id="app" class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-extrabold mb-6 text-center text-white dark:text-white">
+    <div class="max-w-6xl mx-auto flex items-center gap-4 mb-8">
+        <a href="teamSelector.html" class="logo-link">
+            <img src="KINGPIN_logo_transparent.svg" alt="KingPin Logo" class="w-48 sm:w-64">
+        </a>
+        <h1 class="text-2xl sm:text-4xl font-black tracking-tight">
             Individual Player Stats Page
         </h1>
+    </div>
 
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+    <div id="app" class="max-w-6xl mx-auto">
+        
+        <div class="bg-[#0f1117]/90 border border-white/10 p-8 rounded-2xl shadow-2xl mb-10">
             
-            <div class="border-b pb-2 mb-4 border-white dark:border-white text-center">
-                <h2 class="text-2xl font-semibold">
-                    <span id="player-name"></span>
+            <div class="border-b border-white/10 pb-4 mb-8">
+                <h2 class="text-xl font-bold text-gray-400 uppercase tracking-widest text-center">
+                    <span id="player-name" class="text-white">Player Name</span>
                 </h2>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mt-4 text-center" id="overall-stats-grid">
-                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 shadow-sm">
-                    <div class="text-xs uppercase font-medium text-gray-500 dark:text-gray-400">G1 Avg</div>
-                    <div id="g1-avg-value" class="text-xl font-bold text-black dark:text-black">--</div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="overall-stats-grid">
+                <div class="bg-[#1e232d] border border-white/5 p-4 rounded-xl text-center shadow-inner">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-tighter mb-2">G1 Avg</div>
+                    <div id="g1-avg-value" class="text-2xl font-black">--</div>
                 </div>
-                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 shadow-sm">
-                    <div class="text-xs uppercase font-medium text-gray-500 dark:text-gray-400">G2 Avg</div>
-                    <div id="g2-avg-value" class="text-xl font-bold text-black dark:text-black">--</div>
+                <div class="bg-[#1e232d] border border-white/5 p-4 rounded-xl text-center shadow-inner">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-tighter mb-2">G2 Avg</div>
+                    <div id="g2-avg-value" class="text-2xl font-black">--</div>
                 </div>
-                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 shadow-sm">
-                    <div class="text-xs uppercase font-medium text-gray-500 dark:text-gray-400">G3 Avg</div>
-                    <div id="g3-avg-value" class="text-xl font-bold text-black dark:text-black">--</div>
+                <div class="bg-[#1e232d] border border-white/5 p-4 rounded-xl text-center shadow-inner">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-tighter mb-2">G3 Avg</div>
+                    <div id="g3-avg-value" class="text-2xl font-black">--</div>
                 </div>
-                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 shadow-sm">
-                    <div class="text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Season Avg</div>
-                    <div id="overall-avg-value" class="text-xl font-bold text-black dark:text-black">--</div>
+                <div class="bg-[#1e232d] border border-white/5 p-4 rounded-xl text-center shadow-inner">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-tighter mb-2">Season Avg</div>
+                    <div id="overall-avg-value" class="text-2xl font-black">--</div>
                 </div>
-                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-700 shadow-sm">
-                    <div class="text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Total Wood</div>
-                    <div id="total-wood-value" class="text-xl font-bold text-black dark:text-black">--</div>
+                <div class="bg-[#1e232d] border border-white/5 p-4 rounded-xl text-center shadow-inner">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-tighter mb-2">Total Wood</div>
+                    <div id="total-wood-value" class="text-2xl font-black">--</div>
                 </div>
             </div>
         </div>
 
-        <div class="hidden sm:grid grid-cols-12 gap-2 font-bold text-xs uppercase text-white dark:text-white border-b-2 border-white dark:border-white py-2 mb-2 tracking-wider select-none">
-            <div id="sort-name" class="col-span-4 cursor-pointer hover:text-indigo-200">Match Name ↕</div>
+        <div class="hidden sm:grid grid-cols-12 gap-2 font-black text-[11px] uppercase text-white border-b border-white/20 pb-3 mb-4 px-2 tracking-widest">
+            <div id="sort-name" class="col-span-4 cursor-pointer hover:text-gray-400">Match Name ↕</div>
             <div class="col-span-1 text-center">Notes</div>
-            <div id="sort-date" class="col-span-2 text-center cursor-pointer hover:text-indigo-200">Date ↕</div>
-            <div id="sort-g1" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G1 ↕</div>
-            <div id="sort-g2" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G2 ↕</div>
-            <div id="sort-g3" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">G3 ↕</div>
-            <div id="sort-series" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">Series ↕</div>
-            <div id="sort-avg" class="col-span-1 text-center cursor-pointer hover:text-indigo-200">Avg ↕</div>
+            <div id="sort-date" class="col-span-2 text-center cursor-pointer hover:text-gray-400">Date ↕</div>
+            <div id="sort-g1" class="col-span-1 text-center cursor-pointer hover:text-gray-400">G1 ↕</div>
+            <div id="sort-g2" class="col-span-1 text-center cursor-pointer hover:text-gray-400">G2 ↕</div>
+            <div id="sort-g3" class="col-span-1 text-center cursor-pointer hover:text-gray-400">G3 ↕</div>
+            <div id="sort-series" class="col-span-1 text-center cursor-pointer hover:text-gray-400">Series ↕</div>
+            <div id="sort-avg" class="col-span-1 text-center cursor-pointer hover:text-gray-400">Avg ↕</div>
         </div>
 
-        <div id="match-list" class="scroll-container max-h-[60vh] overflow-y-auto space-y-2 sm:space-y-0 pr-1">
+        <div id="match-list" class="scroll-container max-h-[50vh] overflow-y-auto space-y-2 pr-2">
             </div>
         
-        <!-- Navigation Buttons -->
-        <div class="flex justify-between items-center mt-8">
-            <button id="back-to-dashboard-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl shadow-xl transition transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-white">
+        <div class="mt-10">
+            <button id="back-to-dashboard-btn" class="bg-[#2d3343] hover:bg-[#3d4458] text-white font-bold py-3 px-8 rounded-xl shadow-lg border border-white/10 transition-all active:scale-95">
                 Back to Dashboard
             </button>
         </div>
