@@ -1,48 +1,58 @@
-:root {
-    font-family: 'Inter', sans-serif;
-}
-/* Custom scrollbar styling for the match list */
-.scroll-container::-webkit-scrollbar {
-    width: 8px;
-}
-.scroll-container::-webkit-scrollbar-thumb {
-    background-color: #FFFFFF; /* gray-400 */
-    border-radius: 4px;
-}
-.scroll-container::-webkit-scrollbar-track {
-    background-color: #000000; /* gray-100 */
-}
-@media (prefers-color-scheme: dark) {
-    .scroll-container::-webkit-scrollbar-thumb {
-        background-color: #000000; /* gray-600 */
-    }
-    .scroll-container::-webkit-scrollbar-track {
-        background-color: #000000; /* gray-800 */
-    }
+/* Custom font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body { 
+    font-family: 'Inter', sans-serif !important;
+    background-color: #050505 !important;
+    /* The Diagonal Stripe Pattern */
+    background-image: repeating-linear-gradient(
+        45deg,
+        #111 0,
+        #111 2px,
+        #000 2px,
+        #000 10px
+    ) !important;
+    color: white !important;
+    min-height: 100vh;
+    margin: 0;
 }
 
-/* Logo styling */
-.logo-link {
-    display: block;
-    position: fixed;
-    top: 5px;
-    left: 5px;
-    z-index: 1000;
-    padding: 4px;
-    border-radius: 6px;
+/* The Main Container Card */
+.kingpin-card {
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    border-radius: 1.5rem;
+}
+
+/* Stats Boxes inside the card */
+.stat-box {
+    background-color: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+}
+
+/* Button Styling */
+.kingpin-btn {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 700;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    cursor: pointer;
 }
 
-.logo-link:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background-color: rgba(255, 255, 255, 0.05);
+.kingpin-btn:hover {
+    background-color: #e5e5e5;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
 }
 
-.logo-link img,
-.logo-img {
-    width: 240px;
-    height: 82px;
-    object-fit: contain;
-    display: block;
+/* Logo Sizing */
+.logo-link img {
+    width: 250px;
+    height: auto;
+}
+
+@media (max-width: 630px) {
+    .logo-link img { width: 150px; }
 }
