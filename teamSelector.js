@@ -161,10 +161,10 @@ async function handleDeleteTeam(teamId, teamDisplayName) {
 
     try {
         const userId = localStorage.getItem('userId');
-        const password = localStorage.getItem('password');
+        const password = localStorage.getItem('password') || '';
 
-        if (!userId || !password) {
-            alert('Error: User credentials not found. Please log in again.');
+        if (!userId) {
+            alert('Error: User ID not found. Please log in again.');
             return;
         }
 
@@ -288,6 +288,11 @@ async function handleSubmitNewTeam(e) {
 
         renderTeams(currentTeamsData);
         hideModal();
+        
+        // Reload the page to refresh the team list
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
         
     } catch (error) {
         console.error("Error adding team: ", error);
