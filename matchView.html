@@ -48,6 +48,11 @@
                 </button>
             </div>
 
+            <!-- Win/Loss Result Badge -->
+            <div id="match-result-badge" class="mt-3 hidden">
+                <span id="result-badge-content" class="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest"></span>
+            </div>
+
             <div class="mt-6 flex items-center gap-6 px-6 py-2 bg-[#111111] rounded-full border border-[#222222] shadow-sm text-sm">
                 <div class="flex items-center gap-2">
                     <span class="text-slate-500 font-semibold uppercase text-[10px] tracking-wider">Date:</span>
@@ -82,6 +87,13 @@
                     <tbody id="player-rows" class="text-slate-300">
                         </tbody>
                     <tfoot>
+                        <tr class="bg-[#151515] text-slate-400 border-t border-[#222222] text-sm">
+                            <td class="py-3 px-6 font-semibold">Game Averages:</td>
+                            <td class="py-3 px-4 text-center font-bold" id="game1-avg">0.0</td>
+                            <td class="py-3 px-4 text-center font-bold" id="game2-avg">0.0</td>
+                            <td class="py-3 px-4 text-center font-bold" id="game3-avg">0.0</td>
+                            <td class="py-3 px-4 text-center" colspan="2"></td>
+                        </tr>
                         <tr class="bg-[#1a1a1a] font-bold text-white border-t-2 border-[#222222]">
                             <td class="py-4 px-6 text-right" colspan="4">Team Scratch Total:</td>
                             <td class="py-4 px-4 text-center" id="team-series-total">0</td>
@@ -90,6 +102,17 @@
                     </tfoot>
                 </table>
             </div>
+        </div>
+
+        <!-- Match Comments Section -->
+        <div id="match-comments-section" class="mt-6 stat-card border border-[#222222] p-6 hidden">
+            <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Match Notes
+            </h3>
+            <div id="match-comments-content" class="text-slate-300 whitespace-pre-wrap leading-relaxed"></div>
         </div>
     </div>
 
