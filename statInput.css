@@ -92,14 +92,6 @@ input[type="date"] {
     animation: spin 0.8s linear infinite;
 }
 
-/* Bowling Ball Spinner */
-.bowling-ball-spinner {
-    margin: 0 auto;
-    animation: spin 1.2s linear infinite;
-    display: inline-block;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-}
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
