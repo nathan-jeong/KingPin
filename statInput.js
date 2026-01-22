@@ -1,420 +1,464 @@
-// --- API Configuration and Backend Hooks ---
-// ⚠️ TEMPLATE: Replace these with your actual backend URLs and logic
-const API_BASE_URL = 'https://kingpin-backend-production.up.railway.app';
+// --- Loading Overlay Functions ---
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
 
-/**
- * Fetches the list of teams from a backend API.
- */
-async function fetchTeamsFromBackend() {
-    console.log("Fetching teams from backend...");
-    try {
-        const userId = localStorage.getItem('userId');
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
 
-        if (!userId) {
-            console.warn("No userId found in localStorage. Cannot fetch teams.");
-            return [];
-        }
+// --- State ---
+const API_BASE = 'https://kingpin-backend-production.up.railway.app';
+let container, teamScoreDisplay, opponentInput, opponentError;
+let locationSelect, customLocationInput, locationError;
+let dateInput, rowTemplate, commentInput;
 
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+// Fallback roster if backend unavailable
+const PRESET_ROSTER = [
+    "John Doe",
+    "Jane Smith",
+    "Mike Johnson",
+    "Sarah Williams",
+    "Chris Brown",
+    "Pat Taylor"
+];
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+let currentUserId = localStorage.getItem('userId');
+let currentTeamId = localStorage.getItem('teamId');
 
-        const teamsData = await response.json();
-        console.log("Teams fetched successfully:", teamsData);
-        
-        if (teamsData.teams && Array.isArray(teamsData.teams)) {
-            return teamsData.teams;
-        }
-        if (Array.isArray(teamsData)) {
-            return teamsData;
-        }
-        console.warn("Response is not in expected format:", teamsData);
+// --- Location Management ---
+let userLocations = []; // Cached locations from API
+
+async function fetchLocationsFromAPI() {
+    if (!currentUserId) {
+        console.warn('No userId available to fetch locations');
         return [];
+    }
+    
+    try {
+        const resp = await fetch(`${API_BASE}/accounts/${currentUserId}/locations`);
+        if (!resp.ok) {
+            throw new Error(`Failed to fetch locations: ${resp.status}`);
+        }
+        const data = await resp.json();
+        return data.locations || [];
+    } catch (err) {
+        console.error('Error fetching locations:', err);
+        return [];
+    }
+}
 
-    } catch (error) {
-        console.error("Could not fetch teams:", error);
-        return []; 
+async function createLocationViaAPI(locationName) {
+    if (!currentUserId || !locationName) {
+        throw new Error('Missing userId or location name');
+    }
+    
+    const encodedLocation = encodeURIComponent(locationName.trim());
+    const resp = await fetch(`${API_BASE}/accounts/${currentUserId}/locations?location=${encodedLocation}`);
+    
+    if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`Failed to create location: ${resp.status} ${txt}`);
+    }
+    
+    const data = await resp.json();
+    return data.locations || [];
+}
+
+async function loadAndPopulateLocations() {
+    userLocations = await fetchLocationsFromAPI();
+    populateLocationDropdown();
+}
+
+function populateLocationDropdown() {
+    const select = locationSelect;
+    
+    // Clear all options except the first one (blank) and last one (Custom)
+    // We'll rebuild the options list
+    const firstOption = select.options[0]; // "Select location..." option
+    select.innerHTML = '';
+    select.appendChild(firstOption);
+    
+    // Add all user locations from API
+    userLocations.forEach(loc => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        select.appendChild(option);
+    });
+    
+    // Add the "Custom..." option at the end
+    const customOption = document.createElement('option');
+    customOption.value = '__custom__';
+    customOption.textContent = 'Custom...';
+    select.appendChild(customOption);
+}
+
+function getSelectedLocation() {
+    if (locationSelect.value === '__custom__') {
+        return customLocationInput.value.trim();
+    }
+    return locationSelect.value;
+}
+
+// --- Functions ---
+
+/**
+ * Handles navigation back to the dashboard.
+ */
+function goToDashboard() {
+    // Logic to return to dashboard
+    console.log("Navigating to dashboard...");
+    if(confirm("Return to Dashboard? Unsaved progress will be lost.")) {
+        // window.location.href = '/dashboard'; 
     }
 }
 
 /**
- * Saves a new team object to the backend API.
+ * Adds a new player row to the container based on the template.
+ * @param {string} name - The name of the player.
  */
-async function saveNewTeamToBackend(newTeam) {
-    console.log("Saving new team to backend:", newTeam);
-    try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-            throw new Error('User ID not found. Please log in first.');
-        }
+function addPlayerRow(player) {
+    // player can be a string (name) or object { playerId, displayName }
+    const clone = rowTemplate.content.cloneNode(true);
+    const row = clone.querySelector('.player-row');
 
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newTeam),
+    // Determine name and id
+    let name = typeof player === 'string' ? player : (player.displayName || 'Unknown');
+    const playerId = typeof player === 'string' ? null : (player.playerId || '');
+
+    // Set the name and player-id
+    const nameInput = row.querySelector('.player-name-input');
+    nameInput.value = name;
+    if (playerId) row.setAttribute('data-player-id', playerId);
+
+    // Attach event listeners to the score inputs
+    const inputs = row.querySelectorAll('.score-input');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            updateRowTotal(row);
+            updateTeamScore();
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server ${response.status}: ${errorText || response.statusText}`);
-        }
-
-        const savedTeam = await response.json();
-        console.log("Team saved successfully:", savedTeam);
-        return savedTeam; 
-    } catch (error) {
-        console.error("Could not save new team:", error);
-        throw error;
-    }
-}
-
-// --- DOM Elements ---
-const scrollContainer = document.getElementById('team-scroll-container');
-const ballIndicator = document.getElementById('ball-indicator');
-const track = ballIndicator ? ballIndicator.parentElement : null; 
-const modal = document.getElementById('team-modal');
-const openModalBtn = document.getElementById('open-modal-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const newTeamForm = document.getElementById('new-team-form');
-const submissionMessage = document.getElementById('submission-message');
-
-let isDragging = false;
-let currentTeamsData = []; 
-
-// --- Data Handling ---
-
-function extractYearFromDisplayName(displayName) {
-    if (!displayName) return 0;
-    const match = displayName.match(/\((\d{4})\)/);
-    return match ? parseInt(match[1], 10) : 0;
-}
-
-function renderTeams(currentTeams) {
-    scrollContainer.innerHTML = ''; 
-
-    if (currentTeams.length === 0) {
-        // UPDATED: Styling to match Dark Mode CSS
-        scrollContainer.innerHTML = `
-            <div class="team-card flex-shrink-0 w-64 h-80 flex flex-col justify-center items-center text-center opacity-70">
-                <p class="text-xl font-medium text-gray-300">No teams yet!</p>
-                <p class="text-sm text-gray-500 mt-2">Click 'Create New League/Team' to start.</p>
-            </div>
-        `;
-    } 
-    
-    currentTeams.forEach(team => {
-        const card = document.createElement('div');
-        
-        // UPDATED: Removed bg-white, border-gray, shadow-lg. 
-        // We rely on the CSS class .team-card for colors and borders.
-        card.className = "team-card flex-shrink-0 w-64 h-80 flex flex-col justify-center items-center text-center relative";
-        
-        card.dataset.teamId = team.teamId;
-        card.dataset.displayName = team.displayName || 'Untitled Team';
-        
-        card.innerHTML = `
-            <button class="delete-team-btn absolute top-2 right-2 text-gray-500 hover:text-white font-bold text-2xl transition-colors z-10" aria-label="Delete team">
-                ×
-            </button>
-            <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
-        `;
-        scrollContainer.appendChild(card);
-
-        // Attach click listener for selection
-        card.addEventListener('click', handleTeamCardClick);
-        
-        // Attach delete button listener
-        const deleteBtn = card.querySelector('.delete-team-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent card click event
-                handleDeleteTeam(team.teamId, team.displayName);
-            });
-        }
     });
 
-    const padding = document.createElement('div');
-    padding.className = 'flex-shrink-0 w-4 h-1';
-    scrollContainer.appendChild(padding);
-    
-    const teamCountNumber = document.getElementById('team-count-number');
-    if (teamCountNumber) {
-        teamCountNumber.textContent = currentTeams.length;
-    }
-    updateBallPosition(); 
-}
-
-// --- Event Handlers ---
-
-async function handleDeleteTeam(teamId, teamDisplayName) {
-    const confirmed = confirm(`Are you sure you want to delete "${teamDisplayName}"? This action cannot be undone.`);
-    if (!confirmed) return;
-
-    try {
-        const userId = localStorage.getItem('userId');
-        const password = localStorage.getItem('password') || '';
-
-        if (!userId) {
-            alert('Error: User ID not found. Please log in again.');
-            return;
-        }
-
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams/${teamId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ password })
+    // Absence checkbox (new): toggles row appearance and disables inputs when absent
+    const absence = row.querySelector('.absence-checkbox');
+    if (absence) {
+        absence.addEventListener('change', () => {
+            const isAbsent = !!absence.checked;
+            row.classList.toggle('opacity-60', isAbsent);
+            // Disable score inputs when absent to avoid accidental edits
+            row.querySelectorAll('.score-input').forEach(inp => inp.disabled = isAbsent);
         });
+    }
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server ${response.status}: ${errorText || response.statusText}`);
+    // Varsity checkbox doesn't affect totals but keep an accessible attribute
+    const varsity = row.querySelector('.varsity-checkbox');
+    if (varsity) {
+        varsity.addEventListener('change', () => {
+            row.classList.toggle('opacity-90', varsity.checked);
+        });
+    }
+
+    container.appendChild(clone);
+}
+
+/**
+ * Calculates the total score for a single player row and updates the display.
+ * @param {HTMLElement} rowElement - The player row element.
+ */
+function updateRowTotal(rowElement) {
+    const inputs = rowElement.querySelectorAll('.score-input');
+    const totalDisplay = rowElement.querySelector('.player-total');
+    let rowSum = 0;
+
+    inputs.forEach(input => {
+        // Sum numeric values; blank or invalid -> treated as 0 for totals
+        const val = +input.value || 0;
+        rowSum += val;
+    });
+
+    totalDisplay.textContent = rowSum;
+}
+
+/**
+ * Calculates the grand total score for the entire team and updates the display.
+ */
+function updateTeamScore() {
+    const allInputs = document.querySelectorAll('.score-input');
+    let totalScore = 0;
+
+    allInputs.forEach(input => {
+        const val = +input.value || 0;
+        totalScore += val;
+    });
+
+    teamScoreDisplay.textContent = totalScore;
+}
+
+/**
+ * Validates the form data, collects match results, and simulates submission.
+ */
+async function submitMatch() {
+    const opponent = opponentInput.value.trim();
+    const location = getSelectedLocation();
+    const date = dateInput.value;
+    const comment = commentInput ? commentInput.value.trim() : '';
+    const score = +teamScoreDisplay.textContent || 0;
+    const teamWon = document.getElementById('team-won-checkbox')?.checked || false;
+    
+    // Reset Error States
+    let hasError = false;
+    opponentInput.classList.remove('kingpin-input-error');
+    opponentError.classList.add('hidden');
+    locationSelect.classList.remove('kingpin-input-error');
+    customLocationInput.classList.remove('kingpin-input-error');
+    locationError.classList.add('hidden');
+
+    // Validate Opponent
+    if (!opponent) {
+        opponentInput.classList.add('kingpin-input-error');
+        opponentError.classList.remove('hidden');
+        hasError = true;
+        opponentInput.focus();
+    }
+    
+    // Validate Location
+    if (!location) {
+        if (locationSelect.value === '__custom__') {
+            customLocationInput.classList.add('kingpin-input-error');
+        } else {
+            locationSelect.classList.add('kingpin-input-error');
         }
-
-        console.log(`Team ${teamId} deleted successfully`);
-        currentTeamsData = currentTeamsData.filter(team => team.teamId !== teamId);
-        renderTeams(currentTeamsData);
-
-    } catch (error) {
-        console.error('Error deleting team:', error);
-        alert(`Failed to delete team: ${error.message}`);
+        locationError.classList.remove('hidden');
+        hasError = true;
+        if (!opponent) locationSelect.focus();
     }
-}
 
-function handleTeamCardClick(event) {
-    const card = event.currentTarget;
-    
-    // UPDATED: Only use 'selected'. The CSS handles the border color change.
-    document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    
-    const teamName = card.dataset.displayName || card.querySelector('p:first-child').textContent;
-    const teamId = card.dataset.teamId;
-    console.log(`Team Selected: ${teamName} (${teamId})`);
-    
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-
-    localStorage.setItem('teamId', teamId);
-    localStorage.setItem('teamDisplayName', teamName);
-    window.location.href = "dashboard.html";
-}
-
-// --- Modal Logic ---
-
-function showModal() {
-    if (modal) {
-        modal.classList.remove('hidden');
-    }
-    if (submissionMessage) {
-        submissionMessage.classList.add('hidden');
-    }
-}
-
-function hideModal() {
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    if (newTeamForm) {
-        newTeamForm.reset();
-    }
-}
-
-async function handleSubmitNewTeam(e) { 
-    e.preventDefault();
-    
-    const teamNameInput = document.getElementById('team-name');
-    const teamYearInput = document.getElementById('team-year');
-    const submitButton = document.getElementById('submit-team-btn');
-    
-    const name = teamNameInput.value.trim();
-    const year = parseInt(teamYearInput.value, 10);
-    
-    if (!name || isNaN(year)) {
-        if (submissionMessage) {
-            submissionMessage.textContent = "Please enter a valid Team Name and Year.";
-            submissionMessage.classList.remove('hidden');
-        }
+    if (hasError) {
+        alert("Please fill in the required fields highlighted in red.");
         return;
     }
 
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Adding...';
-    }
-    if (submissionMessage) {
-        submissionMessage.classList.add('hidden');
+    // Collect rows and build per-player payloads
+    const rows = document.querySelectorAll('.player-row');
+    const playerEntries = [];
+    rows.forEach(row => {
+        const playerId = row.getAttribute('data-player-id');
+        const name = row.querySelector('.player-name-input').value;
+        const isVarsity = !!row.querySelector('.varsity-checkbox')?.checked;
+        const gameScores = Array.from(row.querySelectorAll('.score-input')).map(input => {
+            const v = input.value;
+            return v === '' ? null : +v;
+        });
+
+        const absenceChecked = !!row.querySelector('.absence-checkbox')?.checked;
+
+        playerEntries.push({ playerId, name, isVarsity, gameScores, absent: absenceChecked });
+    });
+
+    if (!currentUserId || !currentTeamId) {
+        alert('Missing user or team context. Please login and select a team.');
+        return;
     }
 
-    try {
-        const userId = localStorage.getItem('userId');
-        const password = localStorage.getItem('password');
-        
-        if (!userId) {
-            if (submissionMessage) {
-                submissionMessage.textContent = "Error: User not logged in. Please log in first.";
-                submissionMessage.classList.remove('hidden');
-            }
+    const resultText = teamWon ? 'WON' : 'LOST';
+    if (!confirm(`Submit match vs ${opponent} at ${location} on ${date}?\nTeam Score: ${score}\nResult: ${resultText}`)) {
+        return;
+    }
+
+    // Show loading overlay
+    showLoading();
+
+    // If custom location, create it via API first
+    const isCustomLocation = locationSelect.value === '__custom__' && location;
+    
+    if (isCustomLocation) {
+        try {
+            console.log('[statInput] Creating new location via API:', location);
+            userLocations = await createLocationViaAPI(location);
+            populateLocationDropdown();
+            console.log('[statInput] Location created successfully');
+        } catch (err) {
+            console.error('Failed to create location:', err);
+            hideLoading();
+            alert('Failed to create location: ' + err.message);
             return;
         }
+    }
 
-        const newTeamPayload = {
-            password: password,
-            displayName: name + ' (' + year + ')'
-        };
+    // Build match create payload
+    const password = localStorage.getItem('password') || '';
 
-        const savedTeam = await saveNewTeamToBackend(newTeamPayload);
-        
-        if (!savedTeam.displayName) {
-            savedTeam.displayName = newTeamPayload.displayName;
+    const matchPayload = {
+        password,
+        opposingTeamName: opponent,
+        date: date ? new Date(date + 'T12:00:00').getTime() : Date.now(),
+        comment: `Location: ${location}` + (comment ? `\n${comment}` : '') + `\nTeamScore:${score}`,
+        location: location,
+        teamWonMatch: teamWon
+    };
+
+    // POST match then PUT per-player games
+    try {
+        const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(matchPayload)
+        });
+
+        if (!resp.ok) {
+            const txt = await resp.text();
+            throw new Error(`Create match failed: ${resp.status} ${txt}`);
         }
 
-        currentTeamsData.push(savedTeam);
-        
-        currentTeamsData.sort((a, b) => {
-            const yearA = extractYearFromDisplayName(a.displayName);
-            const yearB = extractYearFromDisplayName(b.displayName);
-            return yearB - yearA; 
-        }); 
+        const data = await resp.json();
+        const match = data.match || data;
+        const matchId = match.matchId || match.id;
 
-        renderTeams(currentTeamsData);
-        hideModal();
-        
-        // Reload the page to refresh the team list
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-        
-    } catch (error) {
-        console.error("Error adding team: ", error);
-        if (submissionMessage) {
-            submissionMessage.textContent = "Failed to add team. Please try again. Check console for details.";
-            submissionMessage.classList.remove('hidden');
+        if (!matchId) throw new Error('No matchId returned from server');
+
+        // Update match (attach location/teamScore/comment) using returned matchId before per-player uploads
+        try {
+            const updatePayload = { password, comment: matchPayload.comment, location: location, teamWonMatch: teamWon };
+            const updateResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatePayload)
+            });
+
+            if (!updateResp.ok) {
+                const ut = await updateResp.text();
+                console.warn('Match update (attach location/comment/teamWonMatch) failed:', updateResp.status, ut);
+            }
+        } catch (uErr) {
+            console.warn('Match update request failed:', uErr);
         }
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Submit Team';
+
+        // For each player, upload games (1..3)
+        for (const p of playerEntries) {
+            if (!p.playerId) continue; // skip rows without playerId
+
+            // If the player is marked absent, skip sending any data for them
+            if (p.absent) continue;
+
+            // Upload each game; if user left input blank we send 0 (original behavior)
+            for (let gi = 0; gi < 3; gi++) {
+                const val = p.gameScores[gi];
+                const scoreVal = val === null ? 0 : val;
+
+                const gamePayload = {
+                    password,
+                    Wood: scoreVal,
+                    Score: scoreVal,
+                    isVarsity: !!p.isVarsity
+                };
+
+                const gameIndex = gi + 1;
+                const putUrl = `${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}/players/${p.playerId}/games/${gameIndex}`;
+
+                console.log('[statInput] Uploading game', {
+                    player: p.name,
+                    playerId: p.playerId,
+                    matchId,
+                    gameIndex,
+                    payload: gamePayload,
+                    url: putUrl
+                });
+
+                const putResp = await fetch(putUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(gamePayload)
+                });
+
+                if (!putResp.ok) {
+                    const t = await putResp.text();
+                    console.warn('Game upload failed for', p.name, 'game', gameIndex, t);
+                }
+            }
         }
+
+        // On success, reset form
+        opponentInput.value = '';
+        locationSelect.value = '';
+        customLocationInput.value = '';
+        customLocationInput.classList.add('hidden');
+        if (commentInput) commentInput.value = '';
+        document.querySelectorAll('.score-input').forEach(input => input.value = '');
+        document.querySelectorAll('.player-total').forEach(total => total.textContent = '0');
+        updateTeamScore();
+
+        hideLoading();
+        alert('Match submitted successfully');
+    } catch (err) {
+        console.error('Submit match error:', err);
+        hideLoading();
+        alert('Failed to submit match: ' + err.message);
     }
 }
-
-if (openModalBtn) openModalBtn.addEventListener('click', showModal);
-if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
-if (newTeamForm) newTeamForm.addEventListener('submit', handleSubmitNewTeam);
-
-// --- Bowling Ball Drag and Scroll Logic ---
-
-function updateBallPosition() {
-    if (isDragging || !ballIndicator || !track) return;
-    
-    const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-    const scrollPosition = scrollContainer.scrollLeft;
-
-    if (scrollWidth > 0) {
-        const scrollPercent = scrollPosition / scrollWidth;
-        const maxTravel = track.clientWidth; 
-        const newLeft = (scrollPercent * maxTravel); 
-        
-        ballIndicator.style.left = `${Math.max(0, Math.min(maxTravel, newLeft))}px`;
-    } else {
-        ballIndicator.style.left = `0px`;
-    }
-}
-
-function startDrag(clientX) {
-    isDragging = true;
-    if (ballIndicator) {
-        // The CSS handles cursor: grabbing via :active or .grabbing
-        ballIndicator.classList.add('grabbing');
-    }
-}
-
-function doDrag(clientX) {
-    if (!isDragging || !ballIndicator || !track) return;
-    
-    const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-    if (maxScrollLeft <= 0) return;
-
-    const trackRect = track.getBoundingClientRect();
-    
-    let scrollRatio = (clientX - trackRect.left) / trackRect.width;
-    scrollRatio = Math.max(0, Math.min(1, scrollRatio));
-    
-    const newScrollLeft = scrollRatio * maxScrollLeft;
-    
-    scrollContainer.scrollLeft = newScrollLeft;
-    ballIndicator.style.left = `${scrollRatio * trackRect.width}px`;
-}
-
-function endDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-    if (ballIndicator) {
-        ballIndicator.classList.remove('grabbing');
-    }
-    updateBallPosition(); 
-}
-
-// Attach Drag/Scroll Listeners 
-if (ballIndicator) {
-    ballIndicator.addEventListener('mousedown', (e) => {
-        e.preventDefault(); 
-        startDrag(e.clientX);
-    });
-    window.addEventListener('mousemove', (e) => {
-        doDrag(e.clientX);
-    });
-    window.addEventListener('mouseup', () => {
-        endDrag();
-    });
-
-    ballIndicator.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        startDrag(touch.clientX);
-    }, { passive: true });
-    window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        doDrag(touch.clientX);
-    }, { passive: false });
-    window.addEventListener('touchend', () => {
-        endDrag();
-    });
-}
-
-if (scrollContainer) scrollContainer.addEventListener('scroll', updateBallPosition);
-window.addEventListener('resize', updateBallPosition);
 
 // --- Initialization ---
-
-async function initializeApp() { 
-    const fetchedTeams = await fetchTeamsFromBackend();
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize DOM elements
+    container = document.getElementById('player-rows-container');
+    teamScoreDisplay = document.getElementById('team-score-display');
+    opponentInput = document.getElementById('opponent-input');
+    opponentError = document.getElementById('opponent-error');
+    locationSelect = document.getElementById('location-select');
+    customLocationInput = document.getElementById('custom-location-input');
+    locationError = document.getElementById('location-error');
+    dateInput = document.getElementById('date-input');
+    rowTemplate = document.getElementById('player-row-template');
+    commentInput = document.getElementById('match-comment');
     
-    fetchedTeams.sort((a, b) => {
-        const yearA = extractYearFromDisplayName(a.displayName);
-        const yearB = extractYearFromDisplayName(b.displayName);
-        return yearB - yearA; 
-    }); 
+    // Set Default Date to Today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
     
-    currentTeamsData = fetchedTeams;
-    renderTeams(currentTeamsData);
+    // Load locations from API and populate dropdown
+    loadAndPopulateLocations();
+    
+    // Handle location dropdown change
+    locationSelect.addEventListener('change', () => {
+        if (locationSelect.value === '__custom__') {
+            customLocationInput.classList.remove('hidden');
+            customLocationInput.focus();
+        } else {
+            customLocationInput.classList.add('hidden');
+            customLocationInput.value = '';
+        }
+    });
 
-    const accountSettingsBtn = document.getElementById('account-settings-btn');
-    if (accountSettingsBtn) {
-        accountSettingsBtn.addEventListener('click', () => {
-            window.location.href = 'settings.html';
-        });
-    }
-}
+    // Fetch roster from backend and render alphabetically; fallback to preset roster
+    (async () => {
+        try {
+            if (!currentUserId || !currentTeamId) throw new Error('No user/team');
 
-window.onload = initializeApp;
+            const resp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/players`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!resp.ok) throw new Error('Failed to fetch players');
+            const d = await resp.json();
+            const players = d.players || [];
+
+            if (players.length === 0) throw new Error('No players returned');
+
+            players.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
+            players.forEach(p => addPlayerRow(p));
+        } catch (e) {
+            console.warn('Using preset roster:', e.message);
+            PRESET_ROSTER.forEach(name => addPlayerRow(name));
+        }
+    })();
+});
