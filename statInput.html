@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="statInput.css">
-    <link rel="icon" href="SiteIcon.png" type="image/png">
 </head>
 <body class="flex flex-col p-4 text-white relative">
 
@@ -62,6 +61,16 @@
                     <div class="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 inline-block">
                         <span class="text-gray-400 text-sm font-medium mr-2 uppercase tracking-wide">Team Score</span>
                         <span id="team-score-display" class="text-2xl font-black text-white">0</span>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/4">
+                    <label class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2 block ml-1">Match Result</label>
+                    <div class="flex items-center gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="team-won-checkbox" class="h-5 w-5 text-green-600 rounded focus:ring-green-500">
+                            <span class="text-sm font-medium text-gray-300">Team Won</span>
+                        </label>
                     </div>
                 </div>
             </div>
