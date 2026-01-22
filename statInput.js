@@ -213,6 +213,7 @@ async function submitMatch() {
     const date = dateInput.value;
     const comment = commentInput ? commentInput.value.trim() : '';
     const score = +teamScoreDisplay.textContent || 0;
+    const teamWon = document.getElementById('team-won-checkbox')?.checked || false;
     
     // Reset Error States
     let hasError = false;
@@ -269,7 +270,8 @@ async function submitMatch() {
         return;
     }
 
-    if (!confirm(`Submit match vs ${opponent} at ${location} on ${date}?\nTeam Score: ${score}`)) {
+    const resultText = teamWon ? 'WON' : 'LOST';
+    if (!confirm(`Submit match vs ${opponent} at ${location} on ${date}?\nTeam Score: ${score}\nResult: ${resultText}`)) {
         return;
     }
 
@@ -300,7 +302,9 @@ async function submitMatch() {
         password,
         opposingTeamName: opponent,
         date: date ? new Date(date + 'T12:00:00').getTime() : Date.now(),
-        comment: `Location: ${location}` + (comment ? `\n${comment}` : '') + `\nTeamScore:${score}`
+        comment: `Location: ${location}` + (comment ? `\n${comment}` : '') + `\nTeamScore:${score}`,
+        location: location,
+        teamWonMatch: teamWon
     };
 
     // POST match then PUT per-player games
@@ -322,9 +326,9 @@ async function submitMatch() {
 
         if (!matchId) throw new Error('No matchId returned from server');
 
-        // Update match (attach teamScore/comment) using returned matchId before per-player uploads
+        // Update match (attach location/teamScore/comment) using returned matchId before per-player uploads
         try {
-            const updatePayload = { password, comment: matchPayload.comment };
+            const updatePayload = { password, comment: matchPayload.comment, location: location, teamWonMatch: teamWon };
             const updateResp = await fetch(`${API_BASE}/users/${currentUserId}/teams/${currentTeamId}/matches/${matchId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -333,7 +337,7 @@ async function submitMatch() {
 
             if (!updateResp.ok) {
                 const ut = await updateResp.text();
-                console.warn('Match update (attach comment/teamScore) failed:', updateResp.status, ut);
+                console.warn('Match update (attach location/comment/teamWonMatch) failed:', updateResp.status, ut);
             }
         } catch (uErr) {
             console.warn('Match update request failed:', uErr);
