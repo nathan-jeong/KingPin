@@ -94,11 +94,10 @@ input[type="date"] {
 
 /* Bowling Ball Spinner */
 .bowling-ball-spinner {
-    font-size: 80px;
     margin: 0 auto;
-    animation: spin 1s linear infinite;
+    animation: spin 1.2s linear infinite;
     display: inline-block;
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
 }
 
 @keyframes spin {
