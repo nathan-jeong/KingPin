@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match View - Navigation Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 0.5rem;
+            color: white;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-btn:hover {
+            background-color: #222222;
+            border-color: #444444;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto relative">
+        <h1 class="text-center text-2xl font-bold text-white mb-8">Navigation Arrow Position Test</h1>
+        
+        <!-- BEFORE: Navigation arrows on same line as team name -->
+        <div class="mb-16 p-6 border border-yellow-500 rounded-lg">
+            <h3 class="text-yellow-500 font-bold mb-4 text-center">❌ OLD LAYOUT (Side by side - arrows shift with team name)</h3>
+            <div class="mb-10 flex flex-col items-center text-center">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">SAMPLE LEAGUE</h2>
+                
+                <div class="flex items-center gap-6 md:gap-12">
+                    <button class="nav-btn shadow-sm" title="Previous Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+
+                    <h1 class="text-3xl md:text-4xl font-black text-white leading-tight">
+                        vs. Short Name
+                    </h1>
+
+                    <button class="nav-btn shadow-sm" title="Next Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-10 flex flex-col items-center text-center">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">SAMPLE LEAGUE</h2>
+                
+                <div class="flex items-center gap-6 md:gap-12">
+                    <button class="nav-btn shadow-sm" title="Previous Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+
+                    <h1 class="text-3xl md:text-4xl font-black text-white leading-tight">
+                        vs. The Opponents With A Very Long Team Name
+                    </h1>
+
+                    <button class="nav-btn shadow-sm" title="Next Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AFTER: Navigation arrows above team name with fixed width -->
+        <div class="p-6 border border-green-500 rounded-lg">
+            <h3 class="text-green-500 font-bold mb-4 text-center">✅ NEW LAYOUT (Arrows above - fixed position regardless of team name)</h3>
+            <div class="mb-10 flex flex-col items-center text-center">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">SAMPLE LEAGUE</h2>
+                
+                <!-- Navigation arrows in their own row with fixed width -->
+                <div class="flex items-center justify-center gap-6 mb-4" style="width: 200px;">
+                    <button class="nav-btn shadow-sm" title="Previous Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    
+                    <button class="nav-btn shadow-sm" title="Next Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+                
+                <!-- Team name on its own row below -->
+                <h1 class="text-3xl md:text-4xl font-black text-white leading-tight">
+                    vs. Short Name
+                </h1>
+            </div>
+            
+            <div class="mb-10 flex flex-col items-center text-center">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">SAMPLE LEAGUE</h2>
+                
+                <!-- Navigation arrows in their own row with fixed width -->
+                <div class="flex items-center justify-center gap-6 mb-4" style="width: 200px;">
+                    <button class="nav-btn shadow-sm" title="Previous Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    
+                    <button class="nav-btn shadow-sm" title="Next Match">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+                
+                <!-- Team name on its own row below -->
+                <h1 class="text-3xl md:text-4xl font-black text-white leading-tight">
+                    vs. The Opponents With A Very Long Team Name
+                </h1>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
