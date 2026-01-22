@@ -624,6 +624,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ------------------------------------------------------------------
+// KONAMI CODE EASTER EGG
+// ------------------------------------------------------------------
+
+(function() {
+    const konamiCode = [
+        'ArrowUp', 'ArrowUp', 
+        'ArrowDown', 'ArrowDown', 
+        'ArrowLeft', 'ArrowRight', 
+        'ArrowLeft', 'ArrowRight', 
+        'KeyB', 'KeyA'
+    ];
+    let konamiIndex = 0;
+    let konamiTimeout = null;
+
+    function resetKonami() {
+        konamiIndex = 0;
+        if (konamiTimeout) {
+            clearTimeout(konamiTimeout);
+            konamiTimeout = null;
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        // Clear the timeout and restart it
+        if (konamiTimeout) clearTimeout(konamiTimeout);
+        konamiTimeout = setTimeout(resetKonami, 2000);
+
+        // Check if the pressed key matches the expected key in sequence
+        if (e.code === konamiCode[konamiIndex]) {
+            konamiIndex++;
+            
+            // If complete sequence entered, go to secret page
+            if (konamiIndex === konamiCode.length) {
+                resetKonami();
+                window.location.href = 'secret.html';
+            }
+        } else {
+            // Wrong key pressed, reset
+            resetKonami();
+        }
+    });
+})();
+
 // Build Excel-compatible HTML that mimics the sample workbook layout/colors/merges
 function buildExcelHtml(players, matches, title) {
     const sortedMatches = (matches || []).slice().sort((a,b) => {
