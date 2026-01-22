@@ -37,6 +37,28 @@ async function displayTeamCode() {
     }
 }
 
+// Display team record (wins/losses) from matches
+function displayTeamRecord(matches) {
+    if (!Array.isArray(matches)) matches = [];
+    
+    let wins = 0;
+    let losses = 0;
+    
+    matches.forEach(m => {
+        if (m.teamWonMatch === true) {
+            wins++;
+        } else if (m.teamWonMatch === false) {
+            losses++;
+        }
+    });
+    
+    const winsDisplay = document.getElementById('team-wins');
+    const lossesDisplay = document.getElementById('team-losses');
+    
+    if (winsDisplay) winsDisplay.textContent = wins;
+    if (lossesDisplay) lossesDisplay.textContent = losses;
+}
+
 // 1. Sidebar Toggle Logic
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
@@ -58,6 +80,10 @@ async function fetchAndDisplayAwards() {
         const team = data.team || data;
         renderAwardsList(team.awardsList || []);
         displayTeamCode();
+        // Also display team record from cached matches
+        if (cachedMatches.length > 0) {
+            displayTeamRecord(cachedMatches);
+        }
     } catch (error) {
         console.error('Error fetching awards:', error);
         displayEmptyAwards();
@@ -181,6 +207,7 @@ async function loadTeamData() {
         renderTopScorers(cachedPlayerStats);
         populateLocationFilter();
         renderMatchList();
+        displayTeamRecord(cachedMatches);
     } catch (err) { console.error("Load Failed", err); }
 }
 
@@ -214,8 +241,8 @@ function buildMatchSummaries(matches) {
                 if (p?.games) Object.values(p.games).forEach(g => { wood += (g.Wood || g.Score || 0); });
             });
         }
-        // Get win/loss status: if teamWonMatch is null, default to "W"
-        const result = m.teamWonMatch === false ? 'L' : 'W';
+        // Get win/loss status: true = W, false = L, undefined/null = -
+        const result = m.teamWonMatch === true ? 'W' : (m.teamWonMatch === false ? 'L' : '-');
         
         return { 
             matchId: m.matchId || m.id, 
@@ -413,7 +440,7 @@ function renderMatchList() {
             <div class="match-meta">
                 <span class="match-pill">${m.displayDate}</span>
                 <span class="match-pill">Wood: ${m.totalWood}</span>
-                <span class="match-pill" style="font-weight: bold; color: ${m.result === 'W' ? '#4CAF50' : '#F44336'};">${m.result}</span>
+                <span class="match-pill" style="font-weight: bold; color: ${m.result === 'W' ? '#4CAF50' : (m.result === 'L' ? '#F44336' : '#999999')};">${m.result}</span>
             </div>
         `;
         list.appendChild(row);
