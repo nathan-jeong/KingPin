@@ -136,6 +136,43 @@ function updateMatchHeader(match, matchDetails) {
     // Update location
     const location = parseLocation(fullMatch.comment);
     document.getElementById('match-location-display').textContent = location;
+    
+    // Display Win/Loss Badge
+    const resultBadge = document.getElementById('match-result-badge');
+    const resultBadgeContent = document.getElementById('result-badge-content');
+    if (resultBadge && resultBadgeContent) {
+        if (fullMatch.teamWonMatch === true) {
+            resultBadge.classList.remove('hidden');
+            resultBadgeContent.textContent = 'WIN';
+            resultBadgeContent.className = 'px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-green-600/20 text-green-400 border border-green-600/50';
+        } else if (fullMatch.teamWonMatch === false) {
+            resultBadge.classList.remove('hidden');
+            resultBadgeContent.textContent = 'LOSS';
+            resultBadgeContent.className = 'px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-red-600/20 text-red-400 border border-red-600/50';
+        } else {
+            resultBadge.classList.add('hidden');
+        }
+    }
+    
+    // Display Comments (excluding Location line)
+    const commentsSection = document.getElementById('match-comments-section');
+    const commentsContent = document.getElementById('match-comments-content');
+    if (commentsSection && commentsContent && fullMatch.comment) {
+        // Remove the Location line and TeamScore line from display
+        let displayComment = fullMatch.comment
+            .replace(/Location:\s*[^\n]+\n?/gi, '')
+            .replace(/TeamScore:\s*\d+\n?/gi, '')
+            .trim();
+        
+        if (displayComment) {
+            commentsSection.classList.remove('hidden');
+            commentsContent.textContent = displayComment;
+        } else {
+            commentsSection.classList.add('hidden');
+        }
+    } else if (commentsSection) {
+        commentsSection.classList.add('hidden');
+    }
 }
 
 async function renderPlayerStats(matchDetails, players) {
@@ -145,6 +182,11 @@ async function renderPlayerStats(matchDetails, players) {
     tbody.innerHTML = '';
     let teamTotal = 0;
     let totalGames = 0;
+    
+    // Track game totals for averages
+    let game1Total = 0, game1Count = 0;
+    let game2Total = 0, game2Count = 0;
+    let game3Total = 0, game3Count = 0;
 
     // Create player lookup
     const playerLookup = {};
@@ -168,6 +210,11 @@ async function renderPlayerStats(matchDetails, players) {
         const game1 = games['1'] && typeof games['1'].Score === 'number' ? games['1'].Score : 0;
         const game2 = games['2'] && typeof games['2'].Score === 'number' ? games['2'].Score : 0;
         const game3 = games['3'] && typeof games['3'].Score === 'number' ? games['3'].Score : 0;
+        
+        // Accumulate game totals for averages
+        if (game1 > 0) { game1Total += game1; game1Count++; }
+        if (game2 > 0) { game2Total += game2; game2Count++; }
+        if (game3 > 0) { game3Total += game3; game3Count++; }
         
         const series = game1 + game2 + game3;
         const gamesCount = (game1 > 0 ? 1 : 0) + (game2 > 0 ? 1 : 0) + (game3 > 0 ? 1 : 0);
@@ -193,6 +240,15 @@ async function renderPlayerStats(matchDetails, players) {
         `;
         tbody.appendChild(row);
     });
+
+    // Update game averages
+    const game1Avg = game1Count > 0 ? (game1Total / game1Count).toFixed(1) : '0.0';
+    const game2Avg = game2Count > 0 ? (game2Total / game2Count).toFixed(1) : '0.0';
+    const game3Avg = game3Count > 0 ? (game3Total / game3Count).toFixed(1) : '0.0';
+    
+    document.getElementById('game1-avg').textContent = game1Avg;
+    document.getElementById('game2-avg').textContent = game2Avg;
+    document.getElementById('game3-avg').textContent = game3Avg;
 
     // Update totals
     document.getElementById('match-total-display').textContent = teamTotal;
