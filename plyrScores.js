@@ -48,7 +48,7 @@ function renderMatches() {
 
     sorted.forEach((match, index) => {
         const isEven = index % 2 === 0;
-        const bgColor = isEven ? 'bg-white dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-700';
+        const bgColor = isEven ? 'bg-black' : 'bg-gray-900';
         const dateLabel = formatDate(match.date);
 
         const row = document.createElement('div');
@@ -76,7 +76,7 @@ function renderMatches() {
         const desktopView = `
             <div class="hidden sm:grid grid-cols-12 gap-2 items-center text-sm">
                 <div class="col-span-4 font-medium truncate">
-                    <span class="text-black dark:text-black">${match.name}</span>${varsityBadge}
+                    <span class="text-white">${match.name}</span>${varsityBadge}
                 </div>
                 <div class="col-span-1 text-center">
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
