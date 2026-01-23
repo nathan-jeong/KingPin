@@ -3,7 +3,77 @@
 const API_BASE_URL = 'https://kingpin-backend-production.up.railway.app';
 
 /**
- * Fetches the list of teams from a backend API.
+ * Calculates wins and losses from matches (same logic as dashboard)
+ */
+function calculateTeamRecord(matches) {
+    if (!Array.isArray(matches)) matches = [];
+    
+    let wins = 0;
+    let losses = 0;
+    
+    matches.forEach(m => {
+        if (m.teamWonMatch === true) {
+            wins++;
+        } else if (m.teamWonMatch === false) {
+            losses++;
+        }
+    });
+    
+    return { wins, losses };
+}
+
+/**
+ * Fetches matches for a specific team
+ */
+async function fetchTeamMatches(userId, teamId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams/${teamId}/matches`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn(`Could not fetch matches for team ${teamId}`);
+            return [];
+        }
+        
+        const data = await response.json();
+        return data.matches || [];
+    } catch (error) {
+        console.error(`Error fetching matches for team ${teamId}:`, error);
+        return [];
+    }
+}
+
+/**
+ * Fetches full team details including code
+ */
+async function fetchTeamDetails(userId, teamId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/teams/${teamId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn(`Could not fetch details for team ${teamId}`);
+            return {};
+        }
+        
+        const data = await response.json();
+        return data.team || data;
+    } catch (error) {
+        console.error(`Error fetching team details for team ${teamId}:`, error);
+        return {};
+    }
+}
+
+/**
+ * Fetches the list of teams from a backend API and calculates their records.
  */
 async function fetchTeamsFromBackend() {
     console.log("Fetching teams from backend...");
@@ -29,14 +99,48 @@ async function fetchTeamsFromBackend() {
         const teamsData = await response.json();
         console.log("Teams fetched successfully:", teamsData);
         
+        let teams = [];
         if (teamsData.teams && Array.isArray(teamsData.teams)) {
-            return teamsData.teams;
+            teams = teamsData.teams;
+        } else if (Array.isArray(teamsData)) {
+            teams = teamsData;
+        } else {
+            console.warn("Response is not in expected format:", teamsData);
+            return [];
         }
-        if (Array.isArray(teamsData)) {
-            return teamsData;
+
+        console.log(`Found ${teams.length} teams, now fetching details and matches for each...`);
+
+        // For each team, fetch full details and matches to get code and record
+        for (let team of teams) {
+            try {
+                const [teamDetails, matches] = await Promise.all([
+                    fetchTeamDetails(userId, team.teamId),
+                    fetchTeamMatches(userId, team.teamId)
+                ]);
+                
+                // Merge team details (includes code)
+                if (teamDetails && typeof teamDetails === 'object') {
+                    Object.assign(team, teamDetails);
+                }
+                
+                // Calculate record
+                const record = calculateTeamRecord(matches);
+                team.wins = record.wins;
+                team.losses = record.losses;
+                
+                console.log(`Loaded team ${team.displayName}: ${team.wins}-${team.losses}, code: ${team.code || 'N/A'}`);
+            } catch (err) {
+                console.error(`Failed to load details for team ${team.teamId}:`, err);
+                // Set defaults if fetch fails
+                team.wins = team.wins || 0;
+                team.losses = team.losses || 0;
+                team.code = team.code || 'N/A';
+            }
         }
-        console.warn("Response is not in expected format:", teamsData);
-        return [];
+
+        console.log("All teams loaded:", teams);
+        return teams;
 
     } catch (error) {
         console.error("Could not fetch teams:", error);
@@ -109,6 +213,7 @@ function renderTeams(currentTeams) {
                 <p class="text-sm text-gray-500 mt-2">Click 'Create New League/Team' to start.</p>
             </div>
         `;
+        return;
     } 
     
     currentTeams.forEach(team => {
@@ -121,11 +226,17 @@ function renderTeams(currentTeams) {
         card.dataset.teamId = team.teamId;
         card.dataset.displayName = team.displayName || 'Untitled Team';
         
+        const wins = team.wins || 0;
+        const losses = team.losses || 0;
+        const teamCode = team.code || 'N/A';
+        
         card.innerHTML = `
             <button class="delete-team-btn absolute top-2 right-2 text-gray-500 hover:text-white font-bold text-2xl transition-colors z-10" aria-label="Delete team">
                 ×
             </button>
-            <p class="text-3xl font-semibold mb-2">${team.displayName || 'Untitled Team'}</p>
+            <p class="team-name text-3xl font-semibold mb-4">${team.displayName || 'Untitled Team'}</p>
+            <p class="text-lg text-gray-300 mb-2">Record: <span class="font-bold">${wins}-${losses}</span></p>
+            <p class="text-sm text-gray-400">Code: <span class="font-mono font-semibold">${teamCode}</span></p>
         `;
         scrollContainer.appendChild(card);
 
