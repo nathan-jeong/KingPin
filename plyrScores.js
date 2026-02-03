@@ -21,6 +21,7 @@ function isCountedScore(s) {
 function getSortValue(match, column) {
     switch (column) {
         case 'name': return (match.name || '').toLowerCase();
+        case 'location': return (match.location || '').toLowerCase();
         case 'date': return match.date || 0;
         case 'g1': return match.games[0] && match.games[0].Score != null ? match.games[0].Score : -1;
         case 'g2': return match.games[1] && match.games[1].Score != null ? match.games[1].Score : -1;
@@ -61,7 +62,7 @@ function renderMatches() {
                     <span class="font-semibold text-lg text-indigo-600 dark:text-indigo-400">${match.name}</span>${varsityBadge}
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">Date: ${dateLabel}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Date: ${dateLabel} • ${match.location || 'Unknown'}</div>
                 <div class="grid grid-cols-2 gap-y-1 text-sm items-center">
                     <div><span class="font-medium text-gray-500 dark:text-gray-400">Game Scores:</span> ${match.games.map(g=>g?g.Score:'-').join(', ')}</div>
                     <div class="flex items-center justify-end space-x-2">
@@ -75,13 +76,14 @@ function renderMatches() {
 
         const desktopView = `
             <div class="hidden sm:grid grid-cols-12 gap-2 items-center text-sm">
-                <div class="col-span-4 font-medium truncate">
+                <div class="col-span-3 font-medium truncate">
                     <span class="text-white">${match.name}</span>${varsityBadge}
                 </div>
+                <div class="col-span-2 truncate text-gray-400">${match.location || 'Unknown'}</div>
                 <div class="col-span-1 text-center">
                     <button data-match-id="${match.matchId}" class="view-comment-btn text-indigo-600 hover:text-indigo-700" aria-label="View comments">💬</button>
                 </div>
-                <div class="col-span-2 text-center">${dateLabel}</div>
+                <div class="col-span-1 text-center">${dateLabel}</div>
                 <div class="col-span-1 text-center">${match.games[0] && match.games[0].Score != null ? match.games[0].Score : '-'}</div>
                 <div class="col-span-1 text-center">${match.games[1] && match.games[1].Score != null ? match.games[1].Score : '-'}</div>
                 <div class="col-span-1 text-center">${match.games[2] && match.games[2].Score != null ? match.games[2].Score : '-'}</div>
@@ -253,6 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return {
                 matchId: m.matchId || m.id,
                 name: m.opposingTeamName || m.comment || ('Match ' + (m.matchId || m.id)),
+                location: m.location || 'Unknown',
                 date: m.date || null,
                 games,
                 seriesTotal,
@@ -294,6 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Sorting header listeners (desktop)
         const sortables = [
             { id: 'sort-name', col: 'name' },
+            { id: 'sort-location', col: 'location' },
             { id: 'sort-date', col: 'date' },
             { id: 'sort-g1', col: 'g1' },
             { id: 'sort-g2', col: 'g2' },
