@@ -215,22 +215,22 @@ async function loadTeamData() {
 function calculatePlayerAverages(players, matches) {
     const playerStats = {};
     players.forEach(p => {
-        playerStats[p.playerId] = { playerId: p.playerId, displayName: p.displayName, graduationYear: p.graduationYear, totalScore: 0, seriesPlayed: 0, average: 0 };
+        playerStats[p.playerId] = { playerId: p.playerId, displayName: p.displayName, graduationYear: p.graduationYear, totalScore: 0, seriesPlayed: 0, gamesPlayed: 0, average: 0 };
     });
     matches.forEach(m => {
         if (m.perPlayerData) {
             Object.keys(m.perPlayerData).forEach(pid => {
                 if (playerStats[pid] && m.perPlayerData[pid].games) {
-                    let sTotal = 0; let hasG = false;
+                    let sTotal = 0; let hasG = false; let gCount = 0;
                     Object.values(m.perPlayerData[pid].games).forEach(g => {
-                        if (isCountedScore(g?.Score)) { sTotal += g.Score; hasG = true; }
+                        if (isCountedScore(g?.Score)) { sTotal += g.Score; hasG = true; gCount++; }
                     });
-                    if (hasG) { playerStats[pid].totalScore += sTotal; playerStats[pid].seriesPlayed++; }
+                    if (hasG) { playerStats[pid].totalScore += sTotal; playerStats[pid].seriesPlayed++; playerStats[pid].gamesPlayed += gCount; }
                 }
             });
         }
     });
-    return Object.values(playerStats).map(s => { if (s.seriesPlayed > 0) s.average = s.totalScore / (s.seriesPlayed*3); return s; });
+    return Object.values(playerStats).map(s => { if (s.gamesPlayed > 0) s.average = s.totalScore / s.gamesPlayed; return s; });
 }
 
 function buildMatchSummaries(matches) {
@@ -291,6 +291,7 @@ function buildTeamCsv(players, matches) {
 
         let totalPins = 0;
         let seriesPlayed = 0;
+        let gamesPlayed = 0;
 
         sortedMatches.forEach(m => {
             let per = (m.perPlayerData && (m.perPlayerData[p.playerId] || m.perPlayerData[p.playerId])) || null;
@@ -304,17 +305,19 @@ function buildTeamCsv(players, matches) {
 
             let seriesSum = 0;
             let hasGame = false;
+            let gameCount = 0;
             for (let gi = 1; gi <= 3; gi++) {
                 const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
                 const score = g && typeof g.Score === 'number' ? g.Score : '';
                 const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
-                if (isCountedScore(score)) { hasGame = true; seriesSum += score; }
+                if (isCountedScore(score)) { hasGame = true; seriesSum += score; gameCount++; }
                 row.push(score, wood);
             }
             if (hasGame) {
                 row.push(seriesSum);
                 totalPins += seriesSum;
                 seriesPlayed += 1;
+                gamesPlayed += gameCount;
             } else {
                 row.push('');
             }
@@ -322,7 +325,7 @@ function buildTeamCsv(players, matches) {
 
         row.push(totalPins || '');
         row.push(seriesPlayed || '');
-        row.push(seriesPlayed > 0 ? (totalPins / seriesPlayed).toFixed(1) : '');
+        row.push(gamesPlayed > 0 ? (totalPins / gamesPlayed).toFixed(1) : '');
 
         rows.push(row);
     });
@@ -711,27 +714,27 @@ function buildExcelHtml(players, matches, title) {
         html += `<td class="namecol">${escapeHtml(p.displayName || '')}</td>`;
         html += `<td style="text-align:center">${p.graduationYear || ''}</td>`;
 
-        let totalPins = 0; let series = 0;
+        let totalPins = 0; let series = 0; let gamesPlayed = 0;
         sortedMatches.forEach(m => {
             let per = (m.perPlayerData && (m.perPlayerData[p.playerId] || m.perPlayerData[p.playerId])) || null;
             if (!per && m.perPlayerData) {
                 Object.values(m.perPlayerData).forEach(v => { if (!per && v && v.displayName === p.displayName) per = v; });
             }
 
-            let seriesSum = 0; let hasGame = false;
+            let seriesSum = 0; let hasGame = false; let gameCount = 0;
             for (let gi=1; gi<=3; gi++) {
                 const g = per && per.games && per.games[String(gi)] ? per.games[String(gi)] : null;
                 const score = g && typeof g.Score === 'number' ? g.Score : '';
                 const wood = g && typeof g.Wood === 'number' ? g.Wood : '';
-                if (isCountedScore(score)) { seriesSum += score; hasGame = true; }
+                if (isCountedScore(score)) { seriesSum += score; hasGame = true; gameCount++; }
                 html += `<td class="num">${wood}</td>`;
             }
-            if (hasGame) { html += `<td class="num">${seriesSum}</td>`; totalPins += seriesSum; series += 1; } else { html += `<td class="num"></td>`; }
+            if (hasGame) { html += `<td class="num">${seriesSum}</td>`; totalPins += seriesSum; series += 1; gamesPlayed += gameCount; } else { html += `<td class="num"></td>`; }
         });
 
         html += `<td class="num">${totalPins || ''}</td>`;
         html += `<td class="num">${series || ''}</td>`;
-        html += `<td class="num">${series>0 ? (totalPins/series).toFixed(1) : ''}</td>`;
+        html += `<td class="num">${gamesPlayed>0 ? (totalPins/gamesPlayed).toFixed(1) : ''}</td>`;
         html += `</tr>`;
     });
 
